@@ -1,0 +1,1999 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F5F4F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131116" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="دفتر العطور">
+<meta name="robots" content="noindex, nofollow">
+<title>دفتر العطور</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 80'%3E%3Crect x='25' y='3' width='14' height='10' rx='2.5' fill='%23A3561A'/%3E%3Crect x='29' y='13' width='6' height='7' fill='%23A3561A'/%3E%3Crect x='11' y='20' width='42' height='56' rx='11' fill='none' stroke='%23A3561A' stroke-width='5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@500;600;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
+<style>
+/* Layout: phone-first app shell. Sticky top bar with three tabs (perfumes / suppliers / market); perfume grid opens a detail page; every add/edit happens in one bottom sheet. Oud-amber accent on a cool violet-grey ground. */
+:root{
+  --bg:#F5F4F7; --surface:#FFFFFF; --sunk:#ECEAF0; --ink:#1D1922; --muted:#6A6373; --line:#E1DDE6;
+  --accent:#A3561A; --accent-ink:#FFFFFF; --accent-soft:#F5E7DA; --band:#E6C3A2;
+  --good:#1D774B; --good-soft:#E1F1E8; --warn:#8F6200; --warn-soft:#FAEFD3; --bad:#B0352E; --bad-soft:#F7E2DF;
+  --scrim:rgba(18,14,22,.46); --shadow:0 1px 2px rgba(29,25,34,.06),0 6px 20px rgba(29,25,34,.07);
+  --f-display:"Reem Kufi","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;
+  --r:14px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#131116; --surface:#1C1920; --sunk:#26222B; --ink:#F0ECF3; --muted:#A39BAB; --line:#312C37;
+  --accent:#E19A57; --accent-ink:#1B1209; --accent-soft:#36261A; --band:#6E4A2B;
+  --good:#5FC490; --good-soft:#163127; --warn:#E2B548; --warn-soft:#382D10; --bad:#EF7C72; --bad-soft:#3C1C1A;
+  --scrim:rgba(0,0,0,.6); --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.35);
+  color-scheme:dark;
+}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--bg);color:var(--ink);margin:0}
+body{font-family:var(--f-body);font-size:15px;line-height:1.55;-webkit-tap-highlight-color:transparent;min-height:100vh;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+img{max-width:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.num{font-variant-numeric:tabular-nums}
+.cur{font-size:.72em;font-weight:500;color:var(--muted);margin-inline-start:3px}
+.muted{color:var(--muted)}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ic{width:18px;height:18px;flex:none}
+
+.wrap{max-width:1040px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* top bar */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:12px;min-height:64px}
+.brand{display:flex;flex-direction:column;line-height:1.2;min-width:0}
+.brand b{font-family:var(--f-display);font-weight:600;font-size:22px;letter-spacing:.01em;display:flex;align-items:center;gap:8px}
+.brand span{font-size:12px;color:var(--muted)}
+.live{width:8px;height:8px;border-radius:50%;background:var(--muted);opacity:.5;flex:none}
+.live.on{background:var(--good);opacity:1}
+.tabs{display:flex;background:var(--sunk);border-radius:11px;padding:3px;gap:2px}
+.tabs button{border:0;background:transparent;padding:7px 14px;border-radius:9px;font-weight:600;font-size:14px;color:var(--muted);min-height:36px}
+.tabs button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.backbtn{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;font-weight:600;padding:8px 4px;min-height:40px;color:var(--ink)}
+.bar-title{font-family:var(--f-display);font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;text-align:center}
+.bar-spacer{width:64px;flex:none}
+
+main{padding-block:16px 128px}
+.view{display:grid;gap:14px}
+
+/* toolbar */
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.search{position:relative;flex:1 1 170px;min-width:0}
+.search .ic{position:absolute;inset-inline-start:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.inp,.search input,select.inp,textarea.inp{width:100%;min-height:44px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.search input{padding-inline-start:40px}
+.inp:focus,.search input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.tools select.inp{width:auto;flex:0 0 auto}
+textarea.inp{min-height:84px;resize:vertical}
+.sum{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
+.sum b{color:var(--ink);font-weight:600}
+.sum .xbtn{margin-inline-start:auto}
+.xbtn .ic{color:var(--good)}
+
+/* perfume grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:12px}
+.pcard{display:flex;flex-direction:column;text-align:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;padding:0;transition:border-color .15s,transform .15s}
+.pcard:hover{border-color:var(--band)}
+.pcard:active{transform:scale(.985)}
+.pimg{aspect-ratio:1/1;max-width:100%;background:var(--surface);display:grid;place-items:center;border-bottom:1px solid var(--line);overflow:hidden;color:var(--band)}
+.pimg img{width:100%;height:100%;object-fit:contain}
+.pimg .bottle{width:42%;height:auto}
+.pbody{display:grid;gap:3px;padding:10px 12px 12px;min-width:0}
+.pname{font-weight:600;font-size:15px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pmeta{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pprice{font-size:19px;font-weight:700;margin-top:4px}
+.pmkt{font-size:12px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+
+/* empty / notices / screens */
+.empty{display:grid;justify-items:center;text-align:center;gap:10px;padding:48px 12px;color:var(--muted)}
+.empty .bottle{width:64px;color:var(--band)}
+.empty h2{font-family:var(--f-display);font-weight:600;font-size:21px;color:var(--ink);margin:4px 0 0}
+.empty p{margin:0;max-width:36ch}
+.screen{min-height:100vh;display:grid;place-items:center;padding-block:32px}
+.card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px 20px;display:grid;gap:14px;box-shadow:var(--shadow)}
+.card .head{display:grid;justify-items:center;gap:6px;text-align:center}
+.card .head .bottle{width:44px;color:var(--accent)}
+.card h1{font-family:var(--f-display);font-weight:600;font-size:26px;margin:0}
+.card p{margin:0;color:var(--muted);font-size:14px;text-align:center}
+.card .f-err{color:var(--bad);text-align:start}
+.f-ok{color:var(--good);font-size:13px;font-weight:500;margin:0}
+.card .f-ok{color:var(--good);text-align:start}
+.notice{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:var(--accent-soft);border-radius:12px;padding:10px 14px;font-size:14px;font-weight:500}
+.mem-acts{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.card code{font-size:13px;background:var(--sunk);padding:1px 6px;border-radius:6px;direction:ltr;unicode-bidi:isolate}
+.account{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 10px;font-size:13px;color:var(--muted);padding-top:20px}
+.account button{border:0;background:transparent;color:var(--accent);font-weight:600;padding:6px 4px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid transparent;border-radius:10px;padding:9px 14px;min-height:42px;font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:var(--surface);border-color:var(--line);color:var(--ink)}
+.btn.soft{background:var(--accent-soft);color:var(--accent)}
+.btn.danger{background:transparent;color:var(--bad);border-color:var(--bad-soft)}
+.btn.danger[data-armed]{background:var(--bad);color:var(--surface)}
+.btn.small{min-height:34px;padding:5px 11px;font-size:13px;border-radius:9px}
+.btn.wide{width:100%}
+.btn:disabled{opacity:.6;cursor:default}
+.icon-btn{display:inline-grid;place-items:center;width:38px;height:38px;border:0;border-radius:10px;background:transparent;color:var(--muted);flex:none}
+.icon-btn:hover{background:var(--sunk);color:var(--ink)}
+
+/* detail */
+.phero{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:20px;align-items:center}
+.phero-img{aspect-ratio:1/1;max-width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:grid;place-items:center;color:var(--band)}
+.phero-img img{width:100%;height:100%;object-fit:contain}
+.phero-img .bottle{width:34%}
+.phero-info{display:grid;gap:8px;align-content:center;min-width:0}
+.eyebrow{font-size:13px;color:var(--muted);letter-spacing:.02em}
+.ptitle{font-family:var(--f-display);font-weight:600;font-size:clamp(24px,5vw,32px);line-height:1.25;margin:0;text-wrap:balance;overflow-wrap:anywhere}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:13px;padding:3px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface)}
+.edited{font-size:12px;color:var(--muted)}
+.phero-info .btn,.shead .btn{justify-self:start;margin-top:4px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0}
+.sec-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.sec{font-family:var(--f-display);font-weight:600;font-size:18px;margin:0;display:flex;align-items:center;gap:8px}
+.count{font-family:var(--f-body);font-size:12px;font-weight:600;background:var(--sunk);color:var(--muted);border-radius:999px;padding:1px 8px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:10px}
+.stat{background:var(--bg);border-radius:11px;padding:10px 12px;display:grid;gap:2px;min-width:0}
+.stat .k{font-size:12px;color:var(--muted)}
+.stat .v{font-size:20px;font-weight:700;line-height:1.3}
+.stat .v.none{color:var(--muted);font-weight:500}
+.stat .s{font-size:12px;font-weight:600}
+.stat.hl{background:var(--accent-soft);grid-column:1/-1}
+.stat.hl .v{color:var(--accent)}
+.s.good{color:var(--good)} .s.warn{color:var(--warn)} .s.bad{color:var(--bad)}
+
+.market{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+.mk-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-size:13px;color:var(--muted)}
+.mk-head b{color:var(--ink);font-weight:600}
+.mk-track{position:relative;height:68px;margin-block:6px 2px}
+.mk-rail{position:absolute;inset-inline:0;top:31px;height:6px;border-radius:3px;background:var(--sunk)}
+.mk-band{position:absolute;top:31px;height:6px;border-radius:3px;background:var(--band)}
+.mk-dot{position:absolute;top:29px;width:10px;height:10px;margin-inline-start:-5px;border-radius:50%;background:var(--surface);border:2px solid var(--muted)}
+.mk-you{position:absolute;top:20px;height:28px;width:3px;margin-inline-start:-1.5px;border-radius:2px;background:var(--accent)}
+.mk-cost{position:absolute;top:26px;height:16px;width:2px;margin-inline-start:-1px;background:var(--ink)}
+.mk-lab{position:absolute;font-size:11px;font-weight:600;white-space:nowrap;transform:translateX(50%)}
+.mk-lab.top{top:0;color:var(--accent)}
+.mk-lab.bot{bottom:0;color:var(--muted)}
+.mk-say{margin:6px 0 0;font-size:14px;font-weight:500}
+.hint{margin:10px 0 0;font-size:13px;color:var(--muted)}
+
+.rows{display:grid}
+.row{display:flex;align-items:center;gap:10px;padding-block:10px;border-top:1px solid var(--line);min-width:0}
+.row:first-child{border-top:0}
+.r-main{flex:1;min-width:0;display:grid;gap:1px;text-align:start;border:0;background:transparent;padding:0}
+button.r-main{cursor:pointer}
+.r-name{font-weight:600;display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;overflow-wrap:anywhere}
+.r-sub{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.r-sub[dir="ltr"]{text-align:end}
+.r-price{font-weight:700;white-space:nowrap}
+.r-thumb{width:44px;height:44px;border-radius:9px;border:1px solid var(--line);background:var(--surface);overflow:hidden;display:grid;place-items:center;flex:none;color:var(--band)}
+.r-thumb img{width:100%;height:100%;object-fit:contain}
+.r-thumb .bottle{width:55%}
+.openlink{display:inline-flex;align-items:center;gap:4px;padding:6px 10px;border-radius:9px;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
+.openlink .ic{width:14px;height:14px}
+.r-empty{padding:12px 0 4px;color:var(--muted);font-size:14px;margin:0}
+.notes{white-space:pre-wrap;margin:6px 0 0;overflow-wrap:anywhere}
+
+/* suppliers */
+.slist{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.scard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:10px;min-width:0}
+.s-open{display:flex;align-items:center;justify-content:space-between;gap:10px;border:0;background:transparent;padding:0;text-align:start;width:100%}
+.s-open > div{min-width:0}
+.s-name{font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s-sub{font-size:13px;color:var(--muted)}
+.s-open .ic{color:var(--muted);transform:scaleX(-1)}
+.cbtns{display:flex;flex-wrap:wrap;gap:6px}
+.cbtn{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:13px;font-weight:500;text-decoration:none;color:var(--ink);min-height:34px}
+.cbtn .ic{width:15px;height:15px;color:var(--accent)}
+.clist{display:grid}
+.citem{display:flex;align-items:center;gap:10px;padding-block:10px;border-top:1px solid var(--line);min-width:0}
+.citem:first-child{border-top:0}
+.citem > .ic{color:var(--accent)}
+.citem .cv{flex:1;min-width:0;display:grid}
+.citem .ck{font-size:12px;color:var(--muted)}
+.citem .cval{font-weight:500;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text}
+.shead{display:grid;gap:4px}
+
+/* fab */
+.fab{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom,0px));left:max(16px,env(safe-area-inset-left,0px));z-index:20;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:14px 20px;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:15px;box-shadow:var(--shadow)}
+
+/* sheet */
+.layer{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.scrim{position:absolute;inset:0;background:var(--scrim);opacity:0;transition:opacity .2s}
+.sheet{position:relative;width:100%;max-width:560px;max-height:92%;background:var(--surface);border-radius:18px 18px 0 0;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .24s cubic-bezier(.2,.8,.2,1);box-shadow:var(--shadow)}
+.layer.open .scrim{opacity:1}
+.layer.open .sheet{transform:none}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-block:14px 6px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.sheet-head h2{font-family:var(--f-display);font-weight:600;font-size:20px;margin:0}
+.sheet-body{overflow:auto;display:grid;gap:12px;padding-block:6px 0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.field{display:grid;gap:5px;min-width:0}
+.f-label{font-size:13px;font-weight:600}
+.f-label i{font-style:normal;color:var(--bad)}
+.f-hint{font-size:12px;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.imgpick{display:flex;align-items:center;gap:14px}
+.imgpick-prev{width:88px;height:88px;flex:none;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden;display:grid;place-items:center;color:var(--band)}
+.imgpick-prev img{width:100%;height:100%;object-fit:contain}
+.imgpick-prev .bottle{width:50%}
+.imgpick-act{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.f-err{color:var(--bad);font-size:13px;font-weight:500;margin:0}
+.sheet-foot{position:sticky;bottom:0;background:var(--surface);display:flex;gap:8px;justify-content:space-between;padding-block:10px calc(14px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);margin-top:4px}
+.sheet-foot .primary{flex:1}
+
+.toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:11px;font-size:14px;font-weight:500;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
+
+/* market */
+.seg{display:flex;width:100%}
+.seg button{flex:1}
+.gcard{display:grid;gap:8px;text-align:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;min-width:0;width:100%}
+.gcard:hover{border-color:var(--band)}
+.g-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;min-width:0}
+.g-title{display:grid;min-width:0}
+.g-name{font-weight:600;font-size:16px;overflow-wrap:anywhere}
+.g-brand{font-size:13px;color:var(--muted)}
+.g-stats{display:flex;flex-wrap:wrap;gap:2px 14px;font-size:13px;color:var(--muted)}
+.g-stats b{color:var(--ink);font-weight:600}
+.chip.acc{background:var(--accent-soft);color:var(--accent)}
+.row.dim{opacity:.72}
+.sublabel{font-size:12px;color:var(--muted);font-weight:600;padding-top:12px;margin-top:4px;border-top:1px dashed var(--line)}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.mkbox{background:var(--accent-soft);border-radius:12px;padding:10px 12px;font-size:13px;display:grid;gap:4px}
+.mkbox b{font-weight:700}
+.mkbox ul{margin:2px 0 0;padding-inline-start:18px;display:grid;gap:2px}
+.mkbox .muted{font-size:12px}
+fieldset.field{border:0;margin:0;padding:0}
+fieldset.field legend{padding:0;margin-bottom:5px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{position:relative;display:inline-flex}
+.opt input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.opt span{display:inline-flex;align-items:center;min-height:36px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;user-select:none}
+.opt input:checked + span{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.opt input:focus-visible + span{outline:2px solid var(--accent);outline-offset:2px}
+.sug-wrap{position:relative}
+.sugg{position:absolute;inset-inline:0;top:100%;z-index:5;margin-top:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);max-height:240px;overflow-y:auto}
+.sugg button{display:grid;gap:1px;width:100%;text-align:start;border:0;border-top:1px solid var(--line);background:transparent;padding:9px 12px}
+.sugg button:first-child{border-top:0}
+.sugg button:hover,.sugg button:focus-visible{background:var(--sunk)}
+.sugg .sn{font-weight:600;font-size:14px}
+.sugg .ss{font-size:12px;color:var(--muted)}
+.foot-group{display:flex;gap:8px;flex:1;justify-content:flex-end}
+
+@media (min-width:720px){
+  .layer{align-items:center}
+  .sheet{border-radius:18px;max-height:86%}
+  .sheet-foot{padding-bottom:14px}
+}
+@media (max-width:640px){
+  .phero{grid-template-columns:minmax(0,1fr);gap:14px}
+  .phero-img{aspect-ratio:4/3}
+  .brand span{display:none}
+}
+@media (max-width:440px){ .bar .tabs button{padding:7px 9px;font-size:13px} .brand b{font-size:19px;gap:6px} .bar{gap:8px} }
+@media (max-width:380px){ .grid2{grid-template-columns:1fr} }
+@media (prefers-reduced-motion:reduce){ .sheet,.scrim,.pcard{transition:none} }
+</style>
+</head>
+<body>
+
+<!-- شاشة: الموقع ما انربط بقاعدة البيانات -->
+<div class="screen wrap" id="scrSetup" hidden>
+  <div class="card">
+    <div class="head"><svg class="bottle" viewBox="0 0 64 80" aria-hidden="true"><rect x="25" y="3" width="14" height="10" rx="2.5" fill="currentColor"/><rect x="29" y="13" width="6" height="7" fill="currentColor" opacity=".6"/><rect x="11" y="20" width="42" height="56" rx="11" fill="none" stroke="currentColor" stroke-width="3"/><rect x="20" y="40" width="24" height="15" rx="3" fill="currentColor" opacity=".45"/></svg><h1>دفتر العطور</h1></div>
+    <p>الموقع يحتاج يرتبط بقاعدة البيانات. افتح ملف <code>index.html</code> وحط رابط مشروع Supabase والمفتاح في <code>SUPABASE_URL</code> و<code>SUPABASE_KEY</code>.</p>
+  </div>
+</div>
+
+<!-- شاشة الدخول -->
+<div class="screen wrap" id="scrLogin" hidden>
+  <form class="card" id="loginForm" novalidate>
+    <div class="head"><svg class="bottle" viewBox="0 0 64 80" aria-hidden="true"><rect x="25" y="3" width="14" height="10" rx="2.5" fill="currentColor"/><rect x="29" y="13" width="6" height="7" fill="currentColor" opacity=".6"/><rect x="11" y="20" width="42" height="56" rx="11" fill="none" stroke="currentColor" stroke-width="3"/><rect x="20" y="40" width="24" height="15" rx="3" fill="currentColor" opacity=".45"/></svg><h1>دفتر العطور</h1></div>
+    <div class="tabs seg" role="group" aria-label="نوع الدخول">
+      <button type="button" id="lgModeIn" data-act="lg-mode" data-v="in" aria-pressed="true">دخول</button>
+      <button type="button" id="lgModeUp" data-act="lg-mode" data-v="up" aria-pressed="false">حساب جديد</button>
+    </div>
+    <p id="lg_intro">سجّل دخولك عشان تشوف العطور والموردين.</p>
+    <label class="field" for="lg_email"><span class="f-label">الإيميل</span><input class="inp" id="lg_email" name="email" type="email" inputmode="email" autocomplete="username" dir="ltr" required></label>
+    <label class="field" for="lg_pass"><span class="f-label">كلمة المرور</span><input class="inp" id="lg_pass" name="password" type="password" autocomplete="current-password" dir="ltr" required></label>
+    <label class="field" for="lg_pass2" id="lg_pass2_w" hidden><span class="f-label">أعد كلمة المرور</span><input class="inp" id="lg_pass2" name="password2" type="password" autocomplete="new-password" dir="ltr"></label>
+    <p class="f-err" id="lg_err" hidden></p>
+    <p class="f-ok" id="lg_ok" hidden></p>
+    <button type="submit" class="btn primary wide" id="lg_btn">دخول</button>
+  </form>
+</div>
+
+<!-- شاشة: الحساب بانتظار الموافقة أو موقوف -->
+<div class="screen wrap" id="scrPending" hidden>
+  <div class="card">
+    <div class="head"><svg class="bottle" viewBox="0 0 64 80" aria-hidden="true"><rect x="25" y="3" width="14" height="10" rx="2.5" fill="currentColor"/><rect x="29" y="13" width="6" height="7" fill="currentColor" opacity=".6"/><rect x="11" y="20" width="42" height="56" rx="11" fill="none" stroke="currentColor" stroke-width="3"/><rect x="20" y="40" width="24" height="15" rx="3" fill="currentColor" opacity=".45"/></svg><h1 id="pd_title">طلبك وصل</h1></div>
+    <p id="pd_text"></p>
+    <button type="button" class="btn primary wide" data-act="pd-check" id="pd_check">تحقق الآن</button>
+    <button type="button" class="btn ghost wide" data-act="logout">تسجيل الخروج</button>
+  </div>
+</div>
+
+<div id="appShell" hidden>
+  <header class="topbar">
+    <div class="wrap">
+      <div class="bar" id="tabsBar">
+        <div class="brand"><b>دفتر العطور<span class="live" id="liveDot" title="غير متصل"></span></b><span>أسعار السوق والموردين</span></div>
+        <div class="tabs" role="group" aria-label="الأقسام">
+          <button type="button" id="tabP" data-act="tab" data-v="list" aria-pressed="true">العطور</button>
+          <button type="button" id="tabS" data-act="tab" data-v="suppliers" aria-pressed="false">الموردين</button>
+          <button type="button" id="tabM" data-act="tab" data-v="market" aria-pressed="false">السوق</button>
+        </div>
+      </div>
+      <div class="bar" id="backBar" hidden>
+        <button type="button" class="backbtn" data-act="back"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>رجوع</button>
+        <div class="bar-title" id="barTitle"></div>
+        <div class="bar-spacer"></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="view" id="v-list">
+      <div class="tools" id="listTools" hidden>
+        <label class="search"><span class="vh">بحث في العطور</span>
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input id="q" type="search" placeholder="ابحث باسم العطر أو الماركة أو المتجر" autocomplete="off">
+        </label>
+        <select id="sort" class="inp" aria-label="الترتيب">
+          <option value="new">الأحدث</option>
+          <option value="name">الاسم</option>
+          <option value="mhigh">الأعلى ربحًا</option>
+          <option value="mlow">الأقل ربحًا</option>
+          <option value="price">السعر</option>
+        </select>
+      </div>
+      <div class="sum" id="listSum"></div>
+      <div id="listBody"><div class="empty"><p>جاري تحميل العطور…</p></div></div>
+    </section>
+
+    <section class="view" id="v-perfume" hidden></section>
+
+    <section class="view" id="v-suppliers" hidden>
+      <div class="tools" id="supTools" hidden>
+        <label class="search"><span class="vh">بحث في الموردين</span>
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input id="sq" type="search" placeholder="ابحث باسم المورد أو المدينة" autocomplete="off">
+        </label>
+      </div>
+      <div id="supBody"><div class="empty"><p>جاري تحميل الموردين…</p></div></div>
+    </section>
+
+    <section class="view" id="v-supplier" hidden></section>
+
+    <section class="view" id="v-market" hidden>
+      <div class="tabs seg" role="group" aria-label="دراسة السوق">
+        <button type="button" id="mSegI" data-act="msub" data-v="items" aria-pressed="true">العطور المرصودة</button>
+        <button type="button" id="mSegS" data-act="msub" data-v="shops" aria-pressed="false">المحلات</button>
+      </div>
+      <div class="tools" id="mTools" hidden>
+        <label class="search"><span class="vh">بحث في السوق</span>
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input id="mq" type="search" placeholder="ابحث باسم العطر أو الماركة" autocomplete="off">
+        </label>
+        <select id="msort" class="inp" aria-label="ترتيب العطور المرصودة">
+          <option value="seen">الأكثر ظهورًا</option>
+          <option value="demand">الأكثر مشيًا</option>
+          <option value="new">الأحدث رصدًا</option>
+          <option value="name">الاسم</option>
+        </select>
+      </div>
+      <div class="sum" id="mSum"></div>
+      <div id="mBody"><div class="empty"><p>جاري تحميل السوق…</p></div></div>
+    </section>
+
+    <section class="view" id="v-group" hidden></section>
+    <section class="view" id="v-shop" hidden></section>
+
+    <section class="view" id="v-team" hidden></section>
+
+    <div class="account" id="account" hidden><span>داخل باسم <bdi id="acctEmail" dir="ltr"></bdi></span><button type="button" data-act="team" id="acctTeam" hidden>الفريق</button><button type="button" data-act="logout">تسجيل الخروج</button></div>
+  </main>
+
+  <button type="button" class="fab" id="fab" data-act="fab" hidden>
+    <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+    <span id="fabLabel">عطر جديد</span>
+  </button>
+</div>
+
+<div class="layer" id="layer" hidden>
+  <div class="scrim" data-act="close"></div>
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <header class="sheet-head">
+      <h2 id="sheetTitle"></h2>
+      <button type="button" class="icon-btn" data-act="close" aria-label="إغلاق"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+    </header>
+    <form class="sheet-body" id="sheetForm" novalidate></form>
+  </section>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+<datalist id="dlSizes"><option value="30"><option value="50"><option value="75"><option value="90"><option value="100"><option value="125"><option value="150"><option value="200"></datalist>
+
+<script>
+/* ============================================================
+   ✏️ الإعداد: حط رابط مشروع Supabase والمفتاح هنا
+   (Project Settings ← API Keys: الرابط + المفتاح العام publishable أو anon)
+   ============================================================ */
+const SUPABASE_URL = "https://qwkqtqyzfiebfpnefflf.supabase.co";
+const SUPABASE_KEY = "sb_publishable_0RSo4Ik_wHU-C8vjlfTfVg_DuBX3CC7";
+const BUCKET = "perfume-images";
+
+(() => {
+"use strict";
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const nf = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
+const fmt = n => nf.format(Math.round(n * 100) / 100);
+const pct = n => (Math.round(n * 10) / 10).toString();
+const pctH = n => `<bdi dir="ltr" class="num">${pct(n)}%</bdi>`;
+const range = (a, b) => a === b ? fmt(a) : fmt(a) + "–" + fmt(b);
+const rangeH = (a, b) => `<bdi dir="ltr" class="num">${range(a, b)}</bdi>`;
+const SAR = '<span class="cur">ر.س</span>';
+const money = v => v == null ? '—' : `<span class="num">${fmt(v)}</span>${SAR}`;
+const arDigits = s => String(s ?? "").replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
+const toNum = v => {
+  if (typeof v === "number") return isFinite(v) && v > 0 ? v : null;
+  const s = arDigits(v).trim().replace("٫", ".").replace(/[,،\s]/g, "");
+  if (!s) return null;
+  const n = parseFloat(s);
+  return isFinite(n) && n > 0 ? n : null;
+};
+// اسم موحّد للمطابقة: حروف صغيرة، بدون تشكيل ورموز، وتوحيد الهمزات
+const norm = s => String(s || "").toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "")
+  .replace(/[ً-ٰٟـ]/g, "").replace(/[أإآ]/g, "ا").replace(/ى/g, "ي").replace(/ة/g, "ه")
+  .replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+const uid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+const ls = { get(k){ try { return localStorage.getItem("pb_" + k); } catch { return null; } }, set(k, v){ try { localStorage.setItem("pb_" + k, v); } catch {} } };
+
+const PACK = ["أصلي مختوم", "تستر", "تقسيم", "تعبئة (مستوحى)", "زيت"];
+const DEMAND = { high: "ماشي بقوة", mid: "متوسط", low: "ضعيف" };
+const DCLS = { high: "good", mid: "warn", low: "" };
+const KIND = { store: "محل", online: "أونلاين", both: "محل وأونلاين" };
+const CONC = ["Parfum", "Extrait de Parfum", "EDP", "EDT", "EDC", "زيت عطري", "أخرى"];
+
+const I = {
+  ext: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  edit: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M13.5 6.5l4 4" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  plus: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+  phone: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3h3l1.5 4.5-2 1.5a11 11 0 0 0 6 6l1.5-2L21 14.5v3A2.5 2.5 0 0 1 18.5 20 15.5 15.5 0 0 1 4 5.5 2.5 2.5 0 0 1 6.5 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  chat: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1 1 8.5 19z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  pin: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="9" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  link: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  mail: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 7l9 6 9-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  copy: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  chev: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  sheet: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 9h18M3 14.5h18M9 9v11" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  globe: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" fill="none" stroke="currentColor" stroke-width="2"/></svg>'
+};
+const bottle = () => '<svg class="bottle" viewBox="0 0 64 80" aria-hidden="true"><rect x="25" y="3" width="14" height="10" rx="2.5" fill="currentColor"/><rect x="29" y="13" width="6" height="7" fill="currentColor" opacity=".6"/><rect x="11" y="20" width="42" height="56" rx="11" fill="none" stroke="currentColor" stroke-width="3"/><rect x="20" y="40" width="24" height="15" rx="3" fill="currentColor" opacity=".45"/></svg>';
+
+/* ---------- screens ---------- */
+const SCREENS = { setup: "#scrSetup", login: "#scrLogin", pending: "#scrPending", app: "#appShell" };
+function showScreen(name){ for (const k in SCREENS) $(SCREENS[k]).hidden = k !== name; }
+
+const configured = /^https:\/\/.+/.test(SUPABASE_URL) && SUPABASE_KEY.length > 20 && !/PASTE_/.test(SUPABASE_KEY);
+if (!configured || !window.supabase) { showScreen("setup"); return; }
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+const imgUrl = path => sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+const imgTag = p => p && p.image ? `<img src="${esc(imgUrl(p.image))}" alt="" loading="lazy" data-fb="1">` : bottle();
+document.addEventListener("error", e => {
+  const t = e.target;
+  if (t && t.tagName === "IMG" && t.dataset && t.dataset.fb) { const span = document.createElement("span"); span.innerHTML = bottle(); t.replaceWith(span.firstChild); }
+}, true);
+
+const S = {
+  user: null, member: null, members: [], channel: null, live: false,
+  perfumes: [], suppliers: [], shops: [], items: [], groups: new Map(), loaded: false,
+  view: "list", id: null, stack: [], scroll: {},
+  q: "", sq: "", mq: "", sort: ls.get("sort") || "new", msort: ls.get("msort") || "seen", msub: "items",
+  lastShop: ls.get("lastShop") || ""
+};
+$("#sort").value = S.sort;
+$("#msort").value = S.msort;
+
+/* ---------- lookups ---------- */
+const supById = id => S.suppliers.find(s => s.id === id);
+const perfById = id => S.perfumes.find(p => p.id === id);
+const shopById = id => S.shops.find(s => s.id === id);
+const perfumesOf = sid => S.perfumes.filter(p => (p.suppliers || []).some(l => l.id === sid));
+const itemsOfShop = sid => S.items.filter(i => i.shopId === sid);
+const perMlOf = i => { const p = toNum(i.price), z = toNum(i.size); return p != null && z ? p / z : null; };
+const avg = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+const placesTxt = n => n === 1 ? "مكان واحد" : n === 2 ? "مكانين" : `${n} ${n <= 10 ? "أماكن" : "مكان"}`;
+
+function buildGroups(){
+  const m = new Map();
+  for (const it of S.items) {
+    const k = norm(it.name); if (!k) continue;
+    let g = m.get(k);
+    if (!g) { g = { key: k, items: [], nameCount: {}, brandCount: {} }; m.set(k, g); }
+    g.items.push(it);
+    g.nameCount[it.name] = (g.nameCount[it.name] || 0) + 1;
+    if (it.brand) g.brandCount[it.brand] = (g.brandCount[it.brand] || 0) + 1;
+  }
+  const top = o => { const e = Object.entries(o).sort((a, b) => b[1] - a[1])[0]; return e ? e[0] : ""; };
+  for (const g of m.values()) {
+    g.name = top(g.nameCount); g.brand = top(g.brandCount);
+    g.places = new Set(g.items.map(i => i.shopId)).size;
+    g.high = g.items.filter(i => i.demand === "high").length;
+    g.mid = g.items.filter(i => i.demand === "mid").length;
+    g.low = g.items.filter(i => i.demand === "low").length;
+    g.score = g.high * 2 + g.mid - g.low * 0.5;
+    g.last = g.items.reduce((m, i) => (i.seenOn || "") > m ? i.seenOn : m, "");
+    const pm = g.items.map(perMlOf).filter(v => v != null);
+    g.pmMin = pm.length ? Math.min(...pm) : null; g.pmMax = pm.length ? Math.max(...pm) : null;
+    const combos = {};
+    for (const i of g.items) { const ck = (toNum(i.size) || "") + "|" + i.packaging; (combos[ck] = combos[ck] || []).push(i); }
+    g.combos = Object.entries(combos).map(([ck, arr]) => {
+      const [sz, pk] = ck.split("|");
+      const pr = arr.map(i => toNum(i.price)).filter(v => v != null);
+      return { size: sz ? +sz : null, pack: pk, items: arr, n: arr.length, min: pr.length ? Math.min(...pr) : null, max: pr.length ? Math.max(...pr) : null, avg: avg(pr) };
+    }).sort((a, b) => b.n - a.n || (b.size || 0) - (a.size || 0));
+    g.catalog = S.perfumes.find(p => norm(p.name) === g.key) || null;
+  }
+  S.groups = m;
+}
+
+// الرصد اللي ينفع نقارن فيه سعرك: نفس العطر ونفس التعبئة ونفس الحجم
+function marketFor(name, size, pack){
+  const g = S.groups.get(norm(name));
+  if (!g) return { g: null, all: [], comp: [] };
+  const sz = toNum(size), pk = pack || PACK[0];
+  const comp = g.items.filter(i => i.packaging === pk && toNum(i.price) != null && (sz == null || toNum(i.size) === sz));
+  return { g, all: g.items, comp };
+}
+
+/* ---------- calculations ---------- */
+function calc(p){
+  const mk = marketFor(p.name, p.size, p.packaging);
+  const mPrices = mk.comp.map(i => toNum(i.price));
+  const sups = (p.suppliers || []).filter(l => toNum(l.price) != null);
+  const cost = sups.length ? Math.min(...sups.map(l => toNum(l.price))) : null;
+  const sell = toNum(p.sellPrice), resell = toNum(p.resellerPrice), size = toNum(p.size);
+  const mMin = mPrices.length ? Math.min(...mPrices) : null;
+  const mMax = mPrices.length ? Math.max(...mPrices) : null;
+  const mAvg = avg(mPrices);
+  const profit = sell != null && cost != null ? sell - cost : null;
+  const margin = profit != null ? profit / sell * 100 : null;
+  const rProfit = resell != null && cost != null ? resell - cost : null;
+  const rMargin = rProfit != null ? rProfit / resell * 100 : null;
+  const perMl = sell != null && size ? sell / size : null;
+  const vsAvg = sell != null && mAvg ? (sell - mAvg) / mAvg * 100 : null;
+  const nPlaces = new Set(mk.comp.map(i => i.shopId)).size;
+  return { mk, mPrices, cost, sell, resell, size, mMin, mMax, mAvg, profit, margin, rProfit, rMargin, perMl, vsAvg, nPlaces };
+}
+const mClass = m => m == null ? "" : m >= 25 ? "good" : m >= 10 ? "warn" : "bad";
+
+function normUrl(u){
+  u = String(u || "").trim(); if (!u) return "";
+  if (!/^https?:\/\//i.test(u)) u = "https://" + u.replace(/^\/+/, "");
+  try { const x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href : ""; } catch { return ""; }
+}
+const safeHref = u => { try { const x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href : null; } catch { return null; } };
+const host = u => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } };
+function waDigits(s){
+  let d = arDigits(s).replace(/\D/g, "");
+  if (!d) return "";
+  if (d.startsWith("00")) d = d.slice(2);
+  if (d.startsWith("05") && d.length === 10) d = "966" + d.slice(1);
+  else if (d.startsWith("5") && d.length === 9) d = "966" + d;
+  return d;
+}
+const telDigits = s => arDigits(s).replace(/[^\d+]/g, "");
+
+function plural(n, one, two, few, many){ return n === 1 ? one : n === 2 ? two : n <= 10 ? `${n} ${few}` : `${n} ${many}`; }
+function rel(ts){
+  if (!ts) return "";
+  const d = Math.max(0, (Date.now() - ts) / 1000);
+  if (d < 60) return "الآن";
+  if (d < 3600) return "قبل " + plural(Math.floor(d / 60), "دقيقة", "دقيقتين", "دقائق", "دقيقة");
+  if (d < 86400) return "قبل " + plural(Math.floor(d / 3600), "ساعة", "ساعتين", "ساعات", "ساعة");
+  if (d < 86400 * 7) return "قبل " + plural(Math.floor(d / 86400), "يوم", "يومين", "أيام", "يوم");
+  return new Date(ts).toLocaleDateString("ar-u-nu-latn", { day: "numeric", month: "long" });
+}
+const localDate = ts => ts ? new Date(ts - new Date(ts).getTimezoneOffset() * 60000) : null;
+const todayStr = () => localDate(Date.now()).toISOString().slice(0, 10);
+const dayNum = str => { const [y, m, d] = String(str || "").split("-").map(Number); return y ? Date.UTC(y, m - 1, d) : 0; };
+function relDay(str){
+  if (!str) return "";
+  const diff = Math.round((dayNum(todayStr()) - dayNum(str)) / 86400000);
+  if (diff <= 0) return "اليوم";
+  if (diff === 1) return "أمس";
+  if (diff < 7) return "قبل " + plural(diff, "يوم", "يومين", "أيام", "يوم");
+  return new Date(dayNum(str)).toLocaleDateString("ar-u-nu-latn", { day: "numeric", month: "long", timeZone: "UTC" });
+}
+function who(email){
+  if (!email) return "";
+  if (S.user && email.toLowerCase() === String(S.user.email || "").toLowerCase()) return "أنت";
+  return email.split("@")[0];
+}
+const editedLine = r => r && r.updatedAt ? `<div class="edited">آخر تعديل${r.updatedBy ? ": " + esc(who(r.updatedBy)) : ""} · ${rel(r.updatedAt)}</div>` : "";
+const sizeTxt = s => toNum(s) ? `${fmt(toNum(s))} مل` : "";
+const demandChip = d => d && DEMAND[d] ? `<span class="chip ${DCLS[d]}">${DEMAND[d]}</span>` : "";
+
+/* ---------- data ---------- */
+async function q(promise){ const { data, error } = await promise; if (error) throw error; return data; }
+let reloading = false, reloadAgain = false, reloadT;
+function scheduleReload(){ clearTimeout(reloadT); reloadT = setTimeout(reload, 250); }
+async function reload(){
+  if (!S.user) return;
+  if (reloading) { reloadAgain = true; return; }
+  reloading = true;
+  try {
+    const memQ = isOwner() ? sb.from("members").select("*").order("created_at") : sb.from("members").select("*").eq("user_id", S.user.id);
+    const [p, s, ln, sh, mi, mem] = await Promise.all([
+      q(sb.from("perfumes").select("*")),
+      q(sb.from("suppliers").select("*")),
+      q(sb.from("perfume_suppliers").select("*")),
+      q(sb.from("shops").select("*")),
+      q(sb.from("market_items").select("*")),
+      q(memQ)
+    ]);
+    const me = mem.find(r => r.user_id === S.user.id);
+    if (!me || me.status !== "active") { S.member = me || null; reloading = false; reloadAgain = false; checkMember(); return; }
+    const wasOwner = isOwner();
+    S.member = me;
+    S.members = isOwner() ? mem : [];
+    if (isOwner() && !wasOwner) reloadAgain = true;
+    const group = (arr, key) => arr.reduce((m, r) => ((m[r[key]] = m[r[key]] || []).push(r), m), {});
+    const linksBy = group(ln, "perfume_id");
+    S.perfumes = p.map(r => ({
+      id: r.id, name: r.name, brand: r.brand, conc: r.conc, size: r.size, packaging: r.packaging || PACK[0],
+      sellPrice: r.sell_price, resellerPrice: r.reseller_price, notes: r.notes, image: r.image_path,
+      createdAt: Date.parse(r.created_at), updatedAt: Date.parse(r.updated_at), updatedBy: r.updated_by_email,
+      suppliers: (linksBy[r.id] || []).map(x => ({ id: x.supplier_id, price: x.price }))
+    }));
+    S.suppliers = s.map(r => ({
+      id: r.id, name: r.name, city: r.city, phone: r.phone, whatsapp: r.whatsapp, maps: r.maps, link: r.link,
+      email: r.email, notes: r.notes, createdAt: Date.parse(r.created_at), updatedAt: Date.parse(r.updated_at), updatedBy: r.updated_by_email
+    }));
+    S.shops = sh.map(r => ({
+      id: r.id, name: r.name, kind: r.kind || "store", city: r.city, maps: r.maps, website: r.website, phone: r.phone, notes: r.notes,
+      createdAt: Date.parse(r.created_at), updatedAt: Date.parse(r.updated_at), updatedBy: r.updated_by_email
+    }));
+    S.items = mi.map(r => ({
+      id: r.id, shopId: r.shop_id, name: r.perfume_name, brand: r.brand, size: r.size, price: r.price,
+      packaging: r.packaging || PACK[0], demand: r.demand || "", url: r.url, seenOn: r.seen_on, notes: r.notes, image: r.image_path,
+      createdAt: Date.parse(r.created_at), updatedAt: Date.parse(r.updated_at), updatedBy: r.updated_by_email
+    }));
+    buildGroups();
+    S.loaded = true;
+    render();
+  } catch (e) {
+    console.error(e);
+    toast(errMsg(e, "load"));
+  } finally {
+    reloading = false;
+    if (reloadAgain) { reloadAgain = false; reload(); }
+  }
+}
+function startRealtime(){
+  if (S.channel) return;
+  S.channel = sb.channel("perfume-book")
+    .on("postgres_changes", { event: "*", schema: "public" }, () => { if (isActive()) scheduleReload(); else scheduleCheck(); })
+    .subscribe(status => { S.live = status === "SUBSCRIBED"; renderLive(); if (status === "SUBSCRIBED") { if (isActive()) scheduleReload(); else scheduleCheck(); } });
+}
+function stopRealtime(){ if (S.channel) { sb.removeChannel(S.channel); S.channel = null; S.live = false; renderLive(); } }
+
+/* ---------- membership ---------- */
+const isActive = () => !!(S.member && S.member.status === "active");
+const isOwner = () => isActive() && S.member.role === "owner";
+let checkT, pollT, checking = false;
+function scheduleCheck(){ clearTimeout(checkT); checkT = setTimeout(checkMember, 300); }
+function setPolling(on){ clearInterval(pollT); pollT = on ? setInterval(checkMember, 20000) : null; }
+function showPending(kind){
+  const email = esc(S.user && S.user.email || "");
+  const T = {
+    pending: ["طلبك وصل", `سجلت بالإيميل <bdi dir="ltr">${email}</bdi>. أول ما يوافق المدير عليك بتدخل تلقائيًا، وما يحتاج تحدّث الصفحة.`],
+    removed: ["حسابك موقوف", `المدير أوقف الحساب <bdi dir="ltr">${email}</bdi>. تواصل معه لو تبي ترجع.`],
+    none: ["حسابك مو في الفريق", `الحساب <bdi dir="ltr">${email}</bdi> ما له طلب انضمام. سجّل خروج وأنشئ حسابًا جديدًا، أو تواصل مع المدير.`],
+    setup: ["قاعدة البيانات تحتاج تحديث", "شغّل ملف setup.sql الجديد في Supabase، وبعدها اضغط «تحقق الآن»."]
+  }[kind];
+  $("#pd_title").textContent = T[0];
+  $("#pd_text").innerHTML = T[1];
+  $("#pd_check").hidden = kind === "removed";
+  showScreen("pending");
+}
+async function checkMember(){
+  if (!S.user || checking) return;
+  checking = true;
+  let m = null, broken = false;
+  try { m = await q(sb.from("members").select("*").eq("user_id", S.user.id).maybeSingle()); }
+  catch (e) { console.error(e); broken = /members|relation|Could not find|schema cache/i.test(String(e && e.message)) || e.code === "42P01" || e.code === "PGRST205"; }
+  checking = false;
+  if (!S.user) return;
+  const wasActive = isActive();
+  S.member = m;
+  if (isActive()) {
+    setPolling(false);
+    if (!wasActive || $("#appShell").hidden) {
+      showScreen("app");
+      S.view = location.hash === "#suppliers" ? "suppliers" : location.hash === "#market" ? "market" : "list";
+      S.stack = [];
+      render();
+    }
+    startRealtime();
+    reload();
+    return;
+  }
+  S.loaded = false; S.perfumes = []; S.suppliers = []; S.shops = []; S.items = []; S.groups = new Map(); S.members = [];
+  closeSheet();
+  showPending(broken ? "setup" : !m ? "none" : m.status === "removed" ? "removed" : "pending");
+  startRealtime();
+  setPolling(!m || m.status === "pending" || broken);
+}
+function renderLive(){ const d = $("#liveDot"); d.classList.toggle("on", S.live); d.title = S.live ? "متصل: التعديلات تظهر مباشرة" : "غير متصل"; }
+
+function errMsg(e, ctx){
+  const m = String((e && (e.message || e.error_description)) || e || "");
+  const code = e && (e.code || e.statusCode || e.status);
+  if (/Failed to fetch|NetworkError|network|Load failed/i.test(m)) return "ما فيه اتصال بالإنترنت. حاول مرة ثانية.";
+  if (code === "42501" || /row-level security|permission denied/i.test(m)) return "حسابك ما عنده صلاحية لهذا.";
+  if (code === "42P01" || /relation .* does not exist|Could not find the table/i.test(m)) return "قاعدة البيانات تحتاج تحديث. شغّل ملف setup.sql الجديد في Supabase.";
+  if (/mime type|not supported|invalid_mime/i.test(m)) return "صيغة الصورة غير مدعومة. استخدم صورة JPG أو PNG.";
+  if (/maximum allowed size|too large|Payload too large/i.test(m) || String(code) === "413") return "الصورة كبيرة جدًا. اختر صورة أصغر.";
+  if (/JWT|session|token/i.test(m)) return "انتهت الجلسة. سجّل دخول من جديد.";
+  return ctx === "load" ? "ما قدرت أجيب البيانات. حدّث الصفحة." : "ما تم الحفظ. حاول مرة ثانية.";
+}
+let toastT;
+function toast(msg){
+  const t = $("#toast"); t.textContent = msg; t.hidden = false;
+  clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 2800);
+}
+
+/* ---------- navigation ---------- */
+const VIEWS = ["list", "perfume", "suppliers", "supplier", "market", "group", "shop", "team"];
+const isTab = v => v === "list" || v === "suppliers" || v === "market";
+function go(view, id = null, push = true){
+  if (isTab(S.view)) S.scroll[S.view] = window.scrollY;
+  if (push && !isTab(view)) S.stack.push({ view: S.view, id: S.id });
+  if (isTab(view)) S.stack = [];
+  S.view = view; S.id = id;
+  render();
+  window.scrollTo(0, isTab(view) ? (S.scroll[view] || 0) : 0);
+}
+function back(){
+  const prev = S.stack.pop() || { view: "list", id: null };
+  S.view = prev.view; S.id = prev.id;
+  render();
+  window.scrollTo(0, isTab(prev.view) ? (S.scroll[prev.view] || 0) : 0);
+}
+
+/* ---------- render ---------- */
+function render(){
+  for (const v of VIEWS) $("#v-" + v).hidden = v !== S.view;
+  const tab = isTab(S.view);
+  $("#tabsBar").hidden = !tab; $("#backBar").hidden = tab;
+  $("#tabP").setAttribute("aria-pressed", String(S.view === "list"));
+  $("#tabS").setAttribute("aria-pressed", String(S.view === "suppliers"));
+  $("#tabM").setAttribute("aria-pressed", String(S.view === "market"));
+  $("#fab").hidden = !tab || !S.loaded;
+  $("#fabLabel").textContent = S.view === "list" ? "عطر جديد" : S.view === "suppliers" ? "مورد جديد" : S.msub === "shops" ? "محل جديد" : "رصد جديد";
+  $("#account").hidden = !tab || !S.user;
+  $("#acctEmail").textContent = S.user ? S.user.email || "" : "";
+  const nPend = isOwner() ? S.members.filter(m => m.status === "pending").length : 0;
+  $("#acctTeam").hidden = !isOwner();
+  $("#acctTeam").textContent = nPend ? `الفريق (${nPend})` : "الفريق";
+  if (S.view === "list") renderList();
+  else if (S.view === "suppliers") renderSuppliers();
+  else if (S.view === "perfume") renderPerfume();
+  else if (S.view === "supplier") renderSupplier();
+  else if (S.view === "market") renderMarket();
+  else if (S.view === "group") renderGroup();
+  else if (S.view === "shop") renderShop();
+  else if (S.view === "team") renderTeam();
+}
+
+function cardHTML(p){
+  const c = calc(p);
+  const meta = [p.brand, c.size ? `${fmt(c.size)} مل` : "", p.conc].filter(Boolean).map(esc).join(" · ");
+  const chips = [];
+  if (c.margin != null) chips.push(`<span class="chip ${mClass(c.margin)}">هامش ${pctH(c.margin)}</span>`);
+  else if (!(p.suppliers || []).length) chips.push('<span class="chip">بدون مورد</span>');
+  return `<button type="button" class="pcard" data-act="open-perfume" data-id="${esc(p.id)}">
+    <div class="pimg">${imgTag(p)}</div>
+    <div class="pbody">
+      <div class="pname">${esc(p.name || "بدون اسم")}</div>
+      <div class="pmeta">${meta || "&nbsp;"}</div>
+      <div class="pprice">${c.sell != null ? money(c.sell) : '<span class="muted" style="font-size:14px;font-weight:500">بدون سعر</span>'}</div>
+      <div class="pmkt">${c.mMin != null ? `السوق ${rangeH(c.mMin, c.mMax)}` : c.mk.all.length ? "مرصود بحجم أو تعبئة ثانية" : "ما انرصد في السوق"}</div>
+      ${chips.length ? `<div class="chips">${chips.join("")}</div>` : ""}
+    </div>
+  </button>`;
+}
+
+function pendingNotice(){
+  const n = isOwner() ? S.members.filter(m => m.status === "pending").length : 0;
+  return n ? `<div class="notice" style="margin-bottom:12px"><span>${n === 1 ? "فيه طلب انضمام" : `فيه <span class="num">${n}</span> طلبات انضمام`} بانتظار موافقتك.</span><button type="button" class="btn primary small" data-act="team">راجع الطلبات</button></div>` : "";
+}
+
+function renderTeam(){
+  const box = $("#v-team");
+  if (!isOwner()) { S.stack = []; go("list", null, false); return; }
+  $("#barTitle").textContent = "الفريق";
+  const me = S.user.id;
+  const rows = (list, kind) => list.map(m => {
+    const self = m.user_id === me;
+    let acts = "";
+    if (!self) {
+      if (kind === "pending") acts = `<button type="button" class="btn primary small" data-act="mem-set" data-uid="${esc(m.user_id)}" data-status="active">قبول</button><button type="button" class="btn danger small" data-act="mem-set" data-uid="${esc(m.user_id)}" data-status="removed">رفض</button>`;
+      else if (kind === "active") acts = `<button type="button" class="btn ghost small" data-act="mem-role" data-uid="${esc(m.user_id)}" data-role="${m.role === "owner" ? "member" : "owner"}">${m.role === "owner" ? "إلغاء الإدارة" : "اجعله مدير"}</button><button type="button" class="btn danger small" data-act="mem-stop" data-uid="${esc(m.user_id)}">إيقاف</button>`;
+      else acts = `<button type="button" class="btn ghost small" data-act="mem-set" data-uid="${esc(m.user_id)}" data-status="active">إرجاع</button>`;
+    }
+    return `<div class="row"><div class="r-main"><span class="r-name"><bdi dir="ltr">${esc(m.email || "بدون إيميل")}</bdi>${m.role === "owner" && kind === "active" ? '<span class="chip acc">مدير</span>' : ""}${self ? '<span class="chip">أنت</span>' : ""}</span><span class="r-sub">${kind === "pending" ? "طلب " + rel(Date.parse(m.created_at)) : "سجّل " + rel(Date.parse(m.created_at))}</span></div><div class="mem-acts">${acts}</div></div>`;
+  }).join("");
+  const pend = S.members.filter(m => m.status === "pending");
+  const act = S.members.filter(m => m.status === "active");
+  const rem = S.members.filter(m => m.status === "removed");
+  box.innerHTML = `
+    <section class="panel shead">
+      <h1 class="ptitle">الفريق</h1>
+      <p class="hint" style="margin:0">أي أحد ينشئ حسابًا من صفحة الدخول يطلع هنا، وما يشوف أي بيانات إلا بعد ما تقبله. المدير يقدر يقبل ويوقف الحسابات.</p>
+    </section>
+    ${pend.length ? `<section class="panel"><div class="sec-row"><h2 class="sec">طلبات الانضمام <span class="count num">${pend.length}</span></h2></div><div class="rows">${rows(pend, "pending")}</div></section>` : ""}
+    <section class="panel"><div class="sec-row"><h2 class="sec">الأعضاء <span class="count num">${act.length}</span></h2></div><div class="rows">${rows(act, "active")}</div></section>
+    ${rem.length ? `<section class="panel"><div class="sec-row"><h2 class="sec">موقوفين <span class="count num">${rem.length}</span></h2></div><div class="rows">${rows(rem, "removed")}</div></section>` : ""}`;
+}
+async function setMember(uid, patch, msg){
+  try { await q(sb.from("members").update(patch).eq("user_id", uid)); toast(msg); await reload(); }
+  catch (e) { toast(errMsg(e)); }
+}
+
+function renderList(){
+  const body = $("#listBody"), sum = $("#listSum");
+  if (!S.loaded) return;
+  $("#listTools").hidden = !S.perfumes.length;
+  if (!S.perfumes.length) {
+    sum.innerHTML = (S.items.length || S.suppliers.length) ? `<button type="button" class="btn ghost small xbtn" data-act="export">${I.sheet}تصدير Excel</button>` : "";
+    body.innerHTML = pendingNotice() + `<div class="empty">${bottle()}<h2>ابدأ بأول عطر</h2><p>أضف اسم العطر وصورته وسعرك، وبعدها اربطه بالموردين. أسعار السوق تجيه من رصدك في تبويب «السوق».</p><button type="button" class="btn primary" data-act="add-perfume">${I.plus}أضف عطر</button></div>`;
+    return;
+  }
+  const qs = norm(S.q);
+  let arr = S.perfumes.map(p => ({ p, c: calc(p) }));
+  if (qs) arr = arr.filter(({ p }) => norm([p.name, p.brand, p.conc, p.notes].join(" ")).includes(qs));
+  const by = {
+    new: (a, b) => (b.p.createdAt || 0) - (a.p.createdAt || 0),
+    name: (a, b) => String(a.p.name || "").localeCompare(String(b.p.name || ""), "ar"),
+    mhigh: (a, b) => (b.c.margin ?? -1e9) - (a.c.margin ?? -1e9),
+    mlow: (a, b) => (a.c.margin ?? 1e9) - (b.c.margin ?? 1e9),
+    price: (a, b) => (a.c.sell ?? 1e12) - (b.c.sell ?? 1e12)
+  }[S.sort] || (() => 0);
+  arr.sort(by);
+  const ms = S.perfumes.map(calc).map(c => c.margin).filter(m => m != null);
+  const avgM = avg(ms);
+  sum.innerHTML = `<span><b class="num">${S.perfumes.length}</b> عطر</span>${avgM != null ? `<span>متوسط الهامش <b>${pctH(avgM)}</b></span>` : ""}<span><b class="num">${S.suppliers.length}</b> مورد</span><button type="button" class="btn ghost small xbtn" data-act="export">${I.sheet}تصدير Excel</button>`;
+  body.innerHTML = pendingNotice() + (arr.length ? `<div class="grid">${arr.map(x => cardHTML(x.p)).join("")}</div>` : `<div class="empty"><p>ما فيه نتائج لـ «${esc(S.q)}».</p></div>`);
+}
+
+function stat(k, v, opts = {}){
+  return `<div class="stat${opts.hl ? " hl" : ""}"><span class="k">${k}</span><span class="v${v == null ? " none" : ""}">${v == null ? "—" : money(v)}</span>${opts.sub ? `<span class="s ${opts.cls || ""}">${opts.sub}</span>` : ""}</div>`;
+}
+
+function marketHTML(c, p){
+  if (!c.mPrices.length) {
+    return c.mk.all.length
+      ? `<p class="hint">رصدت هذا العطر بحجم أو تعبئة ثانية، فما يدخل في المقارنة. ارصده بـ${c.size ? " " + fmt(c.size) + " مل و" : ""}تعبئة «${esc(p.packaging)}» عشان تشوف مكان سعرك.</p>`
+      : `<p class="hint">ارصد سعر هذا العطر في المحلات والمواقع عشان يظهر لك مكان سعرك في السوق.</p>`;
+  }
+  const vals = [...c.mPrices]; if (c.sell != null) vals.push(c.sell); if (c.cost != null) vals.push(c.cost);
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  if (hi === lo) { lo *= 0.9; hi *= 1.1; }
+  const pad = (hi - lo) * 0.06; lo -= pad; hi += pad;
+  const pos = v => (v - lo) / (hi - lo) * 100;
+  const clampL = v => Math.min(90, Math.max(10, pos(v)));
+  const bandS = pos(c.mMin), bandW = Math.max(pos(c.mMax) - bandS, 0.8);
+  let say;
+  if (c.sell == null) say = `ما حددت سعرك بعد. أرخص مكان يبيعه بـ ${fmt(c.mMin)} ر.س.`;
+  else if (c.sell < c.mMin) say = `سعرك أرخص من كل الأماكن المرصودة، بفرق ${fmt(c.mMin - c.sell)} ر.س عن أرخصها.`;
+  else if (c.sell > c.mMax) say = `سعرك أغلى من كل الأماكن المرصودة، بفرق ${fmt(c.sell - c.mMax)} ر.س عن أغلاها.`;
+  else if (Math.abs(c.vsAvg) < 1) say = "سعرك قريب جدًا من متوسط السوق.";
+  else say = c.vsAvg < 0 ? `سعرك أقل من متوسط السوق بـ ${pctH(-c.vsAvg)}.` : `سعرك أعلى من متوسط السوق بـ ${pctH(c.vsAvg)}.`;
+  return `<div class="market">
+    <div class="mk-head"><span>السوق <b>${rangeH(c.mMin, c.mMax)}</b> ر.س</span><span>المتوسط <b class="num">${fmt(c.mAvg)}</b> ر.س · ${placesTxt(c.nPlaces)}</span></div>
+    <div class="mk-track" aria-hidden="true">
+      <span class="mk-rail"></span>
+      <span class="mk-band" style="inset-inline-start:${bandS.toFixed(2)}%;width:${bandW.toFixed(2)}%"></span>
+      ${c.mPrices.map(v => `<span class="mk-dot" style="inset-inline-start:${pos(v).toFixed(2)}%"></span>`).join("")}
+      ${c.cost != null ? `<span class="mk-cost" style="inset-inline-start:${pos(c.cost).toFixed(2)}%"></span><span class="mk-lab bot" style="inset-inline-start:${clampL(c.cost).toFixed(2)}%">المورد ${fmt(c.cost)}</span>` : ""}
+      ${c.sell != null ? `<span class="mk-you" style="inset-inline-start:${pos(c.sell).toFixed(2)}%"></span><span class="mk-lab top" style="inset-inline-start:${clampL(c.sell).toFixed(2)}%">سعرك ${fmt(c.sell)}</span>` : ""}
+    </div>
+    <p class="mk-say">${say}</p>
+    <p class="hint">المقارنة على ${c.size ? `حجم ${fmt(c.size)} مل و` : ""}تعبئة «${esc(p.packaging)}».</p>
+  </div>`;
+}
+
+// سطر رصد واحد
+function itemRow(it, o = {}){
+  const sh = shopById(it.shopId);
+  const href = safeHref(it.url);
+  const pr = toNum(it.price), pm = perMlOf(it);
+  const title = o.showPerfume
+    ? `<button type="button" class="r-main" data-act="open-group" data-key="${esc(norm(it.name))}"><span class="r-name">${esc(it.name)}${o.cheap ? '<span class="chip good">الأرخص</span>' : ""}${demandChip(it.demand)}</span>`
+    : sh ? `<button type="button" class="r-main" data-act="open-shop" data-id="${esc(sh.id)}"><span class="r-name">${esc(sh.name)}${o.cheap ? '<span class="chip good">الأرخص</span>' : ""}${demandChip(it.demand)}</span>`
+    : `<div class="r-main"><span class="r-name">محل${demandChip(it.demand)}</span>`;
+  const sub = [o.showPerfume ? it.brand : "", sizeTxt(it.size), it.packaging, pm != null ? `المل ${fmt(pm)}` : "", relDay(it.seenOn)].filter(Boolean).map(esc).join(" · ");
+  return `<div class="row${o.dim ? " dim" : ""}">
+    ${it.image ? `<a class="r-thumb" href="${esc(imgUrl(it.image))}" target="_blank" rel="noopener noreferrer"><img src="${esc(imgUrl(it.image))}" alt="" loading="lazy" data-fb="1"></a>` : ""}
+    ${title}<span class="r-sub">${sub}</span>${o.showPerfume || sh ? "</button>" : "</div>"}
+    <span class="r-price">${money(pr)}</span>
+    ${href ? `<a class="openlink" href="${esc(href)}" target="_blank" rel="noopener noreferrer">فتح${I.ext}</a>` : ""}
+    <button type="button" class="icon-btn" data-act="edit-item" data-id="${esc(it.id)}" aria-label="تعديل الرصد">${I.edit}</button>
+  </div>`;
+}
+
+function renderPerfume(){
+  const box = $("#v-perfume");
+  const p = perfById(S.id);
+  if (!p) { if (S.loaded) { S.stack = []; go("list", null, false); } return; }
+  $("#barTitle").textContent = p.name || "";
+  const c = calc(p);
+  const comp = c.mk.comp.slice().sort((a, b) => toNum(a.price) - toNum(b.price));
+  const other = c.mk.all.filter(i => !c.mk.comp.includes(i)).sort((a, b) => (perMlOf(a) ?? 1e9) - (perMlOf(b) ?? 1e9));
+  const mkRows = c.mk.all.length
+    ? comp.map(i => itemRow(i, { cheap: comp.length > 1 && toNum(i.price) === c.mMin })).join("")
+      + (other.length ? `<div class="sublabel">أحجام أو تعبئة ثانية، ما تدخل في المقارنة</div>` + other.map(i => itemRow(i, { dim: true })).join("") : "")
+    : `<p class="r-empty">ما رصدت هذا العطر في السوق. سجّل سعره من المحلات أو المواقع.</p>`;
+
+  const links = (p.suppliers || []).slice().sort((a, b) => (toNum(a.price) ?? 1e12) - (toNum(b.price) ?? 1e12));
+  const supRows = links.length ? links.map(l => {
+    const s = supById(l.id);
+    const pr = toNum(l.price);
+    const wa = s && waDigits(s.whatsapp || s.phone);
+    return `<div class="row">
+      ${s ? `<button type="button" class="r-main" data-act="open-supplier" data-id="${esc(s.id)}">` : '<div class="r-main">'}
+        <span class="r-name">${esc(s ? s.name : "مورد")}${pr != null && pr === c.cost && links.length > 1 ? '<span class="chip good">الأرخص</span>' : ""}</span>
+        ${s && s.city ? `<span class="r-sub">${esc(s.city)}</span>` : ""}
+      ${s ? "</button>" : "</div>"}
+      <span class="r-price">${money(pr)}</span>
+      ${wa ? `<a class="openlink" href="https://wa.me/${wa}" target="_blank" rel="noopener noreferrer">واتساب</a>` : ""}
+      <button type="button" class="icon-btn" data-act="edit-link" data-sid="${esc(l.id)}" aria-label="تعديل المورد">${I.edit}</button>
+    </div>`;
+  }).join("") : `<p class="r-empty">ما ربطت موردين بهذا العطر. أرخص مورد تربطه يصير هو سعر التكلفة.</p>`;
+
+  box.innerHTML = `
+    <div class="phero">
+      <div class="phero-img">${imgTag(p)}</div>
+      <div class="phero-info">
+        <div class="eyebrow">${esc(p.brand || "بدون ماركة")}</div>
+        <h1 class="ptitle">${esc(p.name || "بدون اسم")}</h1>
+        <div class="tags">${p.conc ? `<span class="tag">${esc(p.conc)}</span>` : ""}${c.size ? `<span class="tag"><span class="num">${fmt(c.size)}</span> مل</span>` : ""}<span class="tag">${esc(p.packaging)}</span></div>
+        ${editedLine(p)}
+        <button type="button" class="btn ghost" data-act="edit-perfume">${I.edit}تعديل البيانات</button>
+      </div>
+    </div>
+    <section class="panel">
+      <h2 class="sec">التسعير</h2>
+      <div class="stats">
+        ${stat("سعرك", c.sell, { hl: true, sub: c.perMl != null ? `<span class="num">${fmt(c.perMl)}</span> ر.س للمل` : "" })}
+        ${stat("سعر الموزعين", c.resell)}
+        ${stat("أرخص مورد", c.cost)}
+        ${stat("ربحك للحبة", c.profit, { sub: c.margin != null ? `هامش ${pctH(c.margin)}` : "", cls: mClass(c.margin) })}
+        ${stat("ربحك من الموزع", c.rProfit, { sub: c.rMargin != null ? `هامش ${pctH(c.rMargin)}` : "", cls: mClass(c.rMargin) })}
+      </div>
+      ${marketHTML(c, p)}
+    </section>
+    <section class="panel">
+      <div class="sec-row"><h2 class="sec">في السوق <span class="count num">${c.mk.all.length}</span></h2><button type="button" class="btn soft small" data-act="add-item-perfume">${I.plus}رصد سعر</button></div>
+      <div class="rows">${mkRows}</div>
+    </section>
+    <section class="panel">
+      <div class="sec-row"><h2 class="sec">الموردين <span class="count num">${links.length}</span></h2><button type="button" class="btn soft small" data-act="link-supplier">${I.plus}مورد</button></div>
+      <div class="rows">${supRows}</div>
+    </section>
+    ${p.notes ? `<section class="panel"><h2 class="sec">ملاحظات</h2><p class="notes">${esc(p.notes)}</p></section>` : ""}
+  `;
+}
+
+function contactBtns(s){
+  const out = [];
+  const wa = waDigits(s.whatsapp || s.phone);
+  if (wa) out.push(`<a class="cbtn" href="https://wa.me/${wa}" target="_blank" rel="noopener noreferrer">${I.chat}واتساب</a>`);
+  if (s.phone) out.push(`<a class="cbtn" href="tel:${esc(telDigits(s.phone))}">${I.phone}اتصال</a>`);
+  const mp = safeHref(s.maps); if (mp) out.push(`<a class="cbtn" href="${esc(mp)}" target="_blank" rel="noopener noreferrer">${I.pin}الموقع</a>`);
+  const lk = safeHref(s.link); if (lk) out.push(`<a class="cbtn" href="${esc(lk)}" target="_blank" rel="noopener noreferrer">${I.link}${esc(host(lk) || "رابط")}</a>`);
+  return out.join("");
+}
+
+function renderSuppliers(){
+  const body = $("#supBody");
+  if (!S.loaded) return;
+  $("#supTools").hidden = !S.suppliers.length;
+  if (!S.suppliers.length) {
+    body.innerHTML = `<div class="empty">${bottle()}<h2>ما فيه موردين بعد</h2><p>أضف المورد مع رقمه وموقعه، وبعدها تقدر تربطه بالعطور اللي يوفرها.</p><button type="button" class="btn primary" data-act="add-supplier">${I.plus}أضف مورد</button></div>`;
+    return;
+  }
+  const qs = norm(S.sq);
+  let arr = S.suppliers.slice().sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "ar"));
+  if (qs) arr = arr.filter(s => norm([s.name, s.city, s.notes, s.phone].join(" ")).includes(qs));
+  body.innerHTML = arr.length ? `<div class="slist">${arr.map(s => {
+    const n = perfumesOf(s.id).length;
+    const cb = contactBtns(s);
+    return `<article class="scard">
+      <button type="button" class="s-open" data-act="open-supplier" data-id="${esc(s.id)}">
+        <div><div class="s-name">${esc(s.name || "بدون اسم")}</div><div class="s-sub">${[s.city ? esc(s.city) : "", n ? `يوفر <span class="num">${n}</span> ${n === 1 ? "عطر" : "عطور"}` : "ما انربط بعطر"].filter(Boolean).join(" · ")}</div></div>
+        ${I.chev}
+      </button>
+      ${cb ? `<div class="cbtns">${cb}</div>` : ""}
+    </article>`;
+  }).join("")}</div>` : `<div class="empty"><p>ما فيه نتائج لـ «${esc(S.sq)}».</p></div>`;
+}
+
+function renderSupplier(){
+  const box = $("#v-supplier");
+  const s = supById(S.id);
+  if (!s) { if (S.loaded) { S.stack = []; go("suppliers", null, false); } return; }
+  $("#barTitle").textContent = s.name || "";
+  const items = [];
+  const wa = waDigits(s.whatsapp || s.phone);
+  if (s.phone) items.push({ ic: I.phone, k: "الجوال", v: s.phone, href: "tel:" + telDigits(s.phone), lab: "اتصال", same: true });
+  if (wa) items.push({ ic: I.chat, k: "واتساب", v: "+" + wa, href: "https://wa.me/" + wa, lab: "مراسلة" });
+  if (s.email) items.push({ ic: I.mail, k: "الإيميل", v: s.email, href: "mailto:" + s.email, lab: "مراسلة", same: true });
+  const mp = safeHref(s.maps); if (mp) items.push({ ic: I.pin, k: "الموقع", v: host(mp) || "قوقل ماب", href: mp, lab: "فتح الخريطة", copy: mp });
+  const lk = safeHref(s.link); if (lk) items.push({ ic: I.link, k: "رابط", v: lk.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, ""), href: lk, lab: "فتح", copy: lk });
+  const list = perfumesOf(s.id);
+  box.innerHTML = `
+    <section class="panel shead">
+      <div class="eyebrow">${esc(s.city || "مورد")}</div>
+      <h1 class="ptitle">${esc(s.name || "بدون اسم")}</h1>
+      ${editedLine(s)}
+      <button type="button" class="btn ghost" data-act="edit-supplier">${I.edit}تعديل المورد</button>
+    </section>
+    <section class="panel">
+      <h2 class="sec">التواصل</h2>
+      ${contactList(items, "ما فيه وسائل تواصل. أضفها من «تعديل المورد».")}
+    </section>
+    <section class="panel">
+      <div class="sec-row"><h2 class="sec">العطور اللي يوفرها <span class="count num">${list.length}</span></h2></div>
+      <div class="rows">${list.length ? list.map(p => {
+        const l = p.suppliers.find(x => x.id === s.id); const pr = toNum(l && l.price); const c = calc(p);
+        return `<div class="row"><span class="r-thumb">${imgTag(p)}</span>
+          <button type="button" class="r-main" data-act="open-perfume" data-id="${esc(p.id)}"><span class="r-name">${esc(p.name)}${pr != null && pr === c.cost && p.suppliers.length > 1 ? '<span class="chip good">الأرخص</span>' : ""}</span><span class="r-sub">${esc([p.brand, sizeTxt(p.size)].filter(Boolean).join(" · "))}</span></button>
+          <span class="r-price">${money(pr)}</span></div>`;
+      }).join("") : `<p class="r-empty">ما انربط بأي عطر. اربطه من صفحة العطر.</p>`}</div>
+    </section>
+    ${s.notes ? `<section class="panel"><h2 class="sec">ملاحظات</h2><p class="notes">${esc(s.notes)}</p></section>` : ""}
+  `;
+}
+
+function contactList(items, emptyText){
+  return items.length ? `<div class="clist">${items.map(it => `<div class="citem">${it.ic}<div class="cv"><span class="ck">${it.k}</span><span class="cval" dir="ltr" style="text-align:end">${esc(it.v)}</span></div>
+    <button type="button" class="icon-btn" data-act="copy" data-text="${esc(it.copy || it.v)}" aria-label="نسخ ${it.k}">${I.copy}</button>
+    <a class="openlink" href="${esc(it.href)}" ${it.same ? "" : 'target="_blank" rel="noopener noreferrer"'}>${it.lab}</a></div>`).join("")}</div>` : `<p class="r-empty">${emptyText}</p>`;
+}
+
+/* ---------- market tab ---------- */
+function demandChips(g){
+  return [g.high ? `<span class="chip good">ماشي بقوة · <span class="num">${g.high}</span></span>` : "",
+          g.mid ? `<span class="chip warn">متوسط · <span class="num">${g.mid}</span></span>` : "",
+          g.low ? `<span class="chip">ضعيف · <span class="num">${g.low}</span></span>` : ""].join("");
+}
+function groupCard(g){
+  const main = g.combos[0];
+  const dc = demandChips(g);
+  return `<button type="button" class="gcard" data-act="open-group" data-key="${esc(g.key)}">
+    <div class="g-top"><div class="g-title"><span class="g-name">${esc(g.name)}</span>${g.brand ? `<span class="g-brand">${esc(g.brand)}</span>` : ""}</div>${g.catalog ? '<span class="chip acc">في عطوري</span>' : ""}</div>
+    <div class="g-stats"><span><b class="num">${placesTxt(g.places)}</b></span>${main && main.min != null ? `<span>${main.size ? `<span class="num">${fmt(main.size)}</span> مل ` : ""}${esc(main.pack)}: <b>${rangeH(main.min, main.max)}</b> ر.س</span>` : ""}${g.pmMin != null ? `<span>المل ${rangeH(g.pmMin, g.pmMax)}</span>` : ""}</div>
+    ${dc ? `<div class="chips" style="margin-top:0">${dc}</div>` : ""}
+  </button>`;
+}
+function shopCard(s){
+  const its = itemsOfShop(s.id);
+  const last = its.reduce((m, i) => i.seenOn > m ? i.seenOn : m, "");
+  const btns = [];
+  const mp = safeHref(s.maps); if (mp) btns.push(`<a class="cbtn" href="${esc(mp)}" target="_blank" rel="noopener noreferrer">${I.pin}الموقع</a>`);
+  const web = safeHref(s.website); if (web) btns.push(`<a class="cbtn" href="${esc(web)}" target="_blank" rel="noopener noreferrer">${I.globe}${esc(host(web) || "الموقع الإلكتروني")}</a>`);
+  if (s.phone) btns.push(`<a class="cbtn" href="tel:${esc(telDigits(s.phone))}">${I.phone}اتصال</a>`);
+  return `<article class="scard">
+    <button type="button" class="s-open" data-act="open-shop" data-id="${esc(s.id)}">
+      <div><div class="s-name">${esc(s.name || "بدون اسم")}</div><div class="s-sub">${[KIND[s.kind], s.city ? esc(s.city) : "", its.length ? `<span class="num">${its.length}</span> رصد` : "ما فيه رصد", last ? "آخر زيارة " + relDay(last) : ""].filter(Boolean).join(" · ")}</div></div>
+      ${I.chev}
+    </button>
+    ${btns.length ? `<div class="cbtns">${btns.join("")}</div>` : ""}
+  </article>`;
+}
+function renderMarket(){
+  const isItems = S.msub === "items";
+  $("#mSegI").setAttribute("aria-pressed", String(isItems));
+  $("#mSegS").setAttribute("aria-pressed", String(!isItems));
+  $("#msort").hidden = !isItems;
+  $("#mq").placeholder = isItems ? "ابحث باسم العطر أو الماركة" : "ابحث باسم المحل أو المدينة";
+  const body = $("#mBody");
+  if (!S.loaded) return;
+  const groups = [...S.groups.values()];
+  $("#mSum").innerHTML = (S.items.length || S.shops.length) ? `<span><b class="num">${groups.length}</b> عطر مرصود</span><span><b class="num">${S.shops.length}</b> محل</span><span><b class="num">${S.items.length}</b> رصد</span>` : "";
+  const qs = norm(S.mq);
+  if (isItems) {
+    $("#mTools").hidden = !S.items.length;
+    if (!S.items.length) {
+      body.innerHTML = `<div class="empty">${bottle()}<h2>ابدأ دراسة السوق</h2><p>اختر المحل أو الموقع اللي زرته، وسجّل كل عطر تشوفه فيه: الحجم والسعر والتعبئة وهل هو ماشي.</p><button type="button" class="btn primary" data-act="add-item">${I.plus}رصد جديد</button></div>`;
+      return;
+    }
+    let arr = groups;
+    if (qs) arr = arr.filter(g => norm(g.name + " " + g.brand).includes(qs));
+    const by = {
+      seen: (a, b) => b.places - a.places || b.items.length - a.items.length,
+      demand: (a, b) => b.score - a.score || b.places - a.places,
+      new: (a, b) => String(b.last).localeCompare(String(a.last)),
+      name: (a, b) => a.name.localeCompare(b.name, "ar")
+    }[S.msort] || (() => 0);
+    arr.sort(by);
+    body.innerHTML = arr.length ? `<div class="slist">${arr.map(groupCard).join("")}</div>` : `<div class="empty"><p>ما فيه نتائج لـ «${esc(S.mq)}».</p></div>`;
+  } else {
+    $("#mTools").hidden = !S.shops.length;
+    if (!S.shops.length) {
+      body.innerHTML = `<div class="empty">${bottle()}<h2>ما فيه محلات بعد</h2><p>أضف المحل أو الموقع مرة وحدة مع موقعه في قوقل ماب أو رابطه، وبعدها سجّل العطور اللي فيه.</p><button type="button" class="btn primary" data-act="add-shop">${I.plus}أضف محل</button></div>`;
+      return;
+    }
+    let arr = S.shops.slice().sort((a, b) => String(a.name).localeCompare(String(b.name), "ar"));
+    if (qs) arr = arr.filter(s => norm([s.name, s.city, s.notes].join(" ")).includes(qs));
+    body.innerHTML = arr.length ? `<div class="slist">${arr.map(shopCard).join("")}</div>` : `<div class="empty"><p>ما فيه نتائج لـ «${esc(S.mq)}».</p></div>`;
+  }
+}
+
+function renderGroup(){
+  const box = $("#v-group");
+  const g = S.groups.get(S.id);
+  if (!g) { if (S.loaded) { S.stack = []; go("market", null, false); } return; }
+  $("#barTitle").textContent = g.name;
+  const items = g.items.slice().sort((a, b) => String(b.seenOn).localeCompare(String(a.seenOn)) || (b.createdAt - a.createdAt));
+  const dc = demandChips(g);
+  box.innerHTML = `
+    <section class="panel shead">
+      <div class="eyebrow">${esc(g.brand || "بدون ماركة")}</div>
+      <h1 class="ptitle">${esc(g.name)}</h1>
+      <div class="tags"><span class="tag num">${placesTxt(g.places)}</span><span class="tag"><span class="num">${g.items.length}</span> رصد</span>${g.pmMin != null ? `<span class="tag">المل ${rangeH(g.pmMin, g.pmMax)} ر.س</span>` : ""}</div>
+      ${dc ? `<div class="chips">${dc}</div>` : ""}
+      <div class="btnrow">
+        ${g.catalog ? `<button type="button" class="btn ghost" data-act="open-perfume" data-id="${esc(g.catalog.id)}">فتح في عطوري</button>` : `<button type="button" class="btn ghost" data-act="group-to-catalog" data-key="${esc(g.key)}">${I.plus}أضفه لعطوري</button>`}
+        <button type="button" class="btn soft" data-act="add-item-group" data-key="${esc(g.key)}">${I.plus}رصد سعر</button>
+      </div>
+    </section>
+    <section class="panel">
+      <h2 class="sec">الأسعار حسب الحجم والتعبئة</h2>
+      <div class="rows">${g.combos.map(c => `<div class="row"><div class="r-main"><span class="r-name">${c.size ? `<span class="num">${fmt(c.size)}</span> مل` : "حجم غير محدد"} · ${esc(c.pack)}</span><span class="r-sub"><span class="num">${c.n}</span> رصد${c.avg != null ? ` · المتوسط <span class="num">${fmt(c.avg)}</span> ر.س` : ""}${c.size && c.avg != null ? ` · المل <span class="num">${fmt(c.avg / c.size)}</span>` : ""}</span></div><span class="r-price">${c.min != null ? rangeH(c.min, c.max) + SAR : "—"}</span></div>`).join("")}</div>
+    </section>
+    <section class="panel">
+      <div class="sec-row"><h2 class="sec">كل الرصد <span class="count num">${items.length}</span></h2></div>
+      <div class="rows">${items.map(i => itemRow(i)).join("")}</div>
+    </section>`;
+}
+
+function renderShop(){
+  const box = $("#v-shop");
+  const s = shopById(S.id);
+  if (!s) { if (S.loaded) { S.stack = []; go("market", null, false); } return; }
+  $("#barTitle").textContent = s.name || "";
+  const contacts = [];
+  const mp = safeHref(s.maps); if (mp) contacts.push({ ic: I.pin, k: "قوقل ماب", v: host(mp) || "الموقع", href: mp, lab: "فتح الخريطة", copy: mp });
+  const web = safeHref(s.website); if (web) contacts.push({ ic: I.globe, k: "الموقع الإلكتروني", v: web.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, ""), href: web, lab: "فتح الموقع", copy: web });
+  if (s.phone) contacts.push({ ic: I.phone, k: "الجوال", v: s.phone, href: "tel:" + telDigits(s.phone), lab: "اتصال", same: true });
+  const its = itemsOfShop(s.id).sort((a, b) => String(b.seenOn).localeCompare(String(a.seenOn)) || (b.createdAt - a.createdAt));
+  box.innerHTML = `
+    <section class="panel shead">
+      <div class="eyebrow">${[KIND[s.kind], s.city].filter(Boolean).map(esc).join(" · ")}</div>
+      <h1 class="ptitle">${esc(s.name || "بدون اسم")}</h1>
+      ${editedLine(s)}
+      <div class="btnrow">
+        <button type="button" class="btn ghost" data-act="edit-shop">${I.edit}تعديل المحل</button>
+        <button type="button" class="btn soft" data-act="add-item-shop">${I.plus}رصد عطر هنا</button>
+      </div>
+    </section>
+    <section class="panel">
+      <h2 class="sec">الموقع والتواصل</h2>
+      ${contactList(contacts, "ما فيه رابط موقع أو رقم. أضفها من «تعديل المحل».")}
+    </section>
+    <section class="panel">
+      <div class="sec-row"><h2 class="sec">العطور المرصودة هنا <span class="count num">${its.length}</span></h2></div>
+      <div class="rows">${its.length ? its.map(i => itemRow(i, { showPerfume: true })).join("") : `<p class="r-empty">ما سجلت عطور في هذا المحل.</p>`}</div>
+    </section>
+    ${s.notes ? `<section class="panel"><h2 class="sec">ملاحظات</h2><p class="notes">${esc(s.notes)}</p></section>` : ""}`;
+}
+
+/* ---------- sheet ---------- */
+const layer = $("#layer"), form = $("#sheetForm");
+let sheetSubmit = null, sheetBusy = false, delHandler = null, submitMode = "";
+function openSheet(title, html, onSubmit, onMount){
+  $("#sheetTitle").textContent = title;
+  form.innerHTML = html + '<p class="f-err" id="f_err" hidden></p>';
+  sheetSubmit = onSubmit; sheetBusy = false; submitMode = "";
+  layer.hidden = false;
+  requestAnimationFrame(() => requestAnimationFrame(() => layer.classList.add("open")));
+  onMount && onMount(form);
+  form.scrollTop = 0;
+}
+function closeSheet(){
+  layer.classList.remove("open");
+  sheetSubmit = null;
+  setTimeout(() => { if (!layer.classList.contains("open")) { layer.hidden = true; form.innerHTML = ""; } }, 240);
+}
+function sheetErr(msg){ const e = $("#f_err"); if (e) { e.textContent = msg; e.hidden = !msg; } }
+form.addEventListener("click", e => { const b = e.target.closest("button[type=submit]"); if (b) submitMode = b.dataset.mode || ""; });
+form.addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!sheetSubmit || sheetBusy) return;
+  const mode = (e.submitter && e.submitter.dataset.mode) || submitMode || "";
+  const btns = [...form.querySelectorAll("button[type=submit]")];
+  const labels = btns.map(b => b.textContent);
+  sheetBusy = true; sheetErr("");
+  btns.forEach(b => { b.disabled = true; if ((b.dataset.mode || "") === mode) b.textContent = "جاري الحفظ…"; });
+  try { await sheetSubmit(new FormData(form), mode); }
+  catch (err) { console.error(err); sheetErr(err && err.userMsg ? err.userMsg : errMsg(err)); }
+  finally { sheetBusy = false; btns.forEach((b, i) => { if (b.isConnected) { b.disabled = false; b.textContent = labels[i]; } }); }
+});
+const fail = msg => { const e = new Error(msg); e.userMsg = msg; return e; };
+const field = (id, label, input, hint = "") => `<label class="field" for="${id}"><span class="f-label">${label}</span>${input}${hint ? `<span class="f-hint">${hint}</span>` : ""}</label>`;
+const inp = (id, val, attrs = "") => `<input class="inp" id="${id}" name="${id}" value="${esc(val ?? "")}" ${attrs}>`;
+const numInp = (id, val, ph = "") => inp(id, val ?? "", `type="text" inputmode="decimal" autocomplete="off" placeholder="${ph}"`);
+const radios = (name, legend, opts, val) => `<fieldset class="field"><legend class="f-label">${legend}</legend><div class="opts">${opts.map(([v, l]) => `<label class="opt"><input type="radio" name="${name}" value="${esc(v)}"${v === val ? " checked" : ""}><span>${esc(l)}</span></label>`).join("")}</div></fieldset>`;
+const foot = (del, extra = "") => `<div class="sheet-foot">${del ? `<button type="button" class="btn danger" data-act="${del}">حذف</button>` : ""}<div class="foot-group">${extra}<button type="submit" class="btn primary">حفظ</button></div></div>`;
+function arm(btn, label){
+  if (btn.dataset.armed) return true;
+  const old = btn.textContent;
+  btn.dataset.armed = "1"; btn.textContent = label;
+  setTimeout(() => { if (btn.isConnected && btn.dataset.armed) { delete btn.dataset.armed; btn.textContent = old; } }, 4000);
+  return false;
+}
+const str = (fd, k) => String(fd.get(k) || "").trim();
+const formVals = () => Object.fromEntries(new FormData(form).entries());
+
+async function compressImage(file){
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    let w = img.naturalWidth, h = img.naturalHeight;
+    const k = Math.min(1, 1200 / Math.max(w, h)); w = Math.round(w * k); h = Math.round(h * k);
+    const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+    const ctx = cv.getContext("2d"); ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, w, h); ctx.drawImage(img, 0, 0, w, h);
+    const blob = await new Promise(r => cv.toBlob(r, "image/jpeg", 0.86));
+    return blob || file;
+  } catch { return file; }
+  finally { URL.revokeObjectURL(url); }
+}
+async function uploadImage(file){
+  const blob = await compressImage(file);
+  const type = blob.type || "image/jpeg";
+  const ext = type === "image/png" ? "png" : type === "image/webp" ? "webp" : "jpg";
+  const path = `${uid()}.${ext}`;
+  const { error } = await sb.storage.from(BUCKET).upload(path, blob, { contentType: type, cacheControl: "31536000", upsert: false });
+  if (error) throw error;
+  return path;
+}
+const removeImage = path => { if (path) sb.storage.from(BUCKET).remove([path]).catch(() => {}); };
+
+// اختيار صورة داخل نموذج
+function imagePicker(current, label = "اختيار صورة"){
+  return `<div class="imgpick">
+    <div class="imgpick-prev" id="f_prev">${current ? `<img src="${esc(imgUrl(current))}" alt="" data-fb="1">` : bottle()}</div>
+    <div class="imgpick-act">
+      <label class="btn ghost small" for="f_img">${current ? "تغيير الصورة" : label}</label><input id="f_img" type="file" accept="image/*" class="vh">
+      ${current ? `<button type="button" class="btn danger small" id="f_rmimg">إزالة</button>` : ""}
+    </div>
+  </div>`;
+}
+function bindImagePicker(f, state){
+  let prevUrl = null;
+  const fi = $("#f_img", f);
+  fi.addEventListener("change", () => {
+    const file = fi.files && fi.files[0]; if (!file) return;
+    state.picked = file; state.remove = false;
+    if (prevUrl) URL.revokeObjectURL(prevUrl);
+    prevUrl = URL.createObjectURL(file);
+    $("#f_prev", f).innerHTML = `<img src="${prevUrl}" alt="">`;
+  });
+  const rm = $("#f_rmimg", f);
+  if (rm) rm.addEventListener("click", () => { state.picked = null; state.remove = true; $("#f_prev", f).innerHTML = bottle(); rm.remove(); });
+}
+
+/* ---------- suggestions & market alerts ---------- */
+function suggestions(text){
+  const t = norm(text); if (!t) return [];
+  const m = new Map();
+  for (const g of S.groups.values()) m.set(g.key, { name: g.name, brand: g.brand, size: g.combos[0] ? g.combos[0].size : null, places: g.places, catalog: !!g.catalog });
+  for (const p of S.perfumes) { const k = norm(p.name); if (!k) continue; const e = m.get(k); if (e) e.catalog = true; else m.set(k, { name: p.name, brand: p.brand, size: toNum(p.size), places: 0, catalog: true }); }
+  const out = [];
+  for (const [k, e] of m) { const i = (k + " " + norm(e.brand)).indexOf(t); if (i >= 0) out.push({ ...e, key: k, rank: k.startsWith(t) ? 0 : 1 }); }
+  return out.sort((a, b) => a.rank - b.rank || b.places - a.places || a.name.localeCompare(b.name)).slice(0, 6);
+}
+function attachSuggest(f, onPick){
+  const input = $("#f_name", f), box = $("#f_sugg", f);
+  let list = [];
+  const update = () => {
+    const t = norm(input.value);
+    list = t ? suggestions(input.value) : [];
+    if (!list.length || (list.length === 1 && list[0].key === t)) { box.hidden = true; return; }
+    box.innerHTML = list.map((s, i) => `<button type="button" data-sug="${i}"><span class="sn">${esc(s.name)}${s.brand ? ` <span class="muted">· ${esc(s.brand)}</span>` : ""}</span><span class="ss">${[s.places ? `مرصود في ${placesTxt(s.places)}` : "", s.catalog ? "في عطوري" : ""].filter(Boolean).join(" · ")}</span></button>`).join("");
+    box.hidden = false;
+  };
+  input.addEventListener("input", update);
+  input.addEventListener("focus", update);
+  input.addEventListener("blur", () => setTimeout(() => { box.hidden = true; }, 180));
+  box.addEventListener("mousedown", e => e.preventDefault());
+  box.addEventListener("click", e => {
+    const b = e.target.closest("[data-sug]"); if (!b) return;
+    const s = list[+b.dataset.sug]; box.hidden = true;
+    input.value = s.name; onPick(s); input.dispatchEvent(new Event("change"));
+  });
+}
+const sugField = (label, val, ph) => `<label class="field" for="f_name"><span class="f-label">${label}</span><div class="sug-wrap">${inp("f_name", val, `autocomplete="off" autocapitalize="words" placeholder="${ph}"`)}<div class="sugg" id="f_sugg" hidden></div></div></label>`;
+
+// تنبيه: هذا العطر موجود في السوق
+function marketAlert(name, size, pack, excludeId){
+  const g = S.groups.get(norm(name));
+  if (!g) return "";
+  const pool = g.items.filter(i => i.id !== excludeId);
+  if (!pool.length) return "";
+  const sz = toNum(size), pk = pack || PACK[0];
+  const comp = pool.filter(i => i.packaging === pk && toNum(i.price) != null && (sz == null || toNum(i.size) === sz));
+  const prices = comp.map(i => toNum(i.price));
+  const places = new Set(pool.map(i => i.shopId)).size;
+  const show = (comp.length ? comp : pool).slice().sort((a, b) => (toNum(a.price) ?? 1e12) - (toNum(b.price) ?? 1e12)).slice(0, 5);
+  return `<div class="mkbox">
+    <b>موجود في السوق: ${placesTxt(places)}</b>
+    ${comp.length ? `<span>بنفس ${sz ? "الحجم و" : ""}التعبئة: الأرخص <b class="num">${fmt(Math.min(...prices))}</b> · المتوسط <b class="num">${fmt(avg(prices))}</b> ر.س</span>` : `<span class="muted">ما فيه رصد بنفس ${sz ? "الحجم و" : ""}التعبئة. هذي أقرب الأسعار:</span>`}
+    <ul>${show.map(i => `<li>${esc((shopById(i.shopId) || {}).name || "محل")} — ${esc([sizeTxt(i.size), i.packaging].filter(Boolean).join(" "))} — <b class="num">${toNum(i.price) != null ? fmt(toNum(i.price)) : "—"}</b> ر.س</li>`).join("")}</ul>
+  </div>`;
+}
+
+/* ---------- forms ---------- */
+function perfumeForm(p, pre = {}){
+  const isNew = !p; p = p || {};
+  const v = { name: p.name ?? pre.name, brand: p.brand ?? pre.brand, size: p.size ?? pre.size, packaging: p.packaging || pre.packaging || PACK[0] };
+  const img = { picked: null, remove: false };
+  const html = `
+    ${imagePicker(p.image)}
+    ${sugField('اسم العطر <i>*</i>', v.name, "مثال: Aventus")}
+    <div id="f_alert"></div>
+    <div class="grid2">
+      ${field("f_brand", "الماركة", inp("f_brand", v.brand, 'autocomplete="off" placeholder="مثال: Creed"'))}
+      ${field("f_conc", "التركيز", `<select class="inp" id="f_conc" name="f_conc"><option value="">—</option>${CONC.map(o => `<option${o === p.conc ? " selected" : ""}>${o}</option>`).join("")}</select>`)}
+    </div>
+    <div class="grid2">
+      ${field("f_size", "الحجم (مل)", inp("f_size", v.size ?? "", 'type="text" inputmode="decimal" list="dlSizes" autocomplete="off" placeholder="100"'))}
+      <span></span>
+    </div>
+    ${radios("f_pack", "التعبئة", PACK.map(x => [x, x]), v.packaging)}
+    <div class="grid2">
+      ${field("f_sell", "سعر بيعك (ر.س)", numInp("f_sell", p.sellPrice, "650"))}
+      ${field("f_resell", "سعر الموزعين (ر.س)", numInp("f_resell", p.resellerPrice, "580"))}
+    </div>
+    ${field("f_notes", "ملاحظات", `<textarea class="inp" id="f_notes" name="f_notes" placeholder="الفوحان، الثبات، ملاحظات عن الدفعة…">${esc(p.notes || "")}</textarea>`)}
+    ${foot(isNew ? null : "del-perfume")}`;
+  openSheet(isNew ? "عطر جديد" : "تعديل العطر", html, async fd => {
+    const name = str(fd, "f_name");
+    if (!name) throw fail("اكتب اسم العطر.");
+    const dup = S.perfumes.find(x => x.id !== p.id && norm(x.name) === norm(name) && toNum(x.size) === toNum(fd.get("f_size")) && x.packaging === (str(fd, "f_pack") || PACK[0]));
+    if (dup && isNew) throw fail("هذا العطر موجود في عطورك بنفس الحجم والتعبئة.");
+    const row = {
+      name, brand: str(fd, "f_brand"), conc: str(fd, "f_conc"), size: toNum(fd.get("f_size")), packaging: str(fd, "f_pack") || PACK[0],
+      sell_price: toNum(fd.get("f_sell")), reseller_price: toNum(fd.get("f_resell")), notes: str(fd, "f_notes")
+    };
+    let newImg = null;
+    if (img.picked) newImg = await uploadImage(img.picked);
+    if (newImg) row.image_path = newImg; else if (img.remove) row.image_path = null;
+    if (isNew) {
+      let created;
+      try { created = await q(sb.from("perfumes").insert(row).select("id").single()); }
+      catch (e) { removeImage(newImg); throw e; }
+      closeSheet(); toast("انضاف العطر");
+      await reload();
+      go("perfume", created.id);
+    } else {
+      try { await q(sb.from("perfumes").update(row).eq("id", p.id)); }
+      catch (e) { removeImage(newImg); throw e; }
+      if ((newImg || img.remove) && p.image) removeImage(p.image);
+      closeSheet(); toast("انحفظت التعديلات");
+      await reload();
+    }
+  }, f => {
+    bindImagePicker(f, img);
+    const upd = () => { const fv = formVals(); $("#f_alert", f).innerHTML = marketAlert(fv.f_name, fv.f_size, fv.f_pack); };
+    attachSuggest(f, s => {
+      if (!$("#f_brand", f).value && s.brand) $("#f_brand", f).value = s.brand;
+      if (!$("#f_size", f).value && s.size) $("#f_size", f).value = s.size;
+      upd();
+    });
+    for (const id of ["#f_name", "#f_size"]) { $(id, f).addEventListener("input", upd); $(id, f).addEventListener("change", upd); }
+    f.querySelectorAll('input[name="f_pack"]').forEach(r => r.addEventListener("change", upd));
+    upd();
+  });
+  delHandler = async () => {
+    const id = p.id, im = p.image;
+    closeSheet(); S.stack = []; go("list", null, false);
+    try { await q(sb.from("perfumes").delete().eq("id", id)); removeImage(im); toast("انحذف العطر"); await reload(); }
+    catch (e) { toast(errMsg(e)); }
+  };
+}
+
+function linkHint(p, price){
+  const c = calc(p);
+  if (c.mAvg == null) return `<div class="mkbox"><span class="muted">ما فيه رصد لهذا العطر في السوق بنفس الحجم والتعبئة.</span></div>`;
+  let s = `<div class="mkbox"><b>السوق ${rangeH(c.mMin, c.mMax)} ر.س · المتوسط <span class="num">${fmt(c.mAvg)}</span> (${placesTxt(c.nPlaces)})</b>`;
+  if (price != null) { const pr = c.mAvg - price; s += `<span>لو بعت بمتوسط السوق، ربحك من هذا المورد <b class="num">${fmt(pr)}</b> ر.س (هامش ${pctH(pr / c.mAvg * 100)})</span>`; }
+  return s + "</div>";
+}
+function linkForm(p, sid, preselect, preName){
+  const cur = perfById(p.id) || p;
+  const linked = new Set((cur.suppliers || []).map(l => l.id));
+  const l = sid ? (cur.suppliers || []).find(x => x.id === sid) || {} : {};
+  const choices = S.suppliers.filter(s => !linked.has(s.id) || s.id === sid).sort((a, b) => String(a.name).localeCompare(String(b.name), "ar"));
+  if (preselect && !choices.some(s => s.id === preselect)) choices.push({ id: preselect, name: preName || "المورد الجديد" });
+  const sel = preselect || sid || "";
+  const html = `
+    ${field("f_sup", 'المورد <i>*</i>', `<select class="inp" id="f_sup" name="f_sup">${!sel ? '<option value="">اختر مورد</option>' : ""}${choices.map(s => `<option value="${esc(s.id)}"${s.id === sel ? " selected" : ""}>${esc(s.name)}${s.city ? " — " + esc(s.city) : ""}</option>`).join("")}<option value="__new">+ مورد جديد…</option></select>`, choices.length ? "" : "ما فيه موردين متاحين. اختر «مورد جديد» عشان تضيفه.")}
+    ${field("f_lprice", "سعره لك (ر.س)", numInp("f_lprice", l.price, "420"), "سعر الحبة من هذا المورد. أرخص مورد يصير سعر التكلفة.")}
+    <div id="f_hint">${linkHint(cur, toNum(l.price))}</div>
+    ${foot(sid ? "del-link" : null)}`;
+  openSheet(sid ? "تعديل المورد للعطر" : "ربط مورد بالعطر", html, async fd => {
+    const id = String(fd.get("f_sup") || "");
+    if (!id || id === "__new") throw fail("اختر المورد.");
+    const price = toNum(fd.get("f_lprice"));
+    if (sid && sid !== id) await q(sb.from("perfume_suppliers").delete().eq("perfume_id", p.id).eq("supplier_id", sid));
+    await q(sb.from("perfume_suppliers").upsert({ perfume_id: p.id, supplier_id: id, price }, { onConflict: "perfume_id,supplier_id" }));
+    closeSheet(); toast("انربط المورد");
+    await reload();
+  }, f => {
+    $("#f_sup", f).addEventListener("change", e => {
+      if (e.target.value === "__new") supplierForm(null, (newId, newName) => linkForm(p, sid, newId, newName));
+    });
+    $("#f_lprice", f).addEventListener("input", e => { $("#f_hint", f).innerHTML = linkHint(perfById(p.id) || p, toNum(e.target.value)); });
+  });
+  delHandler = async () => {
+    closeSheet();
+    try { await q(sb.from("perfume_suppliers").delete().eq("perfume_id", p.id).eq("supplier_id", sid)); toast("انشال المورد من العطر"); await reload(); }
+    catch (e) { toast(errMsg(e)); }
+  };
+}
+
+function supplierForm(s, after){
+  const isNew = !s; s = s || {};
+  const html = `
+    ${field("f_n", 'اسم المورد <i>*</i>', inp("f_n", s.name, 'autocomplete="off" placeholder="اسم المحل أو الشخص"'))}
+    ${field("f_city", "المدينة", inp("f_city", s.city, 'autocomplete="off" placeholder="الرياض"'))}
+    <div class="grid2">
+      ${field("f_phone", "رقم الجوال", inp("f_phone", s.phone, 'type="tel" inputmode="tel" dir="ltr" autocomplete="off" placeholder="05xxxxxxxx"'))}
+      ${field("f_wa", "واتساب", inp("f_wa", s.whatsapp, 'type="tel" inputmode="tel" dir="ltr" autocomplete="off" placeholder="نفس الجوال"'), "اتركه فاضي إذا نفس رقم الجوال.")}
+    </div>
+    ${field("f_maps", "رابط الموقع في قوقل ماب", inp("f_maps", s.maps, 'type="url" inputmode="url" dir="ltr" autocomplete="off" placeholder="https://maps.app.goo.gl/…"'), "من قوقل ماب: مشاركة ← نسخ الرابط.")}
+    ${field("f_link", "رابط ثاني", inp("f_link", s.link, 'type="url" inputmode="url" dir="ltr" autocomplete="off" placeholder="انستقرام أو موقع"'))}
+    ${field("f_email", "الإيميل", inp("f_email", s.email, 'type="email" inputmode="email" dir="ltr" autocomplete="off"'))}
+    ${field("f_snotes", "ملاحظات", `<textarea class="inp" id="f_snotes" name="f_snotes" placeholder="أوقات الدوام، طريقة الدفع، أقل كمية…">${esc(s.notes || "")}</textarea>`)}
+    ${foot(isNew ? null : "del-supplier")}`;
+  openSheet(isNew ? "مورد جديد" : "تعديل المورد", html, async fd => {
+    const name = str(fd, "f_n");
+    if (!name) throw fail("اكتب اسم المورد.");
+    const rawMaps = str(fd, "f_maps"), rawLink = str(fd, "f_link");
+    const maps = normUrl(rawMaps), link = normUrl(rawLink);
+    if (rawMaps && !maps) throw fail("رابط الموقع غير صحيح.");
+    if (rawLink && !link) throw fail("الرابط الثاني غير صحيح.");
+    const row = { name, city: str(fd, "f_city"), phone: str(fd, "f_phone"), whatsapp: str(fd, "f_wa"), maps, link, email: str(fd, "f_email"), notes: str(fd, "f_snotes") };
+    if (isNew) {
+      const created = await q(sb.from("suppliers").insert(row).select("id").single());
+      toast("انضاف المورد");
+      await reload();
+      if (after) after(created.id, name); else { closeSheet(); go("supplier", created.id); }
+    } else {
+      await q(sb.from("suppliers").update(row).eq("id", s.id));
+      closeSheet(); toast("انحفظ المورد");
+      await reload();
+    }
+  });
+  delHandler = async () => {
+    const id = s.id;
+    closeSheet(); S.stack = []; go("suppliers", null, false);
+    try { await q(sb.from("suppliers").delete().eq("id", id)); toast("انحذف المورد"); await reload(); }
+    catch (e) { toast(errMsg(e)); }
+  };
+}
+
+function shopForm(s, after){
+  const isNew = !s; s = s || {};
+  const kind = s.kind || "store";
+  const html = `
+    ${field("f_n", 'اسم المحل أو الموقع <i>*</i>', inp("f_n", s.name, 'autocomplete="off" placeholder="مثال: عطور الفيصلية"'))}
+    ${radios("f_kind", "النوع", Object.entries(KIND), kind)}
+    ${field("f_city", "المدينة", inp("f_city", s.city, 'autocomplete="off" placeholder="الرياض"'))}
+    <div id="w_maps"${kind === "online" ? " hidden" : ""}>${field("f_maps", "رابط الموقع في قوقل ماب", inp("f_maps", s.maps, 'type="url" inputmode="url" dir="ltr" autocomplete="off" placeholder="https://maps.app.goo.gl/…"'), "من قوقل ماب: مشاركة ← نسخ الرابط.")}</div>
+    <div id="w_web"${kind === "store" ? " hidden" : ""}>${field("f_web", "الموقع الإلكتروني", inp("f_web", s.website, 'type="url" inputmode="url" dir="ltr" autocomplete="off" placeholder="https://"'))}</div>
+    ${field("f_phone", "الجوال", inp("f_phone", s.phone, 'type="tel" inputmode="tel" dir="ltr" autocomplete="off" placeholder="اختياري"'))}
+    ${field("f_snotes", "ملاحظات", `<textarea class="inp" id="f_snotes" name="f_snotes" placeholder="نوع الزبائن، الزحمة، طريقة العرض…">${esc(s.notes || "")}</textarea>`)}
+    ${foot(isNew ? null : "del-shop")}`;
+  openSheet(isNew ? "محل جديد" : "تعديل المحل", html, async fd => {
+    const name = str(fd, "f_n");
+    if (!name) throw fail("اكتب اسم المحل أو الموقع.");
+    const k = str(fd, "f_kind") || "store";
+    const rawMaps = k === "online" ? "" : str(fd, "f_maps"), rawWeb = k === "store" ? "" : str(fd, "f_web");
+    const maps = normUrl(rawMaps), website = normUrl(rawWeb);
+    if (rawMaps && !maps) throw fail("رابط قوقل ماب غير صحيح.");
+    if (rawWeb && !website) throw fail("رابط الموقع الإلكتروني غير صحيح.");
+    const row = { name, kind: k, city: str(fd, "f_city"), maps, website, phone: str(fd, "f_phone"), notes: str(fd, "f_snotes") };
+    if (isNew) {
+      const created = await q(sb.from("shops").insert(row).select("id").single());
+      toast("انضاف المحل");
+      await reload();
+      if (after) after(created.id, name); else { closeSheet(); go("shop", created.id); }
+    } else {
+      await q(sb.from("shops").update(row).eq("id", s.id));
+      closeSheet(); toast("انحفظ المحل");
+      await reload();
+    }
+  }, f => {
+    f.querySelectorAll('input[name="f_kind"]').forEach(r => r.addEventListener("change", () => {
+      const k = formVals().f_kind;
+      $("#w_maps", f).hidden = k === "online"; $("#w_web", f).hidden = k === "store";
+    }));
+  });
+  delHandler = async () => {
+    const id = s.id;
+    closeSheet(); S.stack = []; S.msub = "shops"; go("market", null, false);
+    try { await q(sb.from("shops").delete().eq("id", id)); toast("انحذف المحل ورصده"); await reload(); }
+    catch (e) { toast(errMsg(e)); }
+  };
+}
+
+// رصد عطر في محل
+function itemForm(it, pre = {}){
+  const isNew = !it; it = it || {};
+  const v = {
+    shopId: it.shopId || pre.shopId || (shopById(S.lastShop) ? S.lastShop : ""),
+    name: it.name ?? pre.name, brand: it.brand ?? pre.brand, size: it.size ?? pre.size, price: it.price ?? pre.price,
+    packaging: it.packaging || pre.packaging || PACK[0], demand: it.demand ?? pre.demand ?? "", url: it.url ?? pre.url,
+    seenOn: it.seenOn || pre.seenOn || todayStr(), notes: it.notes ?? pre.notes
+  };
+  const img = { picked: null, remove: false };
+  const shops = S.shops.slice().sort((a, b) => String(a.name).localeCompare(String(b.name), "ar"));
+  const kindOf = id => (shopById(id) || {}).kind || "store";
+  const html = `
+    ${field("f_shop", 'المحل أو الموقع <i>*</i>', `<select class="inp" id="f_shop" name="f_shop">${!v.shopId ? '<option value="">اختر المحل</option>' : ""}${shops.map(s => `<option value="${esc(s.id)}"${s.id === v.shopId ? " selected" : ""}>${esc(s.name)}${s.city ? " — " + esc(s.city) : ""}</option>`).join("")}<option value="__new">+ محل جديد…</option></select>`)}
+    ${sugField('اسم العطر <i>*</i>', v.name, "اكتبه بالإنجليزي مثل العلبة")}
+    <div id="f_alert"></div>
+    <div class="grid2">
+      ${field("f_brand", "الماركة", inp("f_brand", v.brand, 'autocomplete="off" placeholder="Creed"'))}
+      ${field("f_size", "الحجم (مل)", inp("f_size", v.size ?? "", 'type="text" inputmode="decimal" list="dlSizes" autocomplete="off" placeholder="100"'))}
+    </div>
+    <div class="grid2">
+      ${field("f_price", "السعر (ر.س)", numInp("f_price", v.price, "1150"))}
+      ${field("f_date", "تاريخ الرصد", inp("f_date", v.seenOn, 'type="date"'))}
+    </div>
+    ${radios("f_pack", "التعبئة", PACK.map(x => [x, x]), v.packaging)}
+    ${radios("f_dem", "هل هو ماشي؟", [["", "ما أعرف"], ["high", DEMAND.high], ["mid", DEMAND.mid], ["low", DEMAND.low]], v.demand)}
+    <div id="w_url"${kindOf(v.shopId) === "store" ? " hidden" : ""}>${field("f_url", "رابط العطر في الموقع", inp("f_url", v.url, 'type="url" inputmode="url" dir="ltr" autocomplete="off" placeholder="https://"'))}</div>
+    ${field("f_notes", "ملاحظات", `<textarea class="inp" id="f_notes" name="f_notes" placeholder="كلام البايع، عروض، الكمية المعروضة…">${esc(v.notes || "")}</textarea>`)}
+    ${imagePicker(it.image, "صورة الرف أو التسعيرة")}
+    ${foot(isNew ? null : "del-item", isNew ? '<button type="submit" class="btn ghost" data-mode="next">حفظ وأضف التالي</button>' : "")}`;
+  openSheet(isNew ? "رصد عطر" : "تعديل الرصد", html, async (fd, mode) => {
+    const shopId = str(fd, "f_shop");
+    if (!shopId || shopId === "__new") throw fail("اختر المحل أو الموقع.");
+    const name = str(fd, "f_name");
+    if (!name) throw fail("اكتب اسم العطر.");
+    const rawUrl = str(fd, "f_url"), url = kindOf(shopId) === "store" ? "" : normUrl(rawUrl);
+    if (rawUrl && kindOf(shopId) !== "store" && !url) throw fail("رابط العطر غير صحيح.");
+    const row = {
+      shop_id: shopId, perfume_name: name, brand: str(fd, "f_brand"), size: toNum(fd.get("f_size")), price: toNum(fd.get("f_price")),
+      packaging: str(fd, "f_pack") || PACK[0], demand: str(fd, "f_dem"), url, seen_on: str(fd, "f_date") || todayStr(), notes: str(fd, "f_notes")
+    };
+    let newImg = null;
+    if (img.picked) newImg = await uploadImage(img.picked);
+    if (newImg) row.image_path = newImg; else if (img.remove) row.image_path = null;
+    try {
+      if (isNew) await q(sb.from("market_items").insert(row));
+      else await q(sb.from("market_items").update(row).eq("id", it.id));
+    } catch (e) { removeImage(newImg); throw e; }
+    if (!isNew && (newImg || img.remove) && it.image) removeImage(it.image);
+    S.lastShop = shopId; ls.set("lastShop", shopId);
+    await reload();
+    if (mode === "next") { itemForm(null, { shopId, seenOn: row.seen_on }); toast("انحفظ. سجّل العطر اللي بعده"); }
+    else { closeSheet(); toast(isNew ? "انحفظ الرصد" : "انحفظ التعديل"); }
+  }, f => {
+    bindImagePicker(f, img);
+    const upd = () => { const fv = formVals(); $("#f_alert", f).innerHTML = marketAlert(fv.f_name, fv.f_size, fv.f_pack, it.id); };
+    attachSuggest(f, s => {
+      if (!$("#f_brand", f).value && s.brand) $("#f_brand", f).value = s.brand;
+      if (!$("#f_size", f).value && s.size) $("#f_size", f).value = s.size;
+      upd();
+    });
+    for (const id of ["#f_name", "#f_size"]) { $(id, f).addEventListener("input", upd); $(id, f).addEventListener("change", upd); }
+    f.querySelectorAll('input[name="f_pack"]').forEach(r => r.addEventListener("change", upd));
+    $("#f_shop", f).addEventListener("change", e => {
+      const val = e.target.value;
+      if (val === "__new") {
+        const fv = formVals();
+        const keep = { name: fv.f_name, brand: fv.f_brand, size: fv.f_size, price: fv.f_price, packaging: fv.f_pack, demand: fv.f_dem, seenOn: fv.f_date, notes: fv.f_notes, url: fv.f_url };
+        shopForm(null, newId => itemForm(it.id ? it : null, { ...keep, shopId: newId }));
+        return;
+      }
+      $("#w_url", f).hidden = kindOf(val) === "store";
+    });
+    upd();
+  });
+  delHandler = async () => {
+    closeSheet();
+    try { await q(sb.from("market_items").delete().eq("id", it.id)); removeImage(it.image); toast("انحذف الرصد"); await reload(); }
+    catch (e) { toast(errMsg(e)); }
+  };
+}
+
+async function copyText(text, btn){
+  try { await navigator.clipboard.writeText(text); toast("انسخ"); }
+  catch {
+    const v = btn && btn.parentElement && btn.parentElement.querySelector(".cval");
+    if (v) { const r = document.createRange(); r.selectNodeContents(v); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); toast("حدد النص وانسخه"); }
+  }
+}
+
+/* ---------- export to Excel ---------- */
+let excelLib = null, exporting = false;
+function loadExcel(){
+  if (window.ExcelJS) return Promise.resolve(window.ExcelJS);
+  if (excelLib) return excelLib;
+  excelLib = new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js";
+    s.onload = () => window.ExcelJS ? res(window.ExcelJS) : rej(new Error("excel library missing"));
+    s.onerror = () => { excelLib = null; rej(new Error("excel library network")); };
+    document.head.appendChild(s);
+  });
+  return excelLib;
+}
+const dayDate = str => str ? new Date(dayNum(str)) : null;
+
+function buildWorkbook(ExcelJS){
+  const MONEY = "#,##0.00", PCT = "0.0%", DATE = "yyyy-mm-dd";
+  const wb = new ExcelJS.Workbook();
+  wb.creator = "دفتر العطور"; wb.created = new Date();
+  const LINK = { color: { argb: "FF1F5FBF" }, underline: true };
+  const f = (formula, result) => ({ formula, result: result == null ? "" : result });
+  const link = (text, url) => url ? { text: text || url, hyperlink: url } : null;
+
+  function sheet(name, cols){
+    const ws = wb.addWorksheet(name, { views: [{ rightToLeft: true, state: "frozen", ySplit: 1 }] });
+    ws.columns = cols.map(c => ({ header: c.h, key: c.k, width: c.w, style: c.fmt ? { numFmt: c.fmt } : {} }));
+    const hr = ws.getRow(1); hr.height = 30;
+    hr.eachCell(cell => {
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFA3561A" } };
+      cell.alignment = { vertical: "middle", horizontal: "center", wrapText: true };
+    });
+    ws.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: cols.length } };
+    return ws;
+  }
+  function finish(ws, linkCols = [], wrapCols = []){
+    ws.eachRow((row, n) => {
+      if (n === 1) return;
+      row.alignment = { vertical: "middle" };
+      for (const c of linkCols) { const cell = row.getCell(c); if (cell.value && cell.value.hyperlink) cell.font = LINK; }
+      for (const c of wrapCols) row.getCell(c).alignment = { vertical: "top", wrapText: true };
+    });
+  }
+  function marginColors(ws, col, rows){
+    if (rows < 2) return;
+    ws.addConditionalFormatting({ ref: `${col}2:${col}${rows}`, rules: [
+      { type: "cellIs", operator: "lessThan", formulae: [0.1], priority: 1, style: { font: { color: { argb: "FFB0352E" }, bold: true } } },
+      { type: "cellIs", operator: "between", formulae: [0.1, 0.2499], priority: 2, style: { font: { color: { argb: "FF8F6200" }, bold: true } } },
+      { type: "cellIs", operator: "greaterThanOrEqual", formulae: [0.25], priority: 3, style: { font: { color: { argb: "FF1D774B" }, bold: true } } }
+    ] });
+  }
+  const byName = (a, b) => String(a.name || "").localeCompare(String(b.name || ""), "ar");
+  const perfumes = S.perfumes.slice().sort(byName);
+
+  // 1) العطور
+  const wsP = sheet("العطور", [
+    { h: "العطر", k: "name", w: 28 }, { h: "الماركة", k: "brand", w: 18 }, { h: "التركيز", k: "conc", w: 12 }, { h: "التعبئة", k: "pack", w: 14 },
+    { h: "الحجم (مل)", k: "size", w: 10, fmt: "0" },
+    { h: "سعرك (ر.س)", k: "sell", w: 13, fmt: MONEY }, { h: "سعر الموزعين (ر.س)", k: "resell", w: 15, fmt: MONEY },
+    { h: "أرخص مورد (ر.س)", k: "cost", w: 15, fmt: MONEY }, { h: "المورد الأرخص", k: "costSup", w: 20 },
+    { h: "ربحك للحبة (ر.س)", k: "profit", w: 15, fmt: MONEY }, { h: "الهامش", k: "margin", w: 10, fmt: PCT },
+    { h: "ربحك من الموزع (ر.س)", k: "rProfit", w: 17, fmt: MONEY }, { h: "هامش الموزع", k: "rMargin", w: 12, fmt: PCT },
+    { h: "أقل سعر بالسوق (ر.س)", k: "mMin", w: 16, fmt: MONEY }, { h: "متوسط السوق (ر.س)", k: "mAvg", w: 15, fmt: MONEY },
+    { h: "أعلى سعر بالسوق (ر.س)", k: "mMax", w: 16, fmt: MONEY }, { h: "سعرك مقابل المتوسط", k: "vsAvg", w: 15, fmt: PCT },
+    { h: "أماكن مرصودة", k: "nPlaces", w: 12 }, { h: "سعر المل (ر.س)", k: "perMl", w: 12, fmt: MONEY },
+    { h: "ملاحظات", k: "notes", w: 36 }, { h: "آخر تعديل", k: "updated", w: 18, fmt: "yyyy-mm-dd hh:mm" }, { h: "بواسطة", k: "by", w: 22 }
+  ]);
+  perfumes.forEach((p, i) => {
+    const r = i + 2, c = calc(p);
+    const cheapest = (p.suppliers || []).filter(l => toNum(l.price) != null && toNum(l.price) === c.cost).map(l => (supById(l.id) || {}).name).filter(Boolean).join("، ");
+    wsP.addRow({
+      name: p.name || "", brand: p.brand || "", conc: p.conc || "", pack: p.packaging || "", size: c.size ?? null,
+      sell: c.sell ?? null, resell: c.resell ?? null, cost: c.cost ?? null, costSup: cheapest,
+      profit: f(`IF(AND(ISNUMBER(F${r}),ISNUMBER(H${r})),F${r}-H${r},"")`, c.profit),
+      margin: f(`IF(ISNUMBER(J${r}),J${r}/F${r},"")`, c.margin != null ? c.margin / 100 : null),
+      rProfit: f(`IF(AND(ISNUMBER(G${r}),ISNUMBER(H${r})),G${r}-H${r},"")`, c.rProfit),
+      rMargin: f(`IF(ISNUMBER(L${r}),L${r}/G${r},"")`, c.rMargin != null ? c.rMargin / 100 : null),
+      mMin: c.mMin ?? null, mAvg: c.mAvg != null ? Math.round(c.mAvg * 100) / 100 : null, mMax: c.mMax ?? null,
+      vsAvg: f(`IF(AND(ISNUMBER(F${r}),ISNUMBER(O${r})),(F${r}-O${r})/O${r},"")`, c.vsAvg != null ? c.vsAvg / 100 : null),
+      nPlaces: c.nPlaces,
+      perMl: f(`IF(AND(ISNUMBER(F${r}),ISNUMBER(E${r})),F${r}/E${r},"")`, c.perMl),
+      notes: p.notes || "", updated: localDate(p.updatedAt), by: p.updatedBy || ""
+    });
+  });
+  finish(wsP, [], [20]);
+  marginColors(wsP, "K", perfumes.length + 1);
+  marginColors(wsP, "M", perfumes.length + 1);
+
+  // 2) ملخص السوق
+  const groups = [...S.groups.values()].sort((a, b) => b.places - a.places || b.items.length - a.items.length);
+  const wsG = sheet("ملخص السوق", [
+    { h: "العطر", k: "name", w: 28 }, { h: "الماركة", k: "brand", w: 18 }, { h: "عدد الأماكن", k: "places", w: 11 }, { h: "عدد الرصد", k: "n", w: 10 },
+    { h: "الحجم والتعبئة الأشهر", k: "combo", w: 22 }, { h: "أقل سعر (ر.س)", k: "min", w: 13, fmt: MONEY }, { h: "متوسط السعر (ر.س)", k: "avg", w: 15, fmt: MONEY },
+    { h: "أعلى سعر (ر.س)", k: "max", w: 13, fmt: MONEY }, { h: "أقل سعر للمل", k: "pmMin", w: 12, fmt: MONEY }, { h: "أعلى سعر للمل", k: "pmMax", w: 12, fmt: MONEY },
+    { h: "ماشي بقوة", k: "high", w: 10 }, { h: "متوسط", k: "mid", w: 9 }, { h: "ضعيف", k: "low", w: 9 }, { h: "في عطوري", k: "cat", w: 10 }, { h: "آخر رصد", k: "last", w: 12, fmt: DATE }
+  ]);
+  for (const g of groups) {
+    const m = g.combos[0] || {};
+    wsG.addRow({
+      name: g.name, brand: g.brand, places: g.places, n: g.items.length,
+      combo: [m.size ? fmt(m.size) + " مل" : "", m.pack || ""].filter(Boolean).join(" · "),
+      min: m.min ?? null, avg: m.avg != null ? Math.round(m.avg * 100) / 100 : null, max: m.max ?? null,
+      pmMin: g.pmMin != null ? Math.round(g.pmMin * 100) / 100 : null, pmMax: g.pmMax != null ? Math.round(g.pmMax * 100) / 100 : null,
+      high: g.high || null, mid: g.mid || null, low: g.low || null, cat: g.catalog ? "✓" : "", last: dayDate(g.last)
+    });
+  }
+  finish(wsG);
+  wsG.getColumn(14).alignment = { horizontal: "center", vertical: "middle" };
+
+  // 3) رصد السوق
+  const wsI = sheet("رصد السوق", [
+    { h: "العطر", k: "name", w: 28 }, { h: "الماركة", k: "brand", w: 18 }, { h: "الحجم (مل)", k: "size", w: 10, fmt: "0" }, { h: "التعبئة", k: "pack", w: 14 },
+    { h: "السعر (ر.س)", k: "price", w: 13, fmt: MONEY }, { h: "سعر المل (ر.س)", k: "pm", w: 13, fmt: MONEY }, { h: "مدى المشي", k: "dem", w: 12 },
+    { h: "المحل", k: "shop", w: 22 }, { h: "نوع المحل", k: "kind", w: 14 }, { h: "المدينة", k: "city", w: 12 }, { h: "تاريخ الرصد", k: "date", w: 12, fmt: DATE },
+    { h: "رابط العطر", k: "url", w: 36 }, { h: "ملاحظات", k: "notes", w: 32 }, { h: "في عطوري", k: "cat", w: 10 }
+  ]);
+  const items = S.items.slice().sort((a, b) => norm(a.name).localeCompare(norm(b.name)) || (toNum(a.price) ?? 1e12) - (toNum(b.price) ?? 1e12));
+  items.forEach((it, i) => {
+    const r = i + 2, sh = shopById(it.shopId) || {}, href = safeHref(it.url), g = S.groups.get(norm(it.name));
+    wsI.addRow({
+      name: it.name, brand: it.brand || "", size: toNum(it.size), pack: it.packaging, price: toNum(it.price),
+      pm: f(`IF(AND(ISNUMBER(E${r}),ISNUMBER(C${r})),E${r}/C${r},"")`, perMlOf(it)),
+      dem: DEMAND[it.demand] || "", shop: sh.name || "", kind: KIND[sh.kind] || "", city: sh.city || "", date: dayDate(it.seenOn),
+      url: href ? link(host(href) || href, href) : null, notes: it.notes || "", cat: g && g.catalog ? "✓" : ""
+    });
+  });
+  finish(wsI, [12], [13]);
+  wsI.getColumn(14).alignment = { horizontal: "center", vertical: "middle" };
+
+  // 4) المحلات
+  const wsH = sheet("المحلات", [
+    { h: "المحل", k: "name", w: 24 }, { h: "النوع", k: "kind", w: 14 }, { h: "المدينة", k: "city", w: 12 }, { h: "قوقل ماب", k: "maps", w: 14 },
+    { h: "الموقع الإلكتروني", k: "web", w: 26 }, { h: "الجوال", k: "phone", w: 16 }, { h: "عدد الرصد", k: "n", w: 10 }, { h: "آخر زيارة", k: "last", w: 12, fmt: DATE }, { h: "ملاحظات", k: "notes", w: 32 }
+  ]);
+  for (const s of S.shops.slice().sort(byName)) {
+    const its = itemsOfShop(s.id), last = its.reduce((m, i) => i.seenOn > m ? i.seenOn : m, "");
+    const mp = safeHref(s.maps), web = safeHref(s.website);
+    wsH.addRow({
+      name: s.name, kind: KIND[s.kind] || "", city: s.city || "", maps: mp ? link("فتح الموقع", mp) : null,
+      web: web ? link(host(web) || web, web) : null, phone: s.phone || "", n: its.length, last: dayDate(last), notes: s.notes || ""
+    });
+  }
+  finish(wsH, [4, 5], [9]);
+
+  // 5) الموردين
+  const wsV = sheet("الموردين", [
+    { h: "المورد", k: "name", w: 24 }, { h: "المدينة", k: "city", w: 14 }, { h: "الجوال", k: "phone", w: 16 },
+    { h: "واتساب", k: "wa", w: 18 }, { h: "الإيميل", k: "email", w: 26 }, { h: "موقع قوقل ماب", k: "maps", w: 16 },
+    { h: "رابط", k: "link", w: 30 }, { h: "عدد العطور", k: "n", w: 10 }, { h: "ملاحظات", k: "notes", w: 36 }
+  ]);
+  for (const s of S.suppliers.slice().sort(byName)) {
+    const wa = waDigits(s.whatsapp || s.phone), mp = safeHref(s.maps), lk = safeHref(s.link);
+    wsV.addRow({
+      name: s.name || "", city: s.city || "", phone: s.phone || "",
+      wa: wa ? link("+" + wa, "https://wa.me/" + wa) : null, email: s.email || "",
+      maps: mp ? link("فتح الموقع", mp) : null, link: lk ? link(lk.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, ""), lk) : null,
+      n: perfumesOf(s.id).length, notes: s.notes || ""
+    });
+  }
+  finish(wsV, [4, 6, 7], [9]);
+
+  // 6) أسعار الموردين
+  const wsL = sheet("أسعار الموردين", [
+    { h: "العطر", k: "name", w: 28 }, { h: "الماركة", k: "brand", w: 18 }, { h: "الحجم (مل)", k: "size", w: 10, fmt: "0" },
+    { h: "المورد", k: "sup", w: 22 }, { h: "المدينة", k: "city", w: 14 }, { h: "سعر المورد (ر.س)", k: "price", w: 15, fmt: MONEY },
+    { h: "الأرخص", k: "best", w: 9 }, { h: "سعرك (ر.س)", k: "sell", w: 13, fmt: MONEY }, { h: "ربحك من هذا المورد (ر.س)", k: "profit", w: 20, fmt: MONEY }
+  ]);
+  let r4 = 2;
+  for (const p of perfumes) {
+    const c = calc(p);
+    const links = (p.suppliers || []).slice().sort((a, b) => (toNum(a.price) ?? 1e12) - (toNum(b.price) ?? 1e12));
+    for (const l of links) {
+      const s = supById(l.id) || {}, pr = toNum(l.price);
+      wsL.addRow({
+        name: p.name || "", brand: p.brand || "", size: c.size ?? null, sup: s.name || "", city: s.city || "", price: pr ?? null,
+        best: pr != null && pr === c.cost ? "✓" : "", sell: c.sell ?? null,
+        profit: f(`IF(AND(ISNUMBER(H${r4}),ISNUMBER(F${r4})),H${r4}-F${r4},"")`, pr != null && c.sell != null ? c.sell - pr : null)
+      });
+      r4++;
+    }
+  }
+  finish(wsL);
+  wsL.getColumn(7).alignment = { horizontal: "center", vertical: "middle" };
+  return wb;
+}
+
+async function saveFile(blob, name){
+  const coarse = window.matchMedia && matchMedia("(pointer: coarse)").matches;
+  if (coarse && navigator.canShare) {
+    try {
+      const file = new File([blob], name, { type: blob.type });
+      if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: name }); return; }
+    } catch (e) { if (e && e.name === "AbortError") return; }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  toast("انحفظ الملف");
+}
+
+async function exportExcel(btn){
+  if (exporting) return;
+  exporting = true;
+  const html = btn.innerHTML;
+  btn.disabled = true; btn.textContent = "جاري التجهيز…";
+  try {
+    const ExcelJS = await loadExcel();
+    const wb = buildWorkbook(ExcelJS);
+    const buf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    await saveFile(blob, `دفتر-العطور-${todayStr()}.xlsx`);
+  } catch (e) {
+    console.error(e);
+    toast(/network|fetch/i.test(String(e && e.message)) ? "ما قدرت أحمّل أداة Excel. تأكد من الاتصال." : "ما قدرت أجهز الملف. حاول مرة ثانية.");
+  } finally {
+    exporting = false;
+    if (btn.isConnected) { btn.disabled = false; btn.innerHTML = html; }
+  }
+}
+
+/* ---------- auth ---------- */
+let lgMode = "in";
+function setLoginMode(m){
+  lgMode = m;
+  const up = m === "up";
+  $("#lgModeIn").setAttribute("aria-pressed", String(!up));
+  $("#lgModeUp").setAttribute("aria-pressed", String(up));
+  $("#lg_pass2_w").hidden = !up;
+  $("#lg_pass").setAttribute("autocomplete", up ? "new-password" : "current-password");
+  $("#lg_intro").textContent = up
+    ? "أنشئ حسابك بإيميلك. أول حساب يتسجل يصير المدير، وأي حساب بعده يحتاج موافقة المدير قبل ما يشوف البيانات."
+    : "سجّل دخولك عشان تشوف العطور والموردين.";
+  $("#lg_btn").textContent = up ? "إنشاء الحساب" : "دخول";
+  $("#lg_err").hidden = true; $("#lg_ok").hidden = true;
+}
+$("#loginForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const up = lgMode === "up";
+  const email = $("#lg_email").value.trim(), password = $("#lg_pass").value, password2 = $("#lg_pass2").value;
+  const err = $("#lg_err"), ok = $("#lg_ok"), btn = $("#lg_btn");
+  const fail = msg => { err.textContent = msg; err.hidden = false; };
+  err.hidden = true; ok.hidden = true;
+  if (!email || !password) return fail("اكتب الإيميل وكلمة المرور.");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail("الإيميل مكتوب غلط.");
+  if (up && password.length < 8) return fail("كلمة المرور لازم تكون 8 أحرف أو أكثر.");
+  if (up && password !== password2) return fail("كلمتا المرور مو متطابقتين.");
+  const label = btn.textContent;
+  btn.disabled = true; btn.textContent = up ? "جاري إنشاء الحساب…" : "جاري الدخول…";
+  let res;
+  try {
+    res = up
+      ? await sb.auth.signUp({ email, password, options: { emailRedirectTo: location.href.split("#")[0] } })
+      : await sb.auth.signInWithPassword({ email, password });
+  } catch (x) { res = { error: x }; }
+  btn.disabled = false; btn.textContent = label;
+  const error = res && res.error;
+  if (error) {
+    const m = String(error.message || "");
+    return fail(/invalid login/i.test(m) ? "الإيميل أو كلمة المرور غلط."
+      : /already registered|already exists/i.test(m) ? "هذا الإيميل عنده حساب. اختر «دخول» بدل."
+      : /not confirmed/i.test(m) ? "الحساب ما تأكد بعد. افتح رسالة التأكيد اللي وصلت إيميلك."
+      : /password/i.test(m) && /least|short|weak/i.test(m) ? "كلمة المرور ضعيفة. استخدم 8 أحرف أو أكثر مع أرقام."
+      : /rate limit/i.test(m) ? "محاولات كثيرة. انتظر شوي وجرّب."
+      : /signups? not allowed|disabled/i.test(m) ? "إنشاء الحسابات مقفل. فعّله من إعدادات Supabase."
+      : /fetch|network/i.test(m) ? "ما فيه اتصال بالإنترنت."
+      : up ? "ما قدرت أنشئ الحساب. حاول مرة ثانية." : "ما قدرت أسجل دخولك. حاول مرة ثانية.");
+  }
+  if (up && !(res.data && res.data.session)) {
+    ok.textContent = "انشأ الحساب. وصلتك رسالة تأكيد على الإيميل، افتحها وبعدها سجّل دخول.";
+    ok.hidden = false;
+    setTimeout(() => { if (lgMode === "up") { setLoginMode("in"); ok.textContent = "انشأ الحساب. أكّد إيميلك من الرسالة وبعدها سجّل دخول."; ok.hidden = false; } }, 50);
+  }
+});
+
+async function handleSession(session){
+  const user = session && session.user;
+  if (!user) {
+    S.user = null; S.member = null; S.members = []; S.loaded = false;
+    S.perfumes = []; S.suppliers = []; S.shops = []; S.items = []; S.groups = new Map();
+    setPolling(false); stopRealtime(); closeSheet(); showScreen("login");
+    return;
+  }
+  if (S.user && S.user.id === user.id) { S.user = user; return; }
+  S.user = user; S.member = null;
+  await checkMember();
+}
+sb.auth.onAuthStateChange((_event, session) => { setTimeout(() => handleSession(session), 0); });
+
+/* ---------- events ---------- */
+document.addEventListener("click", async e => {
+  const el = e.target.closest("[data-act]"); if (!el) return;
+  const a = el.dataset.act;
+  const curP = () => perfById(S.id);
+  const g = el.dataset.key ? S.groups.get(el.dataset.key) : null;
+  switch (a) {
+    case "tab": go(el.dataset.v); break;
+    case "msub": S.msub = el.dataset.v; S.mq = ""; $("#mq").value = ""; render(); break;
+    case "back": back(); break;
+    case "open-perfume": go("perfume", el.dataset.id); break;
+    case "open-supplier": go("supplier", el.dataset.id); break;
+    case "open-group": if (S.groups.has(el.dataset.key)) go("group", el.dataset.key); break;
+    case "open-shop": go("shop", el.dataset.id); break;
+    case "fab":
+      if (S.view === "list") perfumeForm(null);
+      else if (S.view === "suppliers") supplierForm(null);
+      else if (S.msub === "shops") shopForm(null);
+      else itemForm(null);
+      break;
+    case "add-perfume": perfumeForm(null); break;
+    case "add-supplier": supplierForm(null); break;
+    case "add-shop": shopForm(null); break;
+    case "add-item": itemForm(null); break;
+    case "add-item-shop": itemForm(null, { shopId: S.id }); break;
+    case "add-item-perfume": { const p = curP(); if (p) itemForm(null, { name: p.name, brand: p.brand, size: p.size, packaging: p.packaging }); break; }
+    case "add-item-group": if (g) itemForm(null, { name: g.name, brand: g.brand, size: g.combos[0] && g.combos[0].size, packaging: g.combos[0] && g.combos[0].pack }); break;
+    case "group-to-catalog": if (g) perfumeForm(null, { name: g.name, brand: g.brand, size: g.combos[0] && g.combos[0].size, packaging: g.combos[0] && g.combos[0].pack }); break;
+    case "edit-perfume": { const p = curP(); if (p) perfumeForm(p); break; }
+    case "link-supplier": { const p = curP(); if (p) linkForm(p, null); break; }
+    case "edit-link": { const p = curP(); if (p) linkForm(p, el.dataset.sid); break; }
+    case "edit-supplier": { const s = supById(S.id); if (s) supplierForm(s); break; }
+    case "edit-shop": { const s = shopById(S.id); if (s) shopForm(s); break; }
+    case "edit-item": { const it = S.items.find(i => i.id === el.dataset.id); if (it) itemForm(it); break; }
+    case "copy": copyText(el.dataset.text || "", el); break;
+    case "close": closeSheet(); break;
+    case "logout": await sb.auth.signOut(); break;
+    case "lg-mode": setLoginMode(el.dataset.v); break;
+    case "pd-check": { const t = el.textContent; el.disabled = true; el.textContent = "جاري التحقق…"; await checkMember(); if (el.isConnected) { el.disabled = false; el.textContent = t; } break; }
+    case "team": go("team"); break;
+    case "mem-set": setMember(el.dataset.uid, { status: el.dataset.status }, el.dataset.status === "active" ? "انقبل الحساب" : "انرفض الطلب"); break;
+    case "mem-role": setMember(el.dataset.uid, { role: el.dataset.role }, el.dataset.role === "owner" ? "صار مدير" : "انلغت الإدارة"); break;
+    case "mem-stop": if (arm(el, "اضغط للتأكيد")) setMember(el.dataset.uid, { status: "removed", role: "member" }, "انوقف الحساب"); break;
+    case "export": exportExcel(el); break;
+    case "del-perfume": case "del-link": case "del-supplier": case "del-shop": case "del-item": {
+      const labels = { "del-perfume": "اضغط مرة ثانية لحذف العطر", "del-link": "اضغط للتأكيد", "del-supplier": "اضغط مرة ثانية لحذف المورد", "del-shop": "اضغط مرة ثانية: ينحذف المحل وكل رصده", "del-item": "اضغط للتأكيد" };
+      if (arm(el, labels[a]) && delHandler) delHandler();
+      break;
+    }
+  }
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !layer.hidden) closeSheet(); });
+document.addEventListener("visibilitychange", () => { if (!document.hidden && S.user) scheduleReload(); });
+window.addEventListener("online", () => { if (S.user) scheduleReload(); });
+let qT;
+$("#q").addEventListener("input", e => { S.q = e.target.value; clearTimeout(qT); qT = setTimeout(renderList, 120); });
+$("#sq").addEventListener("input", e => { S.sq = e.target.value; renderSuppliers(); });
+$("#mq").addEventListener("input", e => { S.mq = e.target.value; clearTimeout(qT); qT = setTimeout(renderMarket, 120); });
+$("#sort").addEventListener("change", e => { S.sort = e.target.value; ls.set("sort", S.sort); renderList(); });
+$("#msort").addEventListener("change", e => { S.msort = e.target.value; ls.set("msort", S.msort); renderMarket(); });
+})();
+</script>
+</body>
+</html>
