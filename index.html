@@ -470,8 +470,8 @@ fieldset.field legend{padding:0;margin-bottom:5px}
           <option value="name">الاسم</option>
           <option value="mhigh">الأعلى ربحًا</option>
           <option value="mlow">الأقل ربحًا</option>
-          <option value="price">السعر</option>
-          <option value="stock">المخزون الأقل</option>
+          <option value="price">الأرخص</option>
+          <option value="stock">الأقل حبات عندك</option>
         </select>
       </div>
       <div class="sum" id="listSum"></div>
@@ -494,18 +494,18 @@ fieldset.field legend{padding:0;margin-bottom:5px}
 
     <section class="view" id="v-market" hidden>
       <div class="seg" role="group" aria-label="دراسة السوق">
-        <button type="button" id="mSegI" data-act="msub" data-v="items" aria-pressed="true">المرصودة</button>
+        <button type="button" id="mSegI" data-act="msub" data-v="items" aria-pressed="true">الأسعار</button>
         <button type="button" id="mSegS" data-act="msub" data-v="shops" aria-pressed="false">المحلات</button>
-        <button type="button" id="mSegW" data-act="msub" data-v="watch" aria-pressed="false">المتابعة</button>
+        <button type="button" id="mSegW" data-act="msub" data-v="watch" aria-pressed="false">أتابعها</button>
       </div>
       <div class="tools" id="mTools" hidden>
         <label class="search"><span class="vh">بحث في السوق</span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 20l-4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <input id="mq" type="search" placeholder="ابحث باسم العطر أو الماركة" autocomplete="off">
         </label>
         <select id="msort" class="inp" aria-label="ترتيب العطور المرصودة">
-          <option value="seen">الأكثر ظهورًا</option>
-          <option value="demand">الأكثر مشيًا</option>
-          <option value="new">الأحدث رصدًا</option>
+          <option value="seen">الموجود في محلات أكثر</option>
+          <option value="demand">اللي عليه طلب أكثر</option>
+          <option value="new">آخر ما سجلت</option>
           <option value="name">الاسم</option>
         </select>
       </div>
@@ -592,7 +592,7 @@ const sum = arr => arr.reduce((a, b) => a + b, 0);
 const avg = arr => arr.length ? sum(arr) / arr.length : null;
 
 const PACK = ["أصلي مختوم", "تستر", "تقسيم", "تعبئة (مستوحى)", "زيت"];
-const DEMAND = { high: "ماشي بقوة", mid: "متوسط", low: "ضعيف" };
+const DEMAND = { high: "عليه طلب كبير", mid: "طلبه متوسط", low: "طلبه ضعيف" };
 const DCLS = { high: "good", mid: "warn", low: "" };
 const KIND = { store: "محل", online: "أونلاين", both: "محل وأونلاين" };
 const CONC = ["Parfum", "Extrait de Parfum", "EDP", "EDT", "EDC", "زيت عطري", "أخرى"];
@@ -689,7 +689,7 @@ function relDay(str){
 }
 const dayDate = str => str ? new Date(dayNum(str)) : null;
 const placesTxt = n => n === 1 ? "مكان واحد" : n === 2 ? "مكانين" : `${n} ${n <= 10 ? "أماكن" : "مكان"}`;
-const piecesTxt = n => { n = Math.round(n * 100) / 100; return n === 1 ? "حبة وحدة" : n === 2 ? "حبتين" : `${fmt(n)} ${n > 2 && n <= 10 ? "حبات" : "حبة"}`; };
+const piecesTxt = n => { n = Math.round(n * 100) / 100; return n === 0 ? "ولا حبة" : n === 1 ? "حبة وحدة" : n === 2 ? "حبتين" : `${fmt(n)} ${n > 2 && n <= 10 ? "حبات" : "حبة"}`; };
 
 /* ---------- state ---------- */
 const DEFAULT_SETTINGS = { pack: 0, ship: 0, fee: 0, target: 30, low: 2, catEnabled: false, catToken: null, catTitle: "كتالوج العطور", catNote: "", catPhone: "", catRetail: false };
@@ -795,8 +795,8 @@ function calc(p){
   return { mk, mPrices, cost, sell, resell, size, extra, fixD, fixR, feeAmt, fullD, fullR, profit, margin, rProfit, rMargin, mMin, mMax, mAvg, perMl, vsAvg, nPlaces, sugD, sugR, stock, low, stockState };
 }
 const mClass = m => m == null ? "" : m >= 25 ? "good" : m >= 10 ? "warn" : "bad";
-const stockChip = c => c.stockState == null ? "" : c.stockState === "out" ? '<span class="chip bad">نفد</span>'
-  : c.stockState === "low" ? `<span class="chip warn">باقي ${numH(c.stock)}</span>` : `<span class="chip">متوفر ${numH(c.stock)}</span>`;
+const stockChip = c => c.stockState == null ? "" : c.stockState === "out" ? '<span class="chip bad">خلص من عندك</span>'
+  : c.stockState === "low" ? `<span class="chip warn">باقي عندك ${numH(c.stock)} بس</span>` : `<span class="chip">عندك ${numH(c.stock)}</span>`;
 
 /* ---------- sales math ---------- */
 const sgn = s => s.kind === "return" ? -1 : 1;
@@ -1038,10 +1038,10 @@ function render(){
   if (nPend) { if (!bd) { bd = document.createElement("span"); bd.className = "badge"; hb.appendChild(bd); } bd.textContent = nPend; } else if (bd) bd.remove();
   let fab = "";
   if (S.loaded && tab) {
-    if (S.view === "list") fab = "عطر جديد";
-    else if (S.view === "sales") fab = S.ssub === "resellers" ? "موزع جديد" : "بيعة جديدة";
-    else if (S.view === "suppliers") fab = "مورد جديد";
-    else if (S.view === "market") fab = S.msub === "shops" ? "محل جديد" : S.msub === "watch" ? "متابعة عطر" : "رصد جديد";
+    if (S.view === "list") fab = "أضف عطر";
+    else if (S.view === "sales") fab = S.ssub === "resellers" ? "أضف موزع" : "سجّل بيعة";
+    else if (S.view === "suppliers") fab = "أضف مورد";
+    else if (S.view === "market") fab = S.msub === "shops" ? "أضف محل" : S.msub === "watch" ? "أضف عطر للقائمة" : "سجّل سعر";
   }
   $("#fab").hidden = !fab; $("#fabLabel").textContent = fab;
   const fn = { home: renderHome, list: renderList, perfume: renderPerfume, sales: renderSales, reseller: renderReseller, suppliers: renderSuppliers,
@@ -1072,7 +1072,7 @@ function salesChart(months){
     out += `<text x="${cx}" y="${H - 6}" text-anchor="middle">${esc(monthName(d.m, true))}</text>`;
   });
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" dir="ltr" role="img" aria-label="المبيعات والأرباح آخر ${data.length} شهور">${out}</svg>
-    <div class="legend"><span><i class="dot t-sell"></i>المبيعات</span><span><i class="dot t-good"></i>الربح</span></div>`;
+    <div class="legend"><span><i class="dot t-sell"></i>مبيعاتك</span><span><i class="dot t-good"></i>ربحك</span></div>`;
 }
 
 function historyChart(p, c){
@@ -1112,9 +1112,9 @@ function historyChart(p, c){
   g += `<text x="${pl}" y="${H - 6}" text-anchor="start">${esc(d0)}</text><text x="${W - pr}" y="${H - 6}" text-anchor="end">اليوم</text>`;
   g += step(resPts, "ch-resell", "ch-end-resell") + step(costPts, "ch-cost", "ch-end-cost") + step(sellPts, "ch-sell", "ch-end-sell");
   g += mkPts.map(m => `<circle class="ch-mk" cx="${x(m.t).toFixed(1)}" cy="${y(m.v).toFixed(1)}" r="4.5"/>`).join("");
-  const lg = [sellPts.length ? '<span><i class="dot t-sell"></i>سعرك</span>' : "", resPts.length ? '<span><i class="dot t-resell"></i>سعر الموزعين</span>' : "",
-    costPts.length ? '<span><i class="dot t-cost"></i>أرخص مورد</span>' : "", mkPts.length ? '<span><i class="dot t-market"></i>أسعار السوق</span>' : ""].join("");
-  return `<section class="panel"><h2 class="sec">تاريخ الأسعار</h2><svg class="chart" viewBox="0 0 ${W} ${H}" dir="ltr" role="img" aria-label="تغيّر الأسعار مع الوقت">${g}</svg><div class="legend">${lg}</div></section>`;
+  const lg = [sellPts.length ? '<span><i class="dot t-sell"></i>سعر بيعك</span>' : "", resPts.length ? '<span><i class="dot t-resell"></i>سعر الموزع</span>' : "",
+    costPts.length ? '<span><i class="dot t-cost"></i>سعر الشراء</span>' : "", mkPts.length ? '<span><i class="dot t-market"></i>أسعار المحلات</span>' : ""].join("");
+  return `<section class="panel"><h2 class="sec">كيف تغيّرت الأسعار مع الوقت</h2><svg class="chart" viewBox="0 0 ${W} ${H}" dir="ltr" role="img" aria-label="تغيّر الأسعار مع الوقت">${g}</svg><div class="legend">${lg}</div></section>`;
 }
 
 /* ---------- home ---------- */
@@ -1131,18 +1131,18 @@ function renderHome(){
   const noCost = [];
   for (const p of S.perfumes) {
     const c = calc(p);
-    if (c.stockState === "out") alerts.push({ cls: "bad", ic: "!", t: `${esc(p.name)}: نفد من المخزون`, act: "open-perfume", id: p.id });
-    else if (c.stockState === "low") alerts.push({ cls: "warn", ic: "!", t: `${esc(p.name)}: باقي ${piecesTxt(c.stock)} بس`, act: "open-perfume", id: p.id });
-    if (c.margin != null && c.margin < 10) alerts.push({ cls: "bad", ic: "%", t: c.margin < 0 ? `${esc(p.name)}: تخسر فيه (هامش ${pctH(c.margin)})` : `${esc(p.name)}: هامشك ${pctH(c.margin)} بس`, act: "open-perfume", id: p.id });
-    if (c.sell != null && c.mMax != null && c.sell > c.mMax) alerts.push({ cls: "warn", ic: "↑", t: `${esc(p.name)}: سعرك أغلى من كل السوق`, act: "open-perfume", id: p.id });
+    if (c.stockState === "out") alerts.push({ cls: "bad", ic: "!", t: `${esc(p.name)}: خلص من عندك، ما باقي ولا حبة`, act: "open-perfume", id: p.id });
+    else if (c.stockState === "low") alerts.push({ cls: "warn", ic: "!", t: `${esc(p.name)}: باقي عندك ${piecesTxt(c.stock)} بس`, act: "open-perfume", id: p.id });
+    if (c.margin != null && c.margin < 10) alerts.push({ cls: "bad", ic: "%", t: c.margin < 0 ? `${esc(p.name)}: تبيعه بخسارة، سعر بيعك أقل من تكلفته` : `${esc(p.name)}: ربحك فيه قليل، ${pctH(c.margin)} بس من سعر البيع`, act: "open-perfume", id: p.id });
+    if (c.sell != null && c.mMax != null && c.sell > c.mMax) alerts.push({ cls: "warn", ic: "↑", t: `${esc(p.name)}: سعر بيعك أغلى من كل المحلات اللي سجلت أسعارها`, act: "open-perfume", id: p.id });
     if (c.cost == null) noCost.push(p);
   }
-  if (noCost.length === 1) alerts.push({ cls: "cost", ic: "?", t: `${esc(noCost[0].name)}: ما له سعر مورد`, act: "open-perfume", id: noCost[0].id });
-  else if (noCost.length > 1) alerts.push({ cls: "cost", ic: "?", t: `${noCost.length} عطور ما لها سعر مورد`, act: "tab", v: "list" });
-  for (const x of owed.slice(0, 4)) alerts.push({ cls: "warn", ic: "ر.س", t: `${esc(x.r.name)} عليه ${numH(x.b.owed)} ر.س`, act: "open-reseller", id: x.r.id });
+  if (noCost.length === 1) alerts.push({ cls: "cost", ic: "?", t: `${esc(noCost[0].name)}: ما حددت بكم تشتريه، فما نقدر نحسب ربحك فيه`, act: "open-perfume", id: noCost[0].id });
+  else if (noCost.length > 1) alerts.push({ cls: "cost", ic: "?", t: `${noCost.length} عطور ما حددت بكم تشتريها، فما نقدر نحسب ربحك فيها`, act: "tab", v: "list" });
+  for (const x of owed.slice(0, 4)) alerts.push({ cls: "warn", ic: "ر.س", t: `الموزع ${esc(x.r.name)} باقي عليه لك ${numH(x.b.owed)} ر.س`, act: "open-reseller", id: x.r.id });
   const icBg = { bad: "var(--bad-soft);color:var(--bad)", warn: "var(--warn-soft);color:var(--warn)", cost: "var(--c-cost-soft);color:var(--c-cost)" };
   const alertHTML = alerts.length ? alerts.slice(0, 8).map(a => `<button type="button" class="alert-row" data-act="${a.act}" ${a.id ? `data-id="${esc(a.id)}"` : ""} ${a.v ? `data-v="${a.v}"` : ""}><span class="r-ic" style="background:${icBg[a.cls]};font-size:${a.ic.length > 1 ? 11 : 15}px">${a.ic}</span><span class="at">${a.t}</span>${I.chev}</button>`).join("")
-    + (alerts.length > 8 ? `<p class="hint">و${alerts.length - 8} تنبيهات ثانية.</p>` : "")
+    + (alerts.length > 8 ? `<p class="hint">وفيه ${alerts.length - 8} تنبيهات ثانية.</p>` : "")
     : `<div class="ok-line">${I.check}كل شيء تمام، ما فيه شيء يحتاج انتباهك.</div>`;
   const months = Array.from({ length: 6 }, (_, i) => shiftMonth(m, i - 5));
   const top = {};
@@ -1157,21 +1157,21 @@ function renderHome(){
     ${pendingNotice()}
     <div class="hello"><h1>${hour < 12 ? "صباح الخير" : "مساء الخير"}</h1><span>${esc(new Date().toLocaleDateString("ar-u-nu-latn", { weekday: "long", day: "numeric", month: "long" }))}</span></div>
     <div class="tiles">
-      <button type="button" class="tile" data-act="tab" data-v="sales"><span class="k"><i class="dot t-sell"></i>مبيعات ${esc(monthName(m, true))}</span><span class="v t-sell">${money(ms.revenue)}</span><span class="s">${piecesTxt(ms.units)}</span></button>
-      <button type="button" class="tile" data-act="tab" data-v="sales"><span class="k"><i class="dot ${ms.profit < 0 ? "t-bad" : "t-good"}"></i>ربح ${esc(monthName(m, true))}</span><span class="v ${ms.profit < 0 ? "t-bad" : "t-good"}">${money(ms.profit)}</span><span class="s">${ms.margin != null ? "هامش " + pctH(ms.margin) : "ما فيه مبيعات"}${ms.unknown ? ` · ${ms.unknown} بدون تكلفة` : ""}</span></button>
-      <button type="button" class="tile" data-act="sales-resellers"><span class="k"><i class="dot t-warn"></i>عند الموزعين</span><span class="v ${owed.length ? "t-warn" : ""}">${money(sum(owed.map(x => x.b.owed)))}</span><span class="s">${owed.length ? `${owed.length} ${owed.length === 1 ? "موزع عليه مبلغ" : "موزعين عليهم مبالغ"}` : "ما على أحد شيء"}</span></button>
-      <button type="button" class="tile" data-act="tab" data-v="list"><span class="k"><i class="dot t-cost"></i>المخزون</span><span class="v">${tracked.length ? piecesTxt(units) : "—"}</span><span class="s">${tracked.length ? `قيمتها بالتكلفة ${numH(stockVal)} ر.س` : "ما تتابع مخزون أي عطر"}</span></button>
+      <button type="button" class="tile" data-act="tab" data-v="sales"><span class="k"><i class="dot t-sell"></i>مبيعاتك هذا الشهر</span><span class="v t-sell">${money(ms.revenue)}</span><span class="s">${ms.count ? `بعت ${piecesTxt(ms.units)}` : "ما سجلت مبيعات هذا الشهر"}</span></button>
+      <button type="button" class="tile" data-act="tab" data-v="sales"><span class="k"><i class="dot ${ms.profit < 0 ? "t-bad" : "t-good"}"></i>ربحك هذا الشهر</span><span class="v ${ms.profit < 0 ? "t-bad" : "t-good"}">${money(ms.profit)}</span><span class="s">${ms.margin != null ? `بعد خصم التكاليف، يعني ${pctH(ms.margin)} من المبيعات` : "يطلع لما تسجل مبيعات"}${ms.unknown ? ` · ${ms.unknown} مبيعات ربحها غير معروف` : ""}</span></button>
+      <button type="button" class="tile" data-act="sales-resellers"><span class="k"><i class="dot t-warn"></i>فلوسك عند الموزعين</span><span class="v ${owed.length ? "t-warn" : ""}">${money(sum(owed.map(x => x.b.owed)))}</span><span class="s">${owed.length ? `${owed.length === 1 ? "موزع واحد ما سدد" : owed.length + " موزعين ما سددوا"}` : S.resellers.length ? "كل الموزعين سددوا" : "ما أضفت موزعين"}</span></button>
+      <button type="button" class="tile" data-act="tab" data-v="list"><span class="k"><i class="dot t-cost"></i>الحبات اللي عندك</span><span class="v">${tracked.length ? piecesTxt(units) : '<span style="font-size:17px">ما سجلتها</span>'}</span><span class="s">${tracked.length ? `اشتريتها بـ ${numH(stockVal)} ر.س` : "سجّل كم حبة عندك من صفحة كل عطر"}</span></button>
     </div>
     <div class="qacts">
-      <button type="button" class="qact" data-act="add-sale"><span class="qi" style="background:var(--c-sell-soft);color:var(--c-sell)">${I.cart}</span>بيعة جديدة</button>
-      <button type="button" class="qact" data-act="add-item"><span class="qi" style="background:var(--c-market-soft);color:var(--c-market)">${I.store}</span>رصد سوق</button>
-      <button type="button" class="qact" data-act="add-perfume"><span class="qi" style="background:var(--accent-soft);color:var(--accent)">${I.bottleI}</span>عطر جديد</button>
-      <button type="button" class="qact" data-act="open-calc"><span class="qi" style="background:var(--c-cost-soft);color:var(--c-cost)">${I.calc}</span>الحاسبة</button>
+      <button type="button" class="qact" data-act="add-sale"><span class="qi" style="background:var(--c-sell-soft);color:var(--c-sell)">${I.cart}</span>سجّل بيعة</button>
+      <button type="button" class="qact" data-act="add-item"><span class="qi" style="background:var(--c-market-soft);color:var(--c-market)">${I.store}</span>سجّل سعر من محل</button>
+      <button type="button" class="qact" data-act="add-perfume"><span class="qi" style="background:var(--accent-soft);color:var(--accent)">${I.bottleI}</span>أضف عطر</button>
+      <button type="button" class="qact" data-act="open-calc"><span class="qi" style="background:var(--c-cost-soft);color:var(--c-cost)">${I.calc}</span>احسب سعر البيع</button>
     </div>
-    <section class="panel"><h2 class="sec">يحتاج انتباهك</h2><div>${alertHTML}</div></section>
-    <section class="panel"><div class="sec-row"><h2 class="sec">آخر 6 شهور</h2></div>${salesChart(months) || '<p class="r-empty">أول ما تسجّل مبيعات بيطلع لك هنا رسم للمبيعات والأرباح.</p>'}</section>
-    <section class="panel"><div class="sec-row"><h2 class="sec">الأكثر مبيعًا هذا الشهر</h2></div><div class="rows">${tops.length ? tops.map((t, i) => `<div class="row"><span class="r-ic" style="background:var(--sunk)">${i + 1}</span>${t.id && perfById(t.id) ? `<button type="button" class="r-main" data-act="open-perfume" data-id="${esc(t.id)}">` : '<div class="r-main">'}<span class="r-name">${esc(t.name)}</span><span class="r-sub">${piecesTxt(t.units)}</span>${t.id && perfById(t.id) ? "</button>" : "</div>"}<span class="r-price t-good">${t.known ? money(t.profit) : "—"}<small class="muted">ربح</small></span></div>`).join("") : '<p class="r-empty">ما فيه مبيعات هذا الشهر.</p>'}</div></section>
-    <section class="panel"><div class="sec-row"><h2 class="sec">آخر رصد في السوق</h2>${S.watch.length ? `<button type="button" class="btn ghost small" data-act="market-watch">${I.star}المتابعة (${S.watch.length})</button>` : ""}</div><div class="rows">${latest.length ? latest.map(i => itemRow(i, { showPerfume: true })).join("") : '<p class="r-empty">ما فيه رصد. ابدأ من تبويب «السوق».</p>'}</div></section>`;
+    <section class="panel"><h2 class="sec">تنبيهات</h2><div>${alertHTML}</div></section>
+    <section class="panel"><div class="sec-row"><h2 class="sec">مبيعاتك وأرباحك آخر 6 شهور</h2></div>${salesChart(months) || '<p class="r-empty">أول ما تسجّل مبيعات بيطلع لك هنا رسم لمبيعاتك وأرباحك كل شهر.</p>'}</section>
+    <section class="panel"><div class="sec-row"><h2 class="sec">الأكثر مبيعًا هذا الشهر</h2></div><div class="rows">${tops.length ? tops.map((t, i) => `<div class="row"><span class="r-ic" style="background:var(--sunk)">${i + 1}</span>${t.id && perfById(t.id) ? `<button type="button" class="r-main" data-act="open-perfume" data-id="${esc(t.id)}">` : '<div class="r-main">'}<span class="r-name">${esc(t.name)}</span><span class="r-sub">${piecesTxt(t.units)}</span>${t.id && perfById(t.id) ? "</button>" : "</div>"}<span class="r-price t-good">${t.known ? money(t.profit) : "—"}<small class="muted">ربحك منه</small></span></div>`).join("") : '<p class="r-empty">ما فيه مبيعات هذا الشهر.</p>'}</div></section>
+    <section class="panel"><div class="sec-row"><h2 class="sec">آخر أسعار سجلتها من المحلات</h2>${S.watch.length ? `<button type="button" class="btn ghost small" data-act="market-watch">${I.star}عطور تتابعها (${S.watch.length})</button>` : ""}</div><div class="rows">${latest.length ? latest.map(i => itemRow(i, { showPerfume: true })).join("") : '<p class="r-empty">ما سجلت أسعار من المحلات. ابدأ من تبويب «السوق».</p>'}</div></section>`;
 }
 
 /* ---------- perfumes ---------- */
@@ -1179,16 +1179,16 @@ function cardHTML(p){
   const c = calc(p);
   const meta = [p.brand, c.size ? `${fmt(c.size)} مل` : "", p.conc].filter(Boolean).map(esc).join(" · ");
   const chips = [];
-  if (c.margin != null) chips.push(`<span class="chip ${mClass(c.margin)}">هامش ${pctH(c.margin)}</span>`);
-  else if (!(p.suppliers || []).length) chips.push('<span class="chip cost">بدون مورد</span>');
+  if (c.margin != null) chips.push(`<span class="chip ${mClass(c.margin)}">${c.margin < 0 ? "خسارة" : "ربحك"} ${pctH(c.margin)}</span>`);
+  else if (!(p.suppliers || []).length) chips.push('<span class="chip cost">ما حددت بكم تشتريه</span>');
   const sc = stockChip(c); if (sc) chips.push(sc);
   return `<button type="button" class="pcard" data-act="open-perfume" data-id="${esc(p.id)}">
     <div class="pimg">${imgTag(p)}</div>
     <div class="pbody">
       <div class="pname">${esc(p.name || "بدون اسم")}</div>
       <div class="pmeta">${meta || "&nbsp;"}</div>
-      <div class="pprice">${c.sell != null ? money(c.sell) : '<span class="muted" style="font-size:14px;font-weight:500">بدون سعر</span>'}</div>
-      <div class="pmkt">${c.mMin != null ? `السوق ${rangeH(c.mMin, c.mMax)}` : c.mk.all.length ? "مرصود بحجم أو تعبئة ثانية" : '<span class="muted">ما انرصد في السوق</span>'}</div>
+      <div class="pprice">${c.sell != null ? money(c.sell) : '<span class="muted" style="font-size:14px;font-weight:500">ما حددت سعر بيعه</span>'}</div>
+      <div class="pmkt">${c.mMin != null ? `في المحلات ${rangeH(c.mMin, c.mMax)}` : c.mk.all.length ? "سعره في المحلات بحجم ثاني" : '<span class="muted">ما سجلت سعره في المحلات</span>'}</div>
       ${chips.length ? `<div class="chips">${chips.join("")}</div>` : ""}
     </div>
   </button>`;
@@ -1199,7 +1199,7 @@ function renderList(){
   $("#listTools").hidden = !S.perfumes.length;
   if (!S.perfumes.length) {
     sumEl.innerHTML = "";
-    body.innerHTML = `<div class="empty">${bottle()}<h2>ابدأ بأول عطر</h2><p>أضف اسم العطر وصورته وسعرك، وبعدها اربطه بالموردين. أسعار السوق تجيه من رصدك في تبويب «السوق».</p><button type="button" class="btn primary" data-act="add-perfume">${I.plus}أضف عطر</button></div>`;
+    body.innerHTML = `<div class="empty">${bottle()}<h2>أضف أول عطر تبيعه</h2><p>اكتب اسم العطر وحط صورته وبكم تبيعه، وبعدها حدد مين يبيعه لك وبكم.</p><button type="button" class="btn primary" data-act="add-perfume">${I.plus}أضف عطر</button></div>`;
     return;
   }
   const qs = norm(S.q);
@@ -1216,7 +1216,7 @@ function renderList(){
   arr.sort(by);
   const ms = S.perfumes.map(calc).map(c => c.margin).filter(m => m != null);
   const avgM = avg(ms);
-  sumEl.innerHTML = `<span><b class="num">${S.perfumes.length}</b> عطر</span>${avgM != null ? `<span>متوسط الهامش <b>${pctH(avgM)}</b></span>` : ""}`;
+  sumEl.innerHTML = `<span>عندك <b class="num">${S.perfumes.length}</b> ${S.perfumes.length > 2 && S.perfumes.length <= 10 ? "عطور" : "عطر"}</span>${avgM != null ? `<span>متوسط ربحك <b>${pctH(avgM)}</b> من سعر البيع</span>` : ""}`;
   body.innerHTML = arr.length ? `<div class="grid">${arr.map(x => cardHTML(x.p)).join("")}</div>` : `<div class="empty"><p>ما فيه نتائج لـ «${esc(S.q)}».</p></div>`;
 }
 
@@ -1226,8 +1226,8 @@ function stat(k, v, role, opts = {}){
 function marketHTML(c, p){
   if (!c.mPrices.length) {
     return c.mk.all.length
-      ? `<p class="hint">رصدت هذا العطر بحجم أو تعبئة ثانية، فما يدخل في المقارنة. ارصده بـ${c.size ? " " + fmt(c.size) + " مل و" : ""}تعبئة «${esc(p.packaging)}» عشان تشوف مكان سعرك.</p>`
-      : `<p class="hint">ارصد سعر هذا العطر في المحلات والمواقع عشان يظهر لك مكان سعرك في السوق.</p>`;
+      ? `<p class="hint">سجلت سعر هذا العطر في المحلات بحجم أو تعبئة ثانية، فما نقدر نقارنه بسعرك. سجّل سعره${c.size ? " بحجم " + fmt(c.size) + " مل" : ""} وتعبئة (${esc(p.packaging)}) عشان نقارن.</p>`
+      : `<p class="hint">سجّل بكم تبيعه المحلات عشان نقارن سعرك بأسعارهم.</p>`;
   }
   const vals = [...c.mPrices]; if (c.sell != null) vals.push(c.sell); if (c.cost != null) vals.push(c.cost);
   let lo = Math.min(...vals), hi = Math.max(...vals);
@@ -1237,22 +1237,22 @@ function marketHTML(c, p){
   const clampL = v => Math.min(90, Math.max(10, pos(v)));
   const bandS = pos(c.mMin), bandW = Math.max(pos(c.mMax) - bandS, 0.8);
   let say;
-  if (c.sell == null) say = `ما حددت سعرك بعد. أرخص مكان يبيعه بـ ${fmt(c.mMin)} ر.س.`;
-  else if (c.sell < c.mMin) say = `سعرك أرخص من كل الأماكن المرصودة، بفرق ${fmt(c.mMin - c.sell)} ر.س عن أرخصها.`;
-  else if (c.sell > c.mMax) say = `سعرك أغلى من كل الأماكن المرصودة، بفرق ${fmt(c.sell - c.mMax)} ر.س عن أغلاها.`;
-  else if (Math.abs(c.vsAvg) < 1) say = "سعرك قريب جدًا من متوسط السوق.";
-  else say = c.vsAvg < 0 ? `سعرك أقل من متوسط السوق بـ ${pctH(-c.vsAvg)}.` : `سعرك أعلى من متوسط السوق بـ ${pctH(c.vsAvg)}.`;
+  if (c.sell == null) say = `ما حددت سعر بيعك. أرخص محل يبيعه بـ ${fmt(c.mMin)} ر.س.`;
+  else if (c.sell < c.mMin) say = `سعر بيعك أرخص من كل المحلات، وأقل من أرخصها بـ ${fmt(c.mMin - c.sell)} ر.س.`;
+  else if (c.sell > c.mMax) say = `سعر بيعك أغلى من كل المحلات، وأكثر من أغلاها بـ ${fmt(c.sell - c.mMax)} ر.س.`;
+  else if (Math.abs(c.vsAvg) < 1) say = "سعر بيعك قريب جدًا من متوسط أسعار المحلات.";
+  else say = c.vsAvg < 0 ? `سعر بيعك أقل من متوسط أسعار المحلات بـ ${pctH(-c.vsAvg)}.` : `سعر بيعك أعلى من متوسط أسعار المحلات بـ ${pctH(c.vsAvg)}.`;
   return `<div class="market">
-    <div class="mk-head"><span>السوق <b>${rangeH(c.mMin, c.mMax)}</b> ر.س</span><span>المتوسط <b>${numH(c.mAvg)}</b> ر.س · ${placesTxt(c.nPlaces)}</span></div>
+    <div class="mk-head"><span>أسعار المحلات: <b>${rangeH(c.mMin, c.mMax)}</b> ر.س</span><span>المتوسط <b>${numH(c.mAvg)}</b> ر.س (من ${placesTxt(c.nPlaces)})</span></div>
     <div class="mk-track" aria-hidden="true">
       <span class="mk-rail"></span>
       <span class="mk-band" style="inset-inline-start:${bandS.toFixed(2)}%;width:${bandW.toFixed(2)}%"></span>
       ${c.mPrices.map(v => `<span class="mk-dot" style="inset-inline-start:${pos(v).toFixed(2)}%"></span>`).join("")}
-      ${c.cost != null ? `<span class="mk-cost" style="inset-inline-start:${pos(c.cost).toFixed(2)}%"></span><span class="mk-lab bot" style="inset-inline-start:${clampL(c.cost).toFixed(2)}%">المورد ${fmt(c.cost)}</span>` : ""}
-      ${c.sell != null ? `<span class="mk-you" style="inset-inline-start:${pos(c.sell).toFixed(2)}%"></span><span class="mk-lab top" style="inset-inline-start:${clampL(c.sell).toFixed(2)}%">سعرك ${fmt(c.sell)}</span>` : ""}
+      ${c.cost != null ? `<span class="mk-cost" style="inset-inline-start:${pos(c.cost).toFixed(2)}%"></span><span class="mk-lab bot" style="inset-inline-start:${clampL(c.cost).toFixed(2)}%">تشتريه بـ ${fmt(c.cost)}</span>` : ""}
+      ${c.sell != null ? `<span class="mk-you" style="inset-inline-start:${pos(c.sell).toFixed(2)}%"></span><span class="mk-lab top" style="inset-inline-start:${clampL(c.sell).toFixed(2)}%">تبيعه بـ ${fmt(c.sell)}</span>` : ""}
     </div>
     <p class="mk-say">${say}</p>
-    <p class="hint">المقارنة على ${c.size ? `حجم ${fmt(c.size)} مل و` : ""}تعبئة «${esc(p.packaging)}».</p>
+    <p class="hint">قارنّا بالمحلات اللي تبيعه ${c.size ? `بنفس الحجم (${fmt(c.size)} مل) و` : ""}نفس التعبئة (${esc(p.packaging)}).</p>
   </div>`;
 }
 
@@ -1264,23 +1264,23 @@ function itemRow(it, o = {}){
     ? `<button type="button" class="r-main" data-act="open-group" data-key="${esc(norm(it.name))}"><span class="r-name">${esc(it.name)}${o.cheap ? '<span class="chip good">الأرخص</span>' : ""}${demandChip(it.demand)}</span>`
     : sh ? `<button type="button" class="r-main" data-act="open-shop" data-id="${esc(sh.id)}"><span class="r-name">${esc(sh.name)}${o.cheap ? '<span class="chip good">الأرخص</span>' : ""}${demandChip(it.demand)}</span>`
     : `<div class="r-main"><span class="r-name">محل${demandChip(it.demand)}</span>`;
-  const sub = [o.showPerfume ? (sh ? sh.name : "") : "", sizeTxt(it.size), it.packaging, pm != null ? `المل ${fmt(pm)}` : "", relDay(it.seenOn)].filter(Boolean).map(esc).join(" · ");
+  const sub = [o.showPerfume ? (sh ? sh.name : "") : "", sizeTxt(it.size), it.packaging, pm != null ? `المل بـ ${fmt(pm)}` : "", relDay(it.seenOn)].filter(Boolean).map(esc).join(" · ");
   return `<div class="row${o.dim ? " dim" : ""}">
     ${it.image ? `<a class="r-thumb" href="${esc(imgUrl(it.image))}" target="_blank" rel="noopener noreferrer"><img src="${esc(imgUrl(it.image))}" alt="" loading="lazy" data-fb="1"></a>` : ""}
     ${title}<span class="r-sub">${sub}</span>${o.showPerfume || sh ? "</button>" : "</div>"}
     <span class="r-price t-market">${money(pr)}</span>
     ${href ? `<a class="openlink" href="${esc(href)}" target="_blank" rel="noopener noreferrer">فتح${I.ext}</a>` : ""}
-    <button type="button" class="icon-btn" data-act="edit-item" data-id="${esc(it.id)}" aria-label="تعديل الرصد">${I.edit}</button>
+    <button type="button" class="icon-btn" data-act="edit-item" data-id="${esc(it.id)}" aria-label="تعديل السعر">${I.edit}</button>
   </div>`;
 }
 
 function saleRow(s, o = {}){
   const r = s.resellerId ? resById(s.resellerId) : null;
   const pf = saleProfit(s), tot = saleTotal(s);
-  const who = s.channel === "reseller" ? `<span class="chip resell">${esc(r ? r.name : "موزع")}</span>` : `<span class="chip">مباشر</span>`;
-  const sub = [`${fmt(s.qty)} × ${fmt(Number(s.unitPrice) || 0)}`, s.customer ? esc(s.customer) : "", o.showDate ? relDay(s.soldOn) : ""].filter(Boolean).join(" · ");
-  return `<div class="row"><div class="r-main"><span class="r-name">${esc(s.name)}${s.kind === "return" ? '<span class="chip bad">مرتجع</span>' : ""}${o.hideWho ? "" : who}</span><span class="r-sub">${sub}</span></div>
-    <span class="r-price t-sell">${money(tot)}<small class="${pf == null ? "muted" : pf < 0 ? "t-bad" : "t-good"}">${pf == null ? "بدون تكلفة" : "ربح " + numH(pf)}</small></span>
+  const who = s.channel === "reseller" ? `<span class="chip resell">للموزع ${esc(r ? r.name : "")}</span>` : `<span class="chip">لزبون</span>`;
+  const sub = [`${piecesTxt(s.qty)}، الحبة بـ ${fmt(Number(s.unitPrice) || 0)}`, s.customer ? esc(s.customer) : "", o.showDate ? relDay(s.soldOn) : ""].filter(Boolean).join(" · ");
+  return `<div class="row"><div class="r-main"><span class="r-name">${esc(s.name)}${s.kind === "return" ? '<span class="chip bad">رجع لك</span>' : ""}${o.hideWho ? "" : who}</span><span class="r-sub">${sub}</span></div>
+    <span class="r-price t-sell">${money(tot)}<small class="${pf == null ? "muted" : pf < 0 ? "t-bad" : "t-good"}">${pf == null ? "ربحها غير معروف" : (pf < 0 ? "خسارة " : "ربحك ") + numH(Math.abs(pf))}</small></span>
     <button type="button" class="icon-btn" data-act="edit-sale" data-id="${esc(s.id)}" aria-label="تعديل البيعة">${I.edit}</button></div>`;
 }
 
@@ -1294,8 +1294,8 @@ function renderPerfume(){
   const other = c.mk.all.filter(i => !c.mk.comp.includes(i)).sort((a, b) => (perMlOf(a) ?? 1e9) - (perMlOf(b) ?? 1e9));
   const mkRows = c.mk.all.length
     ? comp.map(i => itemRow(i, { cheap: comp.length > 1 && toNum(i.price) === c.mMin })).join("")
-      + (other.length ? `<div class="sublabel">أحجام أو تعبئة ثانية، ما تدخل في المقارنة</div>` + other.map(i => itemRow(i, { dim: true })).join("") : "")
-    : `<p class="r-empty">ما رصدت هذا العطر في السوق. سجّل سعره من المحلات أو المواقع.</p>`;
+      + (other.length ? `<div class="sublabel">بحجم أو تعبئة ثانية، فما نقارنها بسعرك</div>` + other.map(i => itemRow(i, { dim: true })).join("") : "")
+    : `<p class="r-empty">ما سجلت بكم تبيعه المحلات. لما تشوفه في محل أو موقع سجّل سعره هنا.</p>`;
   const links = (p.suppliers || []).slice().sort((a, b) => (toNum(a.price) ?? 1e12) - (toNum(b.price) ?? 1e12));
   const supRows = links.length ? links.map(l => {
     const s = supById(l.id);
@@ -1310,53 +1310,53 @@ function renderPerfume(){
       ${wa ? `<a class="openlink" href="https://wa.me/${wa}" target="_blank" rel="noopener noreferrer">واتساب</a>` : ""}
       <button type="button" class="icon-btn" data-act="edit-link" data-sid="${esc(l.id)}" aria-label="تعديل المورد">${I.edit}</button>
     </div>`;
-  }).join("") : `<p class="r-empty">ما ربطت موردين بهذا العطر. أرخص مورد تربطه يصير هو سعر التكلفة.</p>`;
-  const parts = c.cost != null ? [`المورد ${fmt(c.cost)}`, st.pack ? `تغليف ${fmt(st.pack)}` : "", st.ship ? `شحن ${fmt(st.ship)}` : "", c.extra ? `إضافي ${fmt(c.extra)}` : "", c.feeAmt ? `عمولة ${fmt(c.feeAmt)}` : ""].filter(Boolean).join(" + ") : "";
+  }).join("") : `<p class="r-empty">ما حددت مين يبيعه لك وبكم. أضف المورد وسعره عشان نحسب ربحك.</p>`;
+  const parts = c.cost != null ? [`الشراء ${fmt(c.cost)}`, st.pack ? `التغليف ${fmt(st.pack)}` : "", st.ship ? `الشحن ${fmt(st.ship)}` : "", c.extra ? `تكلفة خاصة ${fmt(c.extra)}` : "", c.feeAmt ? `عمولة الدفع ${fmt(c.feeAmt)}` : ""].filter(Boolean).join(" + ") : "";
   const hasExtras = c.cost != null && (c.fullD !== c.cost);
   const ps = S.sales.filter(s => s.perfumeId === p.id).sort((a, b) => String(b.soldOn).localeCompare(String(a.soldOn)) || b.createdAt - a.createdAt);
   const pst = salesStats(ps);
   const stockPanel = c.stock != null
-    ? `<div class="stock-row"><button type="button" class="round-btn" data-act="stock-adj" data-d="1" aria-label="زيادة حبة">+</button><div class="stock-num"><b class="${c.stockState === "out" ? "t-bad" : c.stockState === "low" ? "t-warn" : ""}">${numH(c.stock)}</b><span>حبة عندك</span></div><button type="button" class="round-btn" data-act="stock-adj" data-d="-1" aria-label="نقص حبة">−</button></div>
-       <p class="hint" style="text-align:center">ينبهك إذا قلت عن ${fmt(c.low)}. المبيعات تنقص منها تلقائيًا، والمرتجعات ترجع.</p>
-       <div class="btnrow" style="justify-content:center"><button type="button" class="btn soft small" data-act="stock-add">${I.plus}استلمت كمية</button><button type="button" class="btn ghost small" data-act="stock-set">تعديل العدد</button></div>`
-    : `<p class="r-empty">ما تتابع مخزون هذا العطر.</p><div class="btnrow"><button type="button" class="btn soft small" data-act="stock-set">ابدأ متابعة المخزون</button></div>`;
+    ? `<div class="stock-row"><button type="button" class="round-btn" data-act="stock-adj" data-d="1" aria-label="زيادة حبة">+</button><div class="stock-num"><b class="${c.stockState === "out" ? "t-bad" : c.stockState === "low" ? "t-warn" : ""}">${numH(c.stock)}</b><span>حبة عندك الحين</span></div><button type="button" class="round-btn" data-act="stock-adj" data-d="-1" aria-label="نقص حبة">−</button></div>
+       <p class="hint" style="text-align:center">بننبهك إذا صارت أقل من ${fmt(c.low)}. لما تسجّل بيعة تنقص لحالها، ولما يرجع لك عطر تزيد.</p>
+       <div class="btnrow" style="justify-content:center"><button type="button" class="btn soft small" data-act="stock-add">${I.plus}وصلتني حبات جديدة</button><button type="button" class="btn ghost small" data-act="stock-set">صحّح العدد</button></div>`
+    : `<p class="r-empty">ما سجلت كم حبة عندك من هذا العطر.</p><div class="btnrow"><button type="button" class="btn soft small" data-act="stock-set">سجّل كم حبة عندك</button></div>`;
   box.innerHTML = `
     <div class="phero">
       <div class="phero-img">${imgTag(p)}</div>
       <div class="phero-info">
         <div class="eyebrow">${esc(p.brand || "بدون ماركة")}</div>
         <h1 class="ptitle">${esc(p.name || "بدون اسم")}</h1>
-        <div class="tags">${p.conc ? `<span class="tag">${esc(p.conc)}</span>` : ""}${c.size ? `<span class="tag"><span class="num">${fmt(c.size)}</span> مل</span>` : ""}<span class="tag">${esc(p.packaging)}</span>${!p.inCatalog ? '<span class="tag muted">مخفي من الكتالوج</span>' : ""}</div>
+        <div class="tags">${p.conc ? `<span class="tag">${esc(p.conc)}</span>` : ""}${c.size ? `<span class="tag"><span class="num">${fmt(c.size)}</span> مل</span>` : ""}<span class="tag">${esc(p.packaging)}</span>${!p.inCatalog ? '<span class="tag muted">ما يظهر للموزعين في الكتالوج</span>' : ""}</div>
         ${editedLine(p)}
-        <div class="btnrow"><button type="button" class="btn primary" data-act="add-sale-perfume">${I.cart}بيعة</button><button type="button" class="btn ghost" data-act="edit-perfume">${I.edit}تعديل البيانات</button></div>
+        <div class="btnrow"><button type="button" class="btn primary" data-act="add-sale-perfume">${I.cart}سجّل بيعة</button><button type="button" class="btn ghost" data-act="edit-perfume">${I.edit}تعديل البيانات</button></div>
       </div>
     </div>
     <section class="panel">
-      <h2 class="sec">التسعير</h2>
+      <h2 class="sec">الأسعار والربح</h2>
       <div class="stats">
-        ${stat("سعرك", c.sell, "sell", { hl: true, sub: c.perMl != null ? `<span class="t-sell">${numH(c.perMl)} ر.س للمل</span>` : "" })}
-        ${stat("سعر الموزعين", c.resell, "resell")}
-        ${stat("أرخص مورد", c.cost, "cost")}
-        ${hasExtras ? stat("التكلفة الكاملة للحبة", c.fullD, "cost", { wide: true, sub: `<span class="muted">${parts}</span>` }) : ""}
-        ${stat("ربحك للحبة", c.profit, mClass(c.margin) || "good", { sub: c.margin != null ? `هامش ${pctH(c.margin)}` : "", cls: mClass(c.margin) })}
-        ${stat("ربحك من الموزع", c.rProfit, mClass(c.rMargin) || "good", { sub: c.rMargin != null ? `هامش ${pctH(c.rMargin)}` : "", cls: mClass(c.rMargin) })}
+        ${stat("تبيعه للزبون بـ", c.sell, "sell", { hl: true, sub: c.perMl != null ? `<span class="t-sell">يعني المل بـ ${numH(c.perMl)} ر.س</span>` : "" })}
+        ${stat("تبيعه للموزع بـ", c.resell, "resell")}
+        ${stat("تشتريه بـ", c.cost, "cost", { sub: (p.suppliers || []).length > 1 ? '<span class="muted">من أرخص مورد</span>' : "" })}
+        ${hasExtras ? stat("تكلفة الحبة عليك كاملة", c.fullD, "cost", { wide: true, sub: `<span class="muted">${parts}</span>` }) : ""}
+        ${stat("ربحك من كل حبة للزبون", c.profit, mClass(c.margin) || "good", { sub: c.margin != null ? `يعني ${pctH(c.margin)} من سعر البيع` : "", cls: mClass(c.margin) })}
+        ${stat("ربحك من كل حبة للموزع", c.rProfit, mClass(c.rMargin) || "good", { sub: c.rMargin != null ? `يعني ${pctH(c.rMargin)} من سعر الموزع` : "", cls: mClass(c.rMargin) })}
       </div>
-      ${c.cost != null ? `<div class="suggest"><span>لهامش ${fmt(st.target)}%: السعر المقترح <b>${c.sugD != null ? numH(c.sugD) : "—"}</b> ر.س · للموزع <b class="t-resell">${c.sugR != null ? numH(c.sugR) : "—"}</b> ر.س</span><button type="button" class="btn ghost small" data-act="open-calc-perfume">${I.calc}الحاسبة</button></div>` : ""}
+      ${c.cost != null ? `<div class="suggest"><span>عشان تربح ${fmt(st.target)}%: بيعه للزبون بـ <b>${c.sugD != null ? numH(c.sugD) : "—"}</b> ر.س، وللموزع بـ <b class="t-resell">${c.sugR != null ? numH(c.sugR) : "—"}</b> ر.س</span><button type="button" class="btn ghost small" data-act="open-calc-perfume">${I.calc}جرّب نسبة ثانية</button></div>` : ""}
       ${marketHTML(c, p)}
-      <div class="legend"><span><i class="dot t-sell"></i>سعرك</span><span><i class="dot t-cost"></i>المورد</span><span><i class="dot t-market"></i>السوق</span><span><i class="dot t-resell"></i>الموزعين</span></div>
+      <div class="legend"><span><i class="dot t-sell"></i>سعر بيعك</span><span><i class="dot t-cost"></i>سعر الشراء</span><span><i class="dot t-market"></i>أسعار المحلات</span><span><i class="dot t-resell"></i>سعر الموزع</span></div>
     </section>
-    <section class="panel"><div class="sec-row"><h2 class="sec">المخزون</h2>${stockChip(c)}</div>${stockPanel}</section>
+    <section class="panel"><div class="sec-row"><h2 class="sec">كم حبة عندك</h2>${stockChip(c)}</div>${stockPanel}</section>
     ${historyChart(p, c)}
     <section class="panel">
-      <div class="sec-row"><h2 class="sec">المبيعات <span class="count num">${ps.length}</span></h2><button type="button" class="btn soft small" data-act="add-sale-perfume">${I.plus}بيعة</button></div>
-      ${ps.length ? `<div class="stats" style="margin-bottom:6px">${stat("إجمالي المبيعات", pst.revenue, "sell", { sub: piecesTxt(pst.units) })}${stat("إجمالي الربح", pst.profit, pst.profit < 0 ? "bad" : "good", { sub: pst.unknown ? `${pst.unknown} بدون تكلفة` : "" })}</div><div class="rows">${ps.slice(0, 6).map(s => saleRow(s, { showDate: true })).join("")}</div>${ps.length > 6 ? `<p class="hint">وفيه ${ps.length - 6} مبيعات أقدم في تبويب المبيعات.</p>` : ""}` : '<p class="r-empty">ما سجلت مبيعات لهذا العطر.</p>'}
+      <div class="sec-row"><h2 class="sec">مبيعاتك منه <span class="count num">${ps.length}</span></h2><button type="button" class="btn soft small" data-act="add-sale-perfume">${I.plus}سجّل بيعة</button></div>
+      ${ps.length ? `<div class="stats" style="margin-bottom:6px">${stat("كل اللي بعته منه", pst.revenue, "sell", { sub: `بعت ${piecesTxt(pst.units)}` })}${stat("ربحك منه", pst.profit, pst.profit < 0 ? "bad" : "good", { sub: pst.unknown ? `${pst.unknown} مبيعات ربحها غير معروف` : "" })}</div><div class="rows">${ps.slice(0, 6).map(s => saleRow(s, { showDate: true })).join("")}</div>${ps.length > 6 ? `<p class="hint">وفيه ${ps.length - 6} مبيعات أقدم في تبويب المبيعات.</p>` : ""}` : '<p class="r-empty">ما سجلت أي بيعة لهذا العطر.</p>'}
     </section>
     <section class="panel">
-      <div class="sec-row"><h2 class="sec">في السوق <span class="count num">${c.mk.all.length}</span></h2><button type="button" class="btn soft small" data-act="add-item-perfume">${I.plus}رصد سعر</button></div>
+      <div class="sec-row"><h2 class="sec">أسعاره في المحلات <span class="count num">${c.mk.all.length}</span></h2><button type="button" class="btn soft small" data-act="add-item-perfume">${I.plus}سجّل سعر</button></div>
       <div class="rows">${mkRows}</div>
     </section>
     <section class="panel">
-      <div class="sec-row"><h2 class="sec">الموردين <span class="count num">${links.length}</span></h2><button type="button" class="btn soft small" data-act="link-supplier">${I.plus}مورد</button></div>
+      <div class="sec-row"><h2 class="sec">مين يبيعه لك (الموردين) <span class="count num">${links.length}</span></h2><button type="button" class="btn soft small" data-act="link-supplier">${I.plus}أضف مورد</button></div>
       <div class="rows">${supRows}</div>
     </section>
     ${p.notes ? `<section class="panel"><h2 class="sec">ملاحظات</h2><p class="notes">${esc(p.notes)}</p></section>` : ""}
@@ -1378,24 +1378,24 @@ function renderSales(){
     box.innerHTML = `${seg}
       <div class="sec-row" style="margin:0"><button type="button" class="btn ghost small" data-act="month" data-d="-1">الشهر السابق</button><b style="font-size:18px">${esc(monthName(S.month))}</b><button type="button" class="btn ghost small" data-act="month" data-d="1" ${canNext ? "" : "disabled"}>الشهر الجاي</button></div>
       <div class="stats" style="margin:0">
-        ${stat("المبيعات", ms.revenue, "sell", { sub: `<span class="muted">${piecesTxt(ms.units)} · ${ms.count} عملية</span>` })}
-        ${stat("الربح", ms.profit, ms.profit < 0 ? "bad" : "good", { sub: ms.margin != null ? `<span class="${mClass(ms.margin)}">هامش ${pctH(ms.margin)}</span>` : "" })}
+        ${stat("مبيعاتك في هذا الشهر", ms.revenue, "sell", { sub: `<span class="muted">${ms.count ? `بعت ${piecesTxt(ms.units)}` : "ما فيه مبيعات"}</span>` })}
+        ${stat("ربحك في هذا الشهر", ms.profit, ms.profit < 0 ? "bad" : "good", { sub: ms.margin != null ? `<span class="${mClass(ms.margin)}">يعني ${pctH(ms.margin)} من المبيعات</span>` : "" })}
       </div>
-      ${ms.count ? `<p class="hint" style="margin:0">بيع مباشر <b class="t-sell">${numH(ms.direct)}</b> ر.س · للموزعين <b class="t-resell">${numH(ms.viaRes)}</b> ر.س</p>` : ""}
-      ${ms.unknown ? `<p class="hint" style="margin:0">${ms.unknown === 1 ? "عملية وحدة" : ms.unknown + " عمليات"} بدون سعر مورد، ربحها ما انحسب. اربط العطر بمورده.</p>` : ""}
+      ${ms.count ? `<p class="hint" style="margin:0">منها للزبائن <b class="t-sell">${numH(ms.direct)}</b> ر.س، وللموزعين <b class="t-resell">${numH(ms.viaRes)}</b> ر.س</p>` : ""}
+      ${ms.unknown ? `<p class="hint" style="margin:0">${ms.unknown === 1 ? "فيه بيعة وحدة" : "فيه " + ms.unknown + " مبيعات"} ما نعرف ربحها، لأنك ما حددت بكم تشتري العطر. أضف المورد وسعره من صفحة العطر.</p>` : ""}
       ${list.length ? `<section class="panel"><div class="rows">${Object.entries(days).map(([d, arr]) => `<div class="dayhead">${esc(relDay(d))}</div>${arr.map(s => saleRow(s)).join("")}`).join("")}</div></section>`
-        : `<div class="empty">${bottle()}<h2>ما فيه مبيعات في ${esc(monthName(S.month))}</h2><p>سجّل كل بيعة: العطر والكمية والسعر ولمين. الربح ينحسب تلقائيًا، والمخزون ينقص.</p><button type="button" class="btn primary" data-act="add-sale">${I.plus}بيعة جديدة</button></div>`}`;
+        : `<div class="empty">${bottle()}<h2>ما سجلت مبيعات في ${esc(monthName(S.month))}</h2><p>كل ما تبيع، سجّل العطر وكم حبة وبكم ولمين. ربحك ينحسب لحاله، والحبات تنقص من عندك.</p><button type="button" class="btn primary" data-act="add-sale">${I.plus}سجّل بيعة</button></div>`}`;
   } else {
     const rs = S.resellers.map(r => ({ r, b: resellerBalance(r.id) })).sort((a, b) => b.b.owed - a.b.owed || byName(a.r, b.r));
     const totOwed = sum(rs.map(x => Math.max(x.b.owed, 0)));
     box.innerHTML = `${seg}
-      ${rs.length ? `<div class="sum"><span><b class="num">${rs.length}</b> موزع</span><span>عليهم <b class="t-warn">${numH(totOwed)}</b> ر.س</span>${S.settings.catEnabled && S.settings.catToken ? `<button type="button" class="btn ghost small" data-act="copy-catalog" style="margin-inline-start:auto">${I.link}نسخ رابط الكتالوج</button>` : ""}</div>
+      ${rs.length ? `<div class="sum"><span><b class="num">${rs.length}</b> موزع</span><span>باقي لك عندهم <b class="t-warn">${numH(totOwed)}</b> ر.س</span>${S.settings.catEnabled && S.settings.catToken ? `<button type="button" class="btn ghost small" data-act="copy-catalog" style="margin-inline-start:auto">${I.link}نسخ رابط الكتالوج</button>` : ""}</div>
       <div class="slist">${rs.map(({ r, b }) => {
         const wa = waDigits(r.whatsapp || r.phone);
-        return `<article class="scard"><button type="button" class="s-open" data-act="open-reseller" data-id="${esc(r.id)}"><div><div class="s-name">${esc(r.name)}${b.owed > 0.004 ? `<span class="chip warn">عليه ${numH(b.owed)}</span>` : b.ops ? '<span class="chip good">مسدد</span>' : ""}</div><div class="s-sub">${[r.city ? esc(r.city) : "", b.ops ? `أخذ ${piecesTxt(b.units)} بقيمة ${numH(b.took - b.returned)} ر.س` : "ما أخذ شيء"].filter(Boolean).join(" · ")}</div></div>${I.chev}</button>
+        return `<article class="scard"><button type="button" class="s-open" data-act="open-reseller" data-id="${esc(r.id)}"><div><div class="s-name">${esc(r.name)}${b.owed > 0.004 ? `<span class="chip warn">باقي عليه ${numH(b.owed)} ر.س</span>` : b.ops ? '<span class="chip good">سدد كل شيء</span>' : ""}</div><div class="s-sub">${[r.city ? esc(r.city) : "", b.ops ? `أخذ منك ${piecesTxt(b.units)} بـ ${numH(b.took - b.returned)} ر.س` : "ما أخذ منك شيء"].filter(Boolean).join(" · ")}</div></div>${I.chev}</button>
         ${wa || r.phone ? `<div class="cbtns">${wa ? `<a class="cbtn" href="https://wa.me/${wa}" target="_blank" rel="noopener noreferrer">${I.chat}واتساب</a>` : ""}${r.phone ? `<a class="cbtn" href="tel:${esc(telDigits(r.phone))}">${I.phone}اتصال</a>` : ""}</div>` : ""}</article>`;
       }).join("")}</div>`
-      : `<div class="empty">${bottle()}<h2>ما فيه موزعين بعد</h2><p>أضف كل موزع، وسجّل البضاعة اللي يأخذها والمبالغ اللي يدفعها، وبيطلع لك كم باقي عليه.</p><button type="button" class="btn primary" data-act="add-reseller">${I.plus}أضف موزع</button></div>`}`;
+      : `<div class="empty">${bottle()}<h2>ما فيه موزعين بعد</h2><p>أضف كل موزع، وسجّل البضاعة اللي يأخذ منك والفلوس اللي يدفعها لك، وبيطلع لك كم باقي عليه.</p><button type="button" class="btn primary" data-act="add-reseller">${I.plus}أضف موزع</button></div>`}`;
   }
 }
 
@@ -1421,19 +1421,19 @@ function renderReseller(){
       <div class="eyebrow">${esc(r.city || "موزع")}</div>
       <h1 class="ptitle">${esc(r.name)}</h1>
       ${editedLine(r)}
-      <div class="btnrow"><button type="button" class="btn primary" data-act="res-take">${I.cart}تسليم بضاعة</button><button type="button" class="btn soft" data-act="res-pay">${I.money}تسجيل دفعة</button><button type="button" class="btn ghost" data-act="res-return">${I.back}مرتجع</button><button type="button" class="btn ghost" data-act="edit-reseller">${I.edit}تعديل</button></div>
+      <div class="btnrow"><button type="button" class="btn primary" data-act="res-take">${I.cart}أعطيته بضاعة</button><button type="button" class="btn soft" data-act="res-pay">${I.money}دفع لي فلوس</button><button type="button" class="btn ghost" data-act="res-return">${I.back}رجّع لي بضاعة</button><button type="button" class="btn ghost" data-act="edit-reseller">${I.edit}تعديل</button></div>
     </section>
     <div class="stats" style="margin:0">
-      ${stat("الباقي عليه", b.owed, b.owed > 0.004 ? "warn" : "good", { hl: true, sub: b.owed > 0.004 ? "" : '<span class="t-good">مسدد، ما عليه شيء</span>' })}
-      ${stat("أخذ بضاعة", b.took - b.returned, "resell", { sub: `<span class="muted">${piecesTxt(b.units)}${b.returned ? ` · رجّع بـ ${numH(b.returned)}` : ""}</span>` })}
-      ${stat("دفع", b.paid, "good")}
+      ${stat("باقي عليه لك", b.owed, b.owed > 0.004 ? "warn" : "good", { hl: true, sub: b.owed > 0.004 ? '<span class="muted">قيمة البضاعة اللي أخذها ناقص اللي دفعه</span>' : '<span class="t-good">سدد كل شيء</span>' })}
+      ${stat("قيمة البضاعة اللي أخذها", b.took - b.returned, "resell", { sub: `<span class="muted">${piecesTxt(b.units)}${b.returned ? ` · بعد ما رجّع بـ ${numH(b.returned)}` : ""}</span>` })}
+      ${stat("دفع لك", b.paid, "good")}
     </div>
-    ${cat ? `<section class="panel"><div class="sec-row" style="margin:0"><span>أرسل له الكتالوج عشان يشوف العطور وأسعار الموزعين.</span>${wa ? `<a class="btn soft small" href="https://wa.me/${wa}?text=${encodeURIComponent("هذا كتالوج العطور وأسعار الموزعين: " + catalogUrl(S.settings.catToken))}" target="_blank" rel="noopener noreferrer">${I.chat}إرسال بالواتساب</a>` : `<button type="button" class="btn soft small" data-act="copy-catalog">${I.link}نسخ الرابط</button>`}</div></section>` : ""}
+    ${cat ? `<section class="panel"><div class="sec-row" style="margin:0"><span>أرسل له رابط الكتالوج عشان يشوف العطور وأسعارها للموزعين.</span>${wa ? `<a class="btn soft small" href="https://wa.me/${wa}?text=${encodeURIComponent("هذا كتالوج العطور وأسعار الموزعين: " + catalogUrl(S.settings.catToken))}" target="_blank" rel="noopener noreferrer">${I.chat}إرسال بالواتساب</a>` : `<button type="button" class="btn soft small" data-act="copy-catalog">${I.link}نسخ الرابط</button>`}</div></section>` : ""}
     <section class="panel"><h2 class="sec">التواصل</h2>${contactList(contacts, "ما فيه رقم. أضفه من «تعديل».")}</section>
-    ${Object.keys(byP).length ? `<section class="panel"><h2 class="sec">اللي أخذه حسب العطر</h2><div class="rows">${Object.values(byP).sort((a, b2) => b2.units - a.units).map(x => `<div class="row"><div class="r-main"><span class="r-name">${esc(x.name)}</span><span class="r-sub">${piecesTxt(x.units)}</span></div><span class="r-price t-resell">${money(x.value)}</span></div>`).join("")}</div></section>` : ""}
-    <section class="panel"><div class="sec-row"><h2 class="sec">السجل <span class="count num">${ledger.length}</span></h2></div><div class="rows">${ledger.length ? ledger.map(e => e.s ? saleRow(e.s, { hideWho: true, showDate: true })
-      : `<div class="row"><span class="r-ic" style="background:var(--good-soft);color:var(--good)">${I.money}</span><div class="r-main"><span class="r-name">دفعة</span><span class="r-sub">${[relDay(e.p.paidOn), e.p.notes ? esc(e.p.notes) : ""].filter(Boolean).join(" · ")}</span></div><span class="r-price t-good">${money(Number(e.p.amount))}</span><button type="button" class="icon-btn" data-act="edit-payment" data-id="${esc(e.p.id)}" aria-label="تعديل الدفعة">${I.edit}</button></div>`).join("")
-      : '<p class="r-empty">ما فيه عمليات. ابدأ بـ «تسليم بضاعة».</p>'}</div></section>
+    ${Object.keys(byP).length ? `<section class="panel"><h2 class="sec">وش أخذ منك</h2><div class="rows">${Object.values(byP).sort((a, b2) => b2.units - a.units).map(x => `<div class="row"><div class="r-main"><span class="r-name">${esc(x.name)}</span><span class="r-sub">${piecesTxt(x.units)}</span></div><span class="r-price t-resell">${money(x.value)}</span></div>`).join("")}</div></section>` : ""}
+    <section class="panel"><div class="sec-row"><h2 class="sec">كل العمليات معه <span class="count num">${ledger.length}</span></h2></div><div class="rows">${ledger.length ? ledger.map(e => e.s ? saleRow(e.s, { hideWho: true, showDate: true })
+      : `<div class="row"><span class="r-ic" style="background:var(--good-soft);color:var(--good)">${I.money}</span><div class="r-main"><span class="r-name">دفع لك</span><span class="r-sub">${[relDay(e.p.paidOn), e.p.notes ? esc(e.p.notes) : ""].filter(Boolean).join(" · ")}</span></div><span class="r-price t-good">${money(Number(e.p.amount))}</span><button type="button" class="icon-btn" data-act="edit-payment" data-id="${esc(e.p.id)}" aria-label="تعديل الدفعة">${I.edit}</button></div>`).join("")
+      : '<p class="r-empty">ما سجلت أي شيء معه. لما تعطيه بضاعة اضغط «أعطيته بضاعة».</p>'}</div></section>
     ${r.notes ? `<section class="panel"><h2 class="sec">ملاحظات</h2><p class="notes">${esc(r.notes)}</p></section>` : ""}`;
 }
 
@@ -1459,7 +1459,7 @@ function renderSuppliers(){
   if (!S.loaded) return;
   $("#supTools").hidden = !S.suppliers.length;
   if (!S.suppliers.length) {
-    body.innerHTML = `<div class="empty">${bottle()}<h2>ما فيه موردين بعد</h2><p>أضف المورد مع رقمه وموقعه، وبعدها تقدر تربطه بالعطور اللي يوفرها وتقيّمه.</p><button type="button" class="btn primary" data-act="add-supplier">${I.plus}أضف مورد</button></div>`;
+    body.innerHTML = `<div class="empty">${bottle()}<h2>ما فيه موردين بعد</h2><p>أضف المورد مع رقمه وموقعه، وبعدها حدد من صفحة كل عطر بكم يبيعه لك.</p><button type="button" class="btn primary" data-act="add-supplier">${I.plus}أضف مورد</button></div>`;
     return;
   }
   const qs = norm(S.sq);
@@ -1470,7 +1470,7 @@ function renderSuppliers(){
     const cb = contactBtns(s);
     return `<article class="scard">
       <button type="button" class="s-open" data-act="open-supplier" data-id="${esc(s.id)}">
-        <div><div class="s-name">${esc(s.name || "بدون اسم")}${starsAvgHTML(s)}</div><div class="s-sub">${[s.city ? esc(s.city) : "", n ? `يوفر <span class="num">${n}</span> ${n === 1 ? "عطر" : "عطور"}` : "ما انربط بعطر"].filter(Boolean).join(" · ")}</div></div>
+        <div><div class="s-name">${esc(s.name || "بدون اسم")}${starsAvgHTML(s)}</div><div class="s-sub">${[s.city ? esc(s.city) : "", n ? `يبيع لك <span class="num">${n}</span> ${n === 1 ? "عطر" : "عطور"}` : "ما حددت وش يبيع لك"].filter(Boolean).join(" · ")}</div></div>
         ${I.chev}
       </button>
       ${cb ? `<div class="cbtns">${cb}</div>` : ""}
@@ -1503,40 +1503,41 @@ function renderSupplier(){
       <div class="btnrow"><button type="button" class="btn ghost" data-act="edit-supplier">${I.edit}تعديل المورد</button></div>
     </section>
     <section class="panel">
-      <div class="sec-row"><h2 class="sec">التقييم</h2>${ar != null ? `<span class="star-avg" style="font-size:16px">${I.star}${numH(Math.round(ar * 10) / 10)} من 5</span>` : '<span class="muted" style="font-size:14px">اضغط النجوم للتقييم</span>'}</div>
-      <div class="rate-row"><span>الجودة</span>${starsInput("rating_quality", s.rq)}</div>
-      <div class="rate-row"><span>السرعة</span>${starsInput("rating_speed", s.rs)}</div>
-      <div class="rate-row"><span>الالتزام</span>${starsInput("rating_commit", s.rc)}</div>
+      <div class="sec-row"><h2 class="sec">تقييمك له</h2>${ar != null ? `<span class="star-avg" style="font-size:16px">${I.star}${numH(Math.round(ar * 10) / 10)} من 5</span>` : '<span class="muted" style="font-size:14px">اضغط على النجوم عشان تقيّمه</span>'}</div>
+      <div class="rate-row"><span>جودة البضاعة</span>${starsInput("rating_quality", s.rq)}</div>
+      <div class="rate-row"><span>سرعة التوصيل</span>${starsInput("rating_speed", s.rs)}</div>
+      <div class="rate-row"><span>التزامه بالمواعيد والكلام</span>${starsInput("rating_commit", s.rc)}</div>
     </section>
     <section class="panel">
-      <div class="sec-row"><h2 class="sec">ملاحظات الطلبيات <span class="count num">${notes.length}</span></h2><button type="button" class="btn soft small" data-act="add-supnote">${I.plus}ملاحظة</button></div>
+      <div class="sec-row"><h2 class="sec">ملاحظاتك عن طلبياته <span class="count num">${notes.length}</span></h2><button type="button" class="btn soft small" data-act="add-supnote">${I.plus}أضف ملاحظة</button></div>
       <div class="rows">${notes.length ? notes.map(n => `<div class="row"><span class="r-ic" style="background:var(--c-cost-soft);color:var(--c-cost)">${I.note}</span><div class="r-main"><span class="r-name" style="font-weight:500">${esc(n.note)}</span><span class="r-sub">${esc(relDay(n.notedOn))}${n.updatedBy ? " · " + esc(who(n.updatedBy)) : ""}</span></div><button type="button" class="icon-btn" data-act="edit-supnote" data-id="${esc(n.id)}" aria-label="تعديل الملاحظة">${I.edit}</button></div>`).join("") : '<p class="r-empty">سجّل ملاحظة عن كل طلبية: وصلت متأخرة، التغليف ممتاز، فيه نقص…</p>'}</div>
     </section>
     <section class="panel"><h2 class="sec">التواصل</h2>${contactList(items, "ما فيه وسائل تواصل. أضفها من «تعديل المورد».")}</section>
     <section class="panel">
-      <div class="sec-row"><h2 class="sec">العطور اللي يوفرها <span class="count num">${list.length}</span></h2></div>
+      <div class="sec-row"><h2 class="sec">العطور اللي يبيعها لك <span class="count num">${list.length}</span></h2></div>
       <div class="rows">${list.length ? list.map(p => {
         const l = p.suppliers.find(x => x.id === s.id); const pr = toNum(l && l.price); const c = calc(p);
         return `<div class="row"><span class="r-thumb">${imgTag(p)}</span>
           <button type="button" class="r-main" data-act="open-perfume" data-id="${esc(p.id)}"><span class="r-name">${esc(p.name)}${pr != null && pr === c.cost && p.suppliers.length > 1 ? '<span class="chip good">الأرخص</span>' : ""}</span><span class="r-sub">${esc([p.brand, sizeTxt(p.size)].filter(Boolean).join(" · "))}</span></button>
           <span class="r-price t-cost">${money(pr)}</span></div>`;
-      }).join("") : `<p class="r-empty">ما انربط بأي عطر. اربطه من صفحة العطر.</p>`}</div>
+      }).join("") : `<p class="r-empty">ما حددت وش يبيع لك. افتح صفحة العطر واضغط «أضف مورد».</p>`}</div>
     </section>
     ${s.notes ? `<section class="panel"><h2 class="sec">ملاحظات عامة</h2><p class="notes">${esc(s.notes)}</p></section>` : ""}`;
 }
 
 /* ---------- market ---------- */
 function demandChips(g){
-  return [g.high ? `<span class="chip good">ماشي بقوة · <span class="num">${g.high}</span></span>` : "",
-          g.mid ? `<span class="chip warn">متوسط · <span class="num">${g.mid}</span></span>` : "",
-          g.low ? `<span class="chip">ضعيف · <span class="num">${g.low}</span></span>` : ""].join("");
+  const n = k => k === 1 ? "في محل" : `في ${k} ${k <= 10 ? "محلات" : "محل"}`;
+  return [g.high ? `<span class="chip good">عليه طلب كبير ${n(g.high)}</span>` : "",
+          g.mid ? `<span class="chip warn">طلبه متوسط ${n(g.mid)}</span>` : "",
+          g.low ? `<span class="chip">طلبه ضعيف ${n(g.low)}</span>` : ""].join("");
 }
 function groupCard(g){
   const main = g.combos[0];
   const dc = demandChips(g);
   return `<button type="button" class="gcard" data-act="open-group" data-key="${esc(g.key)}">
-    <div class="g-top"><div class="g-title"><span class="g-name">${esc(g.name)}</span>${g.brand ? `<span class="g-brand">${esc(g.brand)}</span>` : ""}</div><div class="chips" style="margin:0">${watchByKey(g.key) ? `<span class="chip warn">${I.star}متابَع</span>` : ""}${g.catalog ? '<span class="chip acc">في عطوري</span>' : ""}</div></div>
-    <div class="g-stats"><span>${placesTxt(g.places)}</span>${main && main.min != null ? `<span>${main.size ? `<span class="num">${fmt(main.size)}</span> مل ` : ""}${esc(main.pack)}: <b>${rangeH(main.min, main.max)}</b> ر.س</span>` : ""}${g.pmMin != null ? `<span>المل ${rangeH(g.pmMin, g.pmMax)}</span>` : ""}</div>
+    <div class="g-top"><div class="g-title"><span class="g-name">${esc(g.name)}</span>${g.brand ? `<span class="g-brand">${esc(g.brand)}</span>` : ""}</div><div class="chips" style="margin:0">${watchByKey(g.key) ? `<span class="chip warn">${I.star}تتابعه</span>` : ""}${g.catalog ? '<span class="chip acc">في عطوري</span>' : ""}</div></div>
+    <div class="g-stats"><span>شفته في ${placesTxt(g.places)}</span>${main && main.min != null ? `<span>${main.size ? `<span class="num">${fmt(main.size)}</span> مل ` : ""}${esc(main.pack)}: <b>${rangeH(main.min, main.max)}</b> ر.س</span>` : ""}</div>
     ${dc ? `<div class="chips" style="margin-top:0">${dc}</div>` : ""}
   </button>`;
 }
@@ -1549,7 +1550,7 @@ function shopCard(s){
   if (s.phone) btns.push(`<a class="cbtn" href="tel:${esc(telDigits(s.phone))}">${I.phone}اتصال</a>`);
   return `<article class="scard">
     <button type="button" class="s-open" data-act="open-shop" data-id="${esc(s.id)}">
-      <div><div class="s-name">${esc(s.name || "بدون اسم")}</div><div class="s-sub">${[KIND[s.kind], s.city ? esc(s.city) : "", its.length ? `<span class="num">${its.length}</span> رصد` : "ما فيه رصد", last ? "آخر زيارة " + relDay(last) : ""].filter(Boolean).join(" · ")}</div></div>
+      <div><div class="s-name">${esc(s.name || "بدون اسم")}</div><div class="s-sub">${[KIND[s.kind], s.city ? esc(s.city) : "", its.length ? `سجلت منه <span class="num">${its.length}</span> ${its.length > 2 && its.length <= 10 ? "أسعار" : "سعر"}` : "ما سجلت منه أسعار", last ? "آخر مرة " + relDay(last) : ""].filter(Boolean).join(" · ")}</div></div>
       ${I.chev}
     </button>
     ${btns.length ? `<div class="cbtns">${btns.join("")}</div>` : ""}
@@ -1560,9 +1561,9 @@ function watchCard(w){
   const main = g && g.combos[0];
   const inCat = S.perfumes.find(p => norm(p.name) === w.key);
   return `<article class="scard">
-    <button type="button" class="s-open" ${g ? `data-act="open-group" data-key="${esc(w.key)}"` : `data-act="edit-watch" data-id="${esc(w.id)}"`}><div><div class="s-name">${esc(w.name)}${inCat ? '<span class="chip acc">في عطوري</span>' : ""}</div><div class="s-sub">${[w.brand ? esc(w.brand) : "", g ? placesTxt(g.places) : "ما انرصد بعد", main && main.min != null ? `<span class="t-market">${rangeH(main.min, main.max)} ر.س</span>` : ""].filter(Boolean).join(" · ")}</div>${w.note ? `<div class="s-sub" style="margin-top:4px;color:var(--ink)">${esc(w.note)}</div>` : ""}</div>${I.chev}</button>
+    <button type="button" class="s-open" ${g ? `data-act="open-group" data-key="${esc(w.key)}"` : `data-act="edit-watch" data-id="${esc(w.id)}"`}><div><div class="s-name">${esc(w.name)}${inCat ? '<span class="chip acc">في عطوري</span>' : ""}</div><div class="s-sub">${[w.brand ? esc(w.brand) : "", g ? "شفته في " + placesTxt(g.places) : "ما سجلت سعره في المحلات", main && main.min != null ? `<span class="t-market">${rangeH(main.min, main.max)} ر.س</span>` : ""].filter(Boolean).join(" · ")}</div>${w.note ? `<div class="s-sub" style="margin-top:4px;color:var(--ink)">${esc(w.note)}</div>` : ""}</div>${I.chev}</button>
     ${g ? `<div class="chips" style="margin:0">${demandChips(g)}</div>` : ""}
-    <div class="btnrow" style="margin:0">${inCat ? `<button type="button" class="btn ghost small" data-act="open-perfume" data-id="${esc(inCat.id)}">فتح في عطوري</button>` : `<button type="button" class="btn soft small" data-act="watch-to-catalog" data-id="${esc(w.id)}">${I.plus}أضفه لعطوري</button>`}<button type="button" class="btn ghost small" data-act="edit-watch" data-id="${esc(w.id)}">${I.edit}ملاحظة</button><button type="button" class="btn danger small" data-act="unwatch" data-id="${esc(w.id)}">شيله</button></div>
+    <div class="btnrow" style="margin:0">${inCat ? `<button type="button" class="btn ghost small" data-act="open-perfume" data-id="${esc(inCat.id)}">فتح في عطوري</button>` : `<button type="button" class="btn soft small" data-act="watch-to-catalog" data-id="${esc(w.id)}">${I.plus}أضفه لعطوري</button>`}<button type="button" class="btn ghost small" data-act="edit-watch" data-id="${esc(w.id)}">${I.edit}اكتب ملاحظة</button><button type="button" class="btn danger small" data-act="unwatch" data-id="${esc(w.id)}">شيله من القائمة</button></div>
   </article>`;
 }
 function renderMarket(){
@@ -1575,11 +1576,11 @@ function renderMarket(){
   const body = $("#mBody");
   if (!S.loaded) return;
   const groups = [...S.groups.values()];
-  $("#mSum").innerHTML = (S.items.length || S.shops.length) ? `<span><b class="num">${groups.length}</b> عطر مرصود</span><span><b class="num">${S.shops.length}</b> محل</span><span><b class="num">${S.items.length}</b> رصد</span>` : "";
+  $("#mSum").innerHTML = (S.items.length || S.shops.length) ? `<span>سجلت <b class="num">${S.items.length}</b> ${S.items.length > 2 && S.items.length <= 10 ? "أسعار" : "سعر"}</span><span>لـ <b class="num">${groups.length}</b> ${groups.length > 2 && groups.length <= 10 ? "عطور" : "عطر"}</span><span>من <b class="num">${S.shops.length}</b> ${S.shops.length > 2 && S.shops.length <= 10 ? "محلات" : "محل"}</span>` : "";
   const qs = norm(S.mq);
   if (sub === "items") {
     $("#mTools").hidden = !S.items.length;
-    if (!S.items.length) { body.innerHTML = `<div class="empty">${bottle()}<h2>ابدأ دراسة السوق</h2><p>اختر المحل أو الموقع اللي زرته، وسجّل كل عطر تشوفه فيه: الحجم والسعر والتعبئة وهل هو ماشي.</p><button type="button" class="btn primary" data-act="add-item">${I.plus}رصد جديد</button></div>`; return; }
+    if (!S.items.length) { body.innerHTML = `<div class="empty">${bottle()}<h2>سجّل أسعار المحلات</h2><p>لما تزور محل أو موقع عطور، سجّل كل عطر تشوفه: بكم يبيعونه، وكم مل، ونوع التعبئة، وهل عليه طلب.</p><button type="button" class="btn primary" data-act="add-item">${I.plus}سجّل سعر</button></div>`; return; }
     let arr = groups;
     if (qs) arr = arr.filter(g => norm(g.name + " " + g.brand).includes(qs));
     const by = { seen: (a, b) => b.places - a.places || b.items.length - a.items.length, demand: (a, b) => b.score - a.score || b.places - a.places, new: (a, b) => String(b.last).localeCompare(String(a.last)), name: (a, b) => a.name.localeCompare(b.name, "ar") }[S.msort] || (() => 0);
@@ -1587,13 +1588,13 @@ function renderMarket(){
     body.innerHTML = arr.length ? `<div class="slist">${arr.map(groupCard).join("")}</div>` : `<div class="empty"><p>ما فيه نتائج لـ «${esc(S.mq)}».</p></div>`;
   } else if (sub === "shops") {
     $("#mTools").hidden = !S.shops.length;
-    if (!S.shops.length) { body.innerHTML = `<div class="empty">${bottle()}<h2>ما فيه محلات بعد</h2><p>أضف المحل أو الموقع مرة وحدة مع موقعه في قوقل ماب أو رابطه، وبعدها سجّل العطور اللي فيه.</p><button type="button" class="btn primary" data-act="add-shop">${I.plus}أضف محل</button></div>`; return; }
+    if (!S.shops.length) { body.innerHTML = `<div class="empty">${bottle()}<h2>ما فيه محلات بعد</h2><p>أضف المحل أو الموقع مرة وحدة مع موقعه في قوقل ماب أو رابطه، وبعدها سجّل أسعار العطور اللي فيه.</p><button type="button" class="btn primary" data-act="add-shop">${I.plus}أضف محل</button></div>`; return; }
     let arr = S.shops.slice().sort(byName);
     if (qs) arr = arr.filter(s => norm([s.name, s.city, s.notes].join(" ")).includes(qs));
     body.innerHTML = arr.length ? `<div class="slist">${arr.map(shopCard).join("")}</div>` : `<div class="empty"><p>ما فيه نتائج لـ «${esc(S.mq)}».</p></div>`;
   } else {
     $("#mTools").hidden = !S.watch.length;
-    if (!S.watch.length) { body.innerHTML = `<div class="empty">${bottle()}<h2>قائمة «عطور نبي نجربها»</h2><p>من صفحة أي عطر في السوق اضغط «تابع»، أو أضف اسم عطر هنا. لما تقرر، أضفه لعطورك أو شيله.</p><button type="button" class="btn primary" data-act="add-watch">${I.plus}متابعة عطر</button></div>`; return; }
+    if (!S.watch.length) { body.innerHTML = `<div class="empty">${bottle()}<h2>عطور تفكر تبيعها</h2><p>حط هنا العطور اللي تبي تتابعها قبل ما تقرر تبيعها. لما تقرر، أضفها لعطورك أو شيلها من القائمة.</p><button type="button" class="btn primary" data-act="add-watch">${I.plus}أضف عطر للقائمة</button></div>`; return; }
     let arr = S.watch.slice().sort((a, b) => b.createdAt - a.createdAt);
     if (qs) arr = arr.filter(w => norm(w.name + " " + w.brand + " " + w.note).includes(qs));
     body.innerHTML = arr.length ? `<div class="slist">${arr.map(watchCard).join("")}</div>` : `<div class="empty"><p>ما فيه نتائج لـ «${esc(S.mq)}».</p></div>`;
@@ -1611,21 +1612,21 @@ function renderGroup(){
     <section class="panel shead">
       <div class="eyebrow">${esc(g.brand || "بدون ماركة")}</div>
       <h1 class="ptitle">${esc(g.name)}</h1>
-      <div class="tags"><span class="tag num">${placesTxt(g.places)}</span><span class="tag"><span class="num">${g.items.length}</span> رصد</span>${g.pmMin != null ? `<span class="tag t-market">المل ${rangeH(g.pmMin, g.pmMax)} ر.س</span>` : ""}</div>
+      <div class="tags"><span class="tag">شفته في ${placesTxt(g.places)}</span><span class="tag">سجلت <span class="num">${g.items.length}</span> ${g.items.length > 2 && g.items.length <= 10 ? "أسعار" : "سعر"}</span>${g.pmMin != null ? `<span class="tag t-market">المل من ${rangeH(g.pmMin, g.pmMax)} ر.س</span>` : ""}</div>
       ${dc ? `<div class="chips">${dc}</div>` : ""}
       <div class="btnrow">
         ${g.catalog ? `<button type="button" class="btn ghost" data-act="open-perfume" data-id="${esc(g.catalog.id)}">فتح في عطوري</button>` : `<button type="button" class="btn ghost" data-act="group-to-catalog" data-key="${esc(g.key)}">${I.plus}أضفه لعطوري</button>`}
-        ${w ? `<button type="button" class="btn ghost" data-act="unwatch" data-id="${esc(w.id)}"><span class="t-warn">${I.star}</span>متابَع</button>` : `<button type="button" class="btn ghost" data-act="watch-group" data-key="${esc(g.key)}">${I.starO}تابع</button>`}
-        <button type="button" class="btn soft" data-act="add-item-group" data-key="${esc(g.key)}">${I.plus}رصد سعر</button>
+        ${w ? `<button type="button" class="btn ghost" data-act="unwatch" data-id="${esc(w.id)}"><span class="t-warn">${I.star}</span>في قائمة المتابعة (شيله)</button>` : `<button type="button" class="btn ghost" data-act="watch-group" data-key="${esc(g.key)}">${I.starO}أضفه لقائمة المتابعة</button>`}
+        <button type="button" class="btn soft" data-act="add-item-group" data-key="${esc(g.key)}">${I.plus}سجّل سعر</button>
       </div>
-      ${w && w.note ? `<p class="hint" style="margin:4px 0 0">ملاحظة المتابعة: ${esc(w.note)}</p>` : ""}
+      ${w && w.note ? `<p class="hint" style="margin:4px 0 0">ملاحظتك: ${esc(w.note)}</p>` : ""}
     </section>
     <section class="panel">
-      <h2 class="sec">الأسعار حسب الحجم والتعبئة</h2>
-      <div class="rows">${g.combos.map(c => `<div class="row"><div class="r-main"><span class="r-name">${c.size ? `<span class="num">${fmt(c.size)}</span> مل` : "حجم غير محدد"} · ${esc(c.pack)}</span><span class="r-sub"><span class="num">${c.n}</span> رصد${c.avg != null ? ` · المتوسط <span class="num">${fmt(c.avg)}</span> ر.س` : ""}${c.size && c.avg != null ? ` · المل <span class="num">${fmt(c.avg / c.size)}</span>` : ""}</span></div><span class="r-price t-market">${c.min != null ? rangeH(c.min, c.max) + SAR : "—"}</span></div>`).join("")}</div>
+      <h2 class="sec">أسعاره في المحلات حسب الحجم والتعبئة</h2>
+      <div class="rows">${g.combos.map(c => `<div class="row"><div class="r-main"><span class="r-name">${c.size ? `<span class="num">${fmt(c.size)}</span> مل` : "حجم غير محدد"} · ${esc(c.pack)}</span><span class="r-sub">من ${placesTxt(new Set(c.items.map(i => i.shopId)).size)}${c.avg != null ? ` · المتوسط <span class="num">${fmt(c.avg)}</span> ر.س` : ""}</span></div><span class="r-price t-market">${c.min != null ? rangeH(c.min, c.max) + SAR : "—"}</span></div>`).join("")}</div>
     </section>
     <section class="panel">
-      <div class="sec-row"><h2 class="sec">كل الرصد <span class="count num">${items.length}</span></h2></div>
+      <div class="sec-row"><h2 class="sec">كل الأسعار اللي سجلتها <span class="count num">${items.length}</span></h2></div>
       <div class="rows">${items.map(i => itemRow(i)).join("")}</div>
     </section>`;
 }
@@ -1644,12 +1645,12 @@ function renderShop(){
       <div class="eyebrow">${[KIND[s.kind], s.city].filter(Boolean).map(esc).join(" · ")}</div>
       <h1 class="ptitle">${esc(s.name || "بدون اسم")}</h1>
       ${editedLine(s)}
-      <div class="btnrow"><button type="button" class="btn soft" data-act="add-item-shop">${I.plus}رصد عطر هنا</button><button type="button" class="btn ghost" data-act="edit-shop">${I.edit}تعديل المحل</button></div>
+      <div class="btnrow"><button type="button" class="btn soft" data-act="add-item-shop">${I.plus}سجّل سعر عطر من هنا</button><button type="button" class="btn ghost" data-act="edit-shop">${I.edit}تعديل المحل</button></div>
     </section>
     <section class="panel"><h2 class="sec">الموقع والتواصل</h2>${contactList(contacts, "ما فيه رابط موقع أو رقم. أضفها من «تعديل المحل».")}</section>
     <section class="panel">
-      <div class="sec-row"><h2 class="sec">العطور المرصودة هنا <span class="count num">${its.length}</span></h2></div>
-      <div class="rows">${its.length ? its.map(i => itemRow(i, { showPerfume: true })).join("") : `<p class="r-empty">ما سجلت عطور في هذا المحل.</p>`}</div>
+      <div class="sec-row"><h2 class="sec">أسعار العطور اللي سجلتها هنا <span class="count num">${its.length}</span></h2></div>
+      <div class="rows">${its.length ? its.map(i => itemRow(i, { showPerfume: true })).join("") : `<p class="r-empty">ما سجلت أسعار من هذا المحل.</p>`}</div>
     </section>
     ${s.notes ? `<section class="panel"><h2 class="sec">ملاحظات</h2><p class="notes">${esc(s.notes)}</p></section>` : ""}`;
 }
@@ -1697,45 +1698,45 @@ function renderSettings(){
         <button type="button" data-act="theme" data-v="light" aria-pressed="${th === "light"}">${I.sun} فاتح</button>
         <button type="button" data-act="theme" data-v="dark" aria-pressed="${th === "dark"}">${I.moon} داكن</button>
       </div>
-      <p class="hint">«تلقائي» يتبع إعداد جوالك. الاختيار يتحفظ على هذا الجهاز.</p>
+      <p class="hint">«تلقائي» يعني يصير فاتح أو داكن مثل جوالك.</p>
     </section>
-    <section class="panel"><h2 class="sec">التكاليف الإضافية</h2>
-      <p class="hint" style="margin-top:4px">تنحسب داخل الربح عشان يطلع الربح الحقيقي. وتقدر تضيف تكلفة خاصة لأي عطر من «تعديل البيانات».</p>
+    <section class="panel"><h2 class="sec">مصاريف إضافية على كل حبة</h2>
+      <p class="hint" style="margin-top:4px">مصاريف تدفعها على كل حبة غير سعر الشراء. نخصمها من ربحك عشان يطلع ربحك الحقيقي. اتركها فاضية لو ما عندك.</p>
       <form class="set-form" id="costForm" novalidate>
         <div class="grid2">
-          ${field("s_pack", "تغليف للحبة (ر.س)", numInp("s_pack", st.pack || "", "0"), "على كل المبيعات")}
-          ${field("s_ship", "شحن للحبة (ر.س)", numInp("s_ship", st.ship || "", "0"), "البيع المباشر فقط")}
+          ${field("s_pack", "كم يكلفك تغليف الحبة؟ (ر.س)", numInp("s_pack", st.pack || "", "0"), "علبة، كيس، كرت… على كل المبيعات")}
+          ${field("s_ship", "كم يكلفك توصيل الحبة للزبون؟ (ر.س)", numInp("s_ship", st.ship || "", "0"), "للبيع للزبائن فقط، مو للموزعين")}
         </div>
         <div class="grid2">
-          ${field("s_fee", "عمولة الدفع (%)", numInp("s_fee", st.fee || "", "0"), "مثل مدى أو تابي، البيع المباشر")}
-          ${field("s_target", "الهامش اللي تبيه (%)", numInp("s_target", st.target, "30"), "للسعر المقترح والحاسبة")}
+          ${field("s_fee", "كم ياخذ الدفع الإلكتروني من كل بيعة؟ (%)", numInp("s_fee", st.fee || "", "0"), "مثل مدى أو تابي. للبيع للزبائن فقط")}
+          ${field("s_target", "كم نسبة الربح اللي تبيها؟ (%)", numInp("s_target", st.target, "30"), "نستخدمها عشان نقترح لك سعر البيع")}
         </div>
-        ${field("s_low", "نبهني لما المخزون يقل عن", numInp("s_low", st.low, "2"), "تقدر تغيّره لكل عطر لحاله")}
+        ${field("s_low", "نبهني لما يصير عندي من أي عطر أقل من (حبة)", numInp("s_low", st.low, "2"), "تقدر تغيّره لكل عطر من صفحته")}
         <p class="f-err" id="cost_err" hidden></p>
-        <button type="submit" class="btn primary">حفظ التكاليف</button>
+        <button type="submit" class="btn primary">احفظ</button>
       </form>
     </section>
-    <section class="panel"><h2 class="sec">كتالوج الموزعين</h2>
-      <p class="hint" style="margin-top:4px">رابط ترسله للموزعين، يشوفون فيه صور العطور وأسعار الموزعين فقط. ما يشوفون الموردين ولا أسعار الشراء ولا الأرباح، وما يحتاجون حساب.</p>
+    <section class="panel"><h2 class="sec">صفحة الموزعين (الكتالوج)</h2>
+      <p class="hint" style="margin-top:4px">صفحة ترسل رابطها للموزعين، فيها صور عطورك وبكم تبيعها لهم. ما يشوفون الموردين ولا بكم تشتري ولا أرباحك، وما يحتاجون يسجلون دخول.</p>
       <form class="set-form" id="catForm" novalidate>
-        <label class="check"><input type="checkbox" id="c_on" ${st.catEnabled ? "checked" : ""}>الكتالوج شغّال</label>
-        ${field("c_title", "عنوان الكتالوج", inp("c_title", st.catTitle, 'autocomplete="off"'))}
-        ${field("c_note", "ملاحظة تظهر للموزعين", `<textarea class="inp" id="c_note" name="c_note" placeholder="طريقة الطلب، أقل كمية، التوصيل…">${esc(st.catNote)}</textarea>`)}
-        ${field("c_phone", "واتساب الطلبات", inp("c_phone", st.catPhone, 'type="tel" inputmode="tel" dir="ltr" autocomplete="off" placeholder="05xxxxxxxx"'), "يطلع للموزع زر «اطلب» يفتح الواتساب على هذا الرقم.")}
-        <label class="check"><input type="checkbox" id="c_retail" ${st.catRetail ? "checked" : ""}>اعرض سعر البيع المقترح للزبون</label>
-        <div class="field"><span class="f-label">الرابط</span>
+        <label class="check"><input type="checkbox" id="c_on" ${st.catEnabled ? "checked" : ""}>خلّ الرابط شغّال (لو شلت الصح، الرابط ما يفتح عند أحد)</label>
+        ${field("c_title", "العنوان اللي يطلع فوق الصفحة", inp("c_title", st.catTitle, 'autocomplete="off"'))}
+        ${field("c_note", "كلام يقراه الموزع تحت العنوان", `<textarea class="inp" id="c_note" name="c_note" placeholder="طريقة الطلب، أقل كمية، التوصيل…">${esc(st.catNote)}</textarea>`)}
+        ${field("c_phone", "رقم الواتساب اللي يطلبون منه", inp("c_phone", st.catPhone, 'type="tel" inputmode="tel" dir="ltr" autocomplete="off" placeholder="05xxxxxxxx"'), "تحت كل عطر يطلع زر «اطلب» يفتح محادثة واتساب مع هذا الرقم.")}
+        <label class="check"><input type="checkbox" id="c_retail" ${st.catRetail ? "checked" : ""}>اعرض للموزع بكم تبيعه أنت للزبون (عشان يعرف السعر المقترح)</label>
+        <div class="field"><span class="f-label">رابط الصفحة</span>
           ${tok ? `<div class="linkbox"><code id="c_url">${esc(catalogUrl(tok))}</code><button type="button" class="icon-btn" data-act="copy-catalog" aria-label="نسخ الرابط">${I.copy}</button></div>
           <div class="btnrow"><a class="btn ghost small" href="${esc(catalogUrl(tok))}" target="_blank" rel="noopener noreferrer">${I.eye}معاينة</a><button type="button" class="btn danger small" data-act="cat-newtoken">رابط جديد</button></div>
-          <span class="f-hint">«رابط جديد» يوقف الرابط القديم، فاللي معه الرابط القديم ما يقدر يفتحه.</span>`
-          : `<span class="f-hint">ما فيه رابط بعد. احفظ وبيتسوى رابط تلقائيًا.</span>`}
+          <span class="f-hint">«رابط جديد» يسوي رابط ثاني ويوقف القديم، فاللي معه الرابط القديم ما يقدر يفتحه.</span>`
+          : `<span class="f-hint">ما فيه رابط بعد. اضغط «احفظ» وبيتسوى لك رابط.</span>`}
         </div>
-        <p class="hint" style="margin:0">تخفي أي عطر من الكتالوج من «تعديل البيانات» في صفحة العطر.</p>
+        <p class="hint" style="margin:0">لو ما تبي عطر معين يطلع للموزعين، افتح صفحته واضغط «تعديل البيانات» وشيل الصح.</p>
         <p class="f-err" id="cat_err" hidden></p>
-        <button type="submit" class="btn primary">حفظ الكتالوج</button>
+        <button type="submit" class="btn primary">احفظ</button>
       </form>
     </section>
     ${isOwner() ? `<section class="panel"><div class="sec-row" style="margin:0"><h2 class="sec">الفريق <span class="muted" id="set_team_n" style="font-size:14px;font-weight:500">${nPend ? `(${nPend} طلب)` : ""}</span></h2><button type="button" class="btn ghost small" data-act="team">${I.users}إدارة الفريق</button></div></section>` : ""}
-    <section class="panel"><div class="sec-row" style="margin:0"><h2 class="sec">البيانات</h2><button type="button" class="btn ghost small" data-act="export"><span class="t-good">${I.sheet}</span>تصدير Excel</button></div><p class="hint">ملف فيه كل شيء: العطور، المبيعات، الموزعين، الموردين، السوق، وتاريخ الأسعار.</p></section>
+    <section class="panel"><div class="sec-row" style="margin:0"><h2 class="sec">البيانات</h2><button type="button" class="btn ghost small" data-act="export"><span class="t-good">${I.sheet}</span>تصدير Excel</button></div><p class="hint">ينزّل لك ملف إكسل فيه كل بياناتك: العطور والمبيعات والموزعين والموردين وأسعار المحلات.</p></section>
     <section class="panel"><div class="sec-row" style="margin:0"><div><h2 class="sec">الحساب</h2><span class="muted" style="font-size:14px"><bdi dir="ltr">${esc(S.user ? S.user.email : "")}</bdi></span></div><button type="button" class="btn danger small" data-act="logout">تسجيل الخروج</button></div></section>`;
   $("#costForm", box).addEventListener("submit", async e => {
     e.preventDefault();
@@ -1754,7 +1755,7 @@ function renderSettings(){
     const row = { catalog_enabled: $("#c_on").checked, catalog_title: f.c_title.value.trim() || "كتالوج العطور", catalog_note: f.c_note.value.trim(), catalog_phone: f.c_phone.value.trim(), catalog_show_retail: $("#c_retail").checked };
     if (!S.settings.catToken) row.catalog_token = newToken();
     err.hidden = true; btn.disabled = true;
-    try { await q(sb.from("app_settings").update(row).eq("id", 1)); toast(row.catalog_enabled ? "انحفظ. الكتالوج شغّال" : "انحفظ. الكتالوج موقف"); await reload(); box.dataset.built = ""; renderSettings(); }
+    try { await q(sb.from("app_settings").update(row).eq("id", 1)); toast(row.catalog_enabled ? "انحفظ. الرابط شغّال" : "انحفظ. الرابط موقف"); await reload(); box.dataset.built = ""; renderSettings(); }
     catch (x) { err.textContent = errMsg(x); err.hidden = false; }
     btn.disabled = false;
   });
@@ -1776,20 +1777,20 @@ function renderCalc(){
   box.innerHTML = `
     <section class="panel">
       <h2 class="sec">${I.calc}حاسبة التسعير</h2>
-      <p class="hint" style="margin-top:4px">حط تكلفة الحبة والهامش اللي تبيه، وتطلع لك السعر المقترح وكيف يقارن بالسوق. التكاليف الإضافية من الإعدادات تنحسب تلقائيًا.</p>
+      <p class="hint" style="margin-top:4px">اكتب بكم تشتري الحبة وكم نسبة الربح اللي تبيها، ونقول لك بكم تبيعها ونقارن السعر بالمحلات. المصاريف الإضافية من الإعدادات محسوبة.</p>
       <form class="set-form" id="calcForm" novalidate>
-        ${field("k_perf", "من عطوري (اختياري)", `<select class="inp" id="k_perf" name="k_perf"><option value="">— بدون —</option>${perfs.map(p => `<option value="${esc(p.id)}"${p.id === pre.perfumeId ? " selected" : ""}>${esc(p.name)}${p.size ? " · " + fmt(Number(p.size)) + " مل" : ""}</option>`).join("")}</select>`, "يعبي التكلفة والحجم والتعبئة تلقائيًا")}
-        ${field("k_name", "اسم العطر (للمقارنة بالسوق)", inp("k_name", "", 'list="dlNames" autocomplete="off" placeholder="اختياري"'))}
+        ${field("k_perf", "اختر عطر من عطورك (اختياري)", `<select class="inp" id="k_perf" name="k_perf"><option value="">— بدون —</option>${perfs.map(p => `<option value="${esc(p.id)}"${p.id === pre.perfumeId ? " selected" : ""}>${esc(p.name)}${p.size ? " · " + fmt(Number(p.size)) + " مل" : ""}</option>`).join("")}</select>`, "نعبي لك بكم تشتريه وحجمه وتعبئته")}
+        ${field("k_name", "اسم العطر (عشان نقارن بالمحلات)", inp("k_name", "", 'list="dlNames" autocomplete="off" placeholder="اختياري"'))}
         <div class="grid2">
           ${field("k_size", "الحجم (مل)", inp("k_size", "", 'type="text" inputmode="decimal" list="dlSizes" autocomplete="off"'))}
           ${field("k_pack", "التعبئة", `<select class="inp" id="k_pack" name="k_pack">${PACK.map(x => `<option>${x}</option>`).join("")}</select>`)}
         </div>
         <div class="grid2">
-          ${field("k_cost", "تكلفة الحبة من المورد (ر.س)", numInp("k_cost", "", "420"))}
-          ${field("k_margin", "الهامش اللي تبيه (%)", numInp("k_margin", st.target, "30"))}
+          ${field("k_cost", "بكم تشتري الحبة؟ (ر.س)", numInp("k_cost", "", "420"))}
+          ${field("k_margin", "كم نسبة الربح اللي تبيها؟ (%)", numInp("k_margin", st.target, "30"))}
         </div>
-        ${field("k_extra", "تكلفة إضافية خاصة (ر.س)", numInp("k_extra", "", "0"))}
-        ${radios("k_chan", "البيع", [["direct", "زبون مباشر"], ["reseller", "للموزع"]], "direct")}
+        ${field("k_extra", "مصروف إضافي خاص بهذا العطر (ر.س)", numInp("k_extra", "", "0"))}
+        ${radios("k_chan", "بتبيعه لمين؟", [["direct", "زبون"], ["reseller", "موزع"]], "direct")}
       </form>
     </section>
     <section class="panel" id="calcOut"></section>`;
@@ -1815,32 +1816,32 @@ function updateCalc(){
   const fixed = st.pack + extra + (chan === "direct" ? st.ship : 0);
   const fee = chan === "direct" ? st.fee : 0;
   const pid = f.k_perf.value, p = perfById(pid);
-  if (cost == null) { out.innerHTML = `<p class="r-empty">اكتب تكلفة الحبة من المورد عشان يطلع لك السعر المقترح.</p>`; return; }
+  if (cost == null) { out.innerHTML = `<p class="r-empty">اكتب بكم تشتري الحبة عشان نقول لك بكم تبيعها.</p>`; return; }
   const base = cost + fixed;
   const d = 1 - margin / 100 - fee / 100;
-  if (d <= 0.02) { out.innerHTML = `<div class="calcbox warnb">الهامش مع العمولة كبير جدًا. خففه شوي.</div>`; return; }
+  if (d <= 0.02) { out.innerHTML = `<div class="calcbox warnb">نسبة الربح كبيرة جدًا. خففها شوي.</div>`; return; }
   const exact = base / d, sug = Math.ceil(exact / 5) * 5;
   const profitAt = P => P - base - P * fee / 100;
   const pr = profitAt(sug);
   const mk = marketFor(f.k_name.value, f.k_size.value, f.k_pack.value);
   const mp = mk.comp.map(i => toNum(i.price));
   const mMin = mp.length ? Math.min(...mp) : null, mMax = mp.length ? Math.max(...mp) : null, mAvg = avg(mp);
-  const parts = [`المورد ${fmt(cost)}`, st.pack ? `تغليف ${fmt(st.pack)}` : "", chan === "direct" && st.ship ? `شحن ${fmt(st.ship)}` : "", extra ? `إضافي ${fmt(extra)}` : "", fee ? `عمولة ${fmt(fee)}% من السعر` : ""].filter(Boolean).join(" + ");
+  const parts = [`الشراء ${fmt(cost)}`, st.pack ? `التغليف ${fmt(st.pack)}` : "", chan === "direct" && st.ship ? `الشحن ${fmt(st.ship)}` : "", extra ? `مصروف خاص ${fmt(extra)}` : "", fee ? `عمولة الدفع ${fmt(fee)}% من السعر` : ""].filter(Boolean).join(" + ");
   let mkHTML;
   if (mp.length) {
     const vs = (sug - mAvg) / mAvg * 100, mAt = profitAt(mAvg) / mAvg * 100;
-    mkHTML = `<div class="mkbox"><b>السوق ${rangeH(mMin, mMax)} ر.س · المتوسط ${numH(mAvg)} (${placesTxt(new Set(mk.comp.map(i => i.shopId)).size)})</b>
-      <span>${sug < mMin ? `سعرك المقترح أرخص من كل السوق بـ ${numH(mMin - sug)} ر.س.` : sug > mMax ? `سعرك المقترح أغلى من كل السوق بـ ${numH(sug - mMax)} ر.س. فكّر تخفف الهامش أو تدور مورد أرخص.` : Math.abs(vs) < 1 ? "سعرك المقترح قريب من متوسط السوق." : vs < 0 ? `أقل من متوسط السوق بـ ${pctH(-vs)}.` : `أعلى من متوسط السوق بـ ${pctH(vs)}.`}</span>
-      <span>لو بعت بمتوسط السوق (${numH(mAvg)}): ربحك ${numH(profitAt(mAvg))} ر.س، هامش ${pctH(mAt)}.</span></div>`;
-  } else mkHTML = f.k_name.value.trim() ? `<p class="hint" style="margin:0">ما فيه رصد لهذا العطر بنفس الحجم والتعبئة.</p>` : `<p class="hint" style="margin:0">اكتب اسم العطر عشان أقارن السعر بالسوق.</p>`;
+    mkHTML = `<div class="mkbox"><b>المحلات تبيعه من ${rangeH(mMin, mMax)} ر.س، والمتوسط ${numH(mAvg)} (من ${placesTxt(new Set(mk.comp.map(i => i.shopId)).size)})</b>
+      <span>${sug < mMin ? `السعر المقترح أرخص من كل المحلات بـ ${numH(mMin - sug)} ر.س.` : sug > mMax ? `السعر المقترح أغلى من كل المحلات بـ ${numH(sug - mMax)} ر.س. خفف نسبة الربح أو دوّر مورد أرخص.` : Math.abs(vs) < 1 ? "السعر المقترح قريب من متوسط المحلات." : vs < 0 ? `السعر المقترح أقل من متوسط المحلات بـ ${pctH(-vs)}.` : `السعر المقترح أعلى من متوسط المحلات بـ ${pctH(vs)}.`}</span>
+      <span>لو بعته بنفس متوسط المحلات (${numH(mAvg)} ر.س): تربح ${numH(profitAt(mAvg))} ر.س في الحبة، يعني ${pctH(mAt)}.</span></div>`;
+  } else mkHTML = f.k_name.value.trim() ? `<p class="hint" style="margin:0">ما سجلت سعر هذا العطر في المحلات بنفس الحجم والتعبئة.</p>` : `<p class="hint" style="margin:0">اكتب اسم العطر عشان نقارن السعر بالمحلات.</p>`;
   out.innerHTML = `
     <div class="stats" style="margin-top:0">
-      ${stat("السعر المقترح", sug, chan === "direct" ? "sell" : "resell", { hl: true, sub: `<span class="muted">بالضبط ${numH(exact)} ر.س، مقرّب لأقرب 5</span>` })}
-      ${stat("التكلفة الكاملة", base + sug * fee / 100, "cost", { sub: `<span class="muted">${parts}</span>` })}
-      ${stat("ربحك للحبة", pr, mClass(pr / sug * 100) || "good", { sub: `هامش ${pctH(pr / sug * 100)}`, cls: mClass(pr / sug * 100) })}
+      ${stat(chan === "direct" ? "بيعه للزبون بـ" : "بيعه للموزع بـ", sug, chan === "direct" ? "sell" : "resell", { hl: true, sub: `<span class="muted">الحساب يطلع ${numH(exact)} ر.س، وقرّبناه لأقرب 5</span>` })}
+      ${stat("تكلفة الحبة عليك", base + sug * fee / 100, "cost", { sub: `<span class="muted">${parts}</span>` })}
+      ${stat("ربحك من كل حبة", pr, mClass(pr / sug * 100) || "good", { sub: `يعني ${pctH(pr / sug * 100)} من سعر البيع`, cls: mClass(pr / sug * 100) })}
     </div>
     <div style="margin-top:10px">${mkHTML}</div>
-    ${p ? `<div class="btnrow"><button type="button" class="btn primary" data-act="calc-apply" data-id="${esc(p.id)}" data-price="${sug}" data-chan="${chan}">اعتمد ${numH(sug)} ر.س ${chan === "direct" ? "سعرًا" : "سعر موزع"} لـ ${esc(p.name)}</button></div>` : ""}`;
+    ${p ? `<div class="btnrow"><button type="button" class="btn primary" data-act="calc-apply" data-id="${esc(p.id)}" data-price="${sug}" data-chan="${chan}">خلّ ${numH(sug)} ر.س ${chan === "direct" ? "سعر بيعه للزبون" : "سعر بيعه للموزع"}</button></div>` : ""}`;
 }
 
 /* ---------- sheet ---------- */
@@ -1954,7 +1955,7 @@ function attachSuggest(f, onPick){
     const t = norm(input.value);
     list = t ? suggestions(input.value) : [];
     if (!list.length || (list.length === 1 && list[0].key === t)) { box.hidden = true; return; }
-    box.innerHTML = list.map((s, i) => `<button type="button" data-sug="${i}"><span class="sn">${esc(s.name)}${s.brand ? ` <span class="muted">· ${esc(s.brand)}</span>` : ""}</span><span class="ss">${[s.places ? `مرصود في ${placesTxt(s.places)}` : "", s.catalog ? "في عطوري" : "", s.watch ? "في المتابعة" : ""].filter(Boolean).join(" · ")}</span></button>`).join("");
+    box.innerHTML = list.map((s, i) => `<button type="button" data-sug="${i}"><span class="sn">${esc(s.name)}${s.brand ? ` <span class="muted">· ${esc(s.brand)}</span>` : ""}</span><span class="ss">${[s.places ? `شفته في ${placesTxt(s.places)}` : "", s.catalog ? "من عطورك" : "", s.watch ? "في قائمة المتابعة" : ""].filter(Boolean).join(" · ")}</span></button>`).join("");
     box.hidden = false;
   };
   input.addEventListener("input", update);
@@ -1979,8 +1980,8 @@ function marketAlert(name, size, pack, excludeId){
   const places = new Set(pool.map(i => i.shopId)).size;
   const show = (comp.length ? comp : pool).slice().sort((a, b) => (toNum(a.price) ?? 1e12) - (toNum(b.price) ?? 1e12)).slice(0, 5);
   return `<div class="mkbox">
-    <b>موجود في السوق: ${placesTxt(places)}</b>
-    ${comp.length ? `<span>بنفس ${sz ? "الحجم و" : ""}التعبئة: الأرخص <b>${numH(Math.min(...prices))}</b> · المتوسط <b>${numH(avg(prices))}</b> ر.س</span>` : `<span class="muted">ما فيه رصد بنفس ${sz ? "الحجم و" : ""}التعبئة. هذي أقرب الأسعار:</span>`}
+    <b>هذا العطر شفته في ${placesTxt(places)}</b>
+    ${comp.length ? `<span>بنفس ${sz ? "الحجم و" : ""}التعبئة: أرخص محل <b>${numH(Math.min(...prices))}</b> ر.س، والمتوسط <b>${numH(avg(prices))}</b> ر.س</span>` : `<span class="muted">ما سجلت سعره بنفس ${sz ? "الحجم و" : ""}التعبئة. هذي أقرب الأسعار:</span>`}
     <ul>${show.map(i => `<li>${esc((shopById(i.shopId) || {}).name || "محل")} — ${esc([sizeTxt(i.size), i.packaging].filter(Boolean).join(" "))} — <b>${toNum(i.price) != null ? numH(toNum(i.price)) : "—"}</b> ر.س</li>`).join("")}</ul>
   </div>`;
 }
@@ -2002,16 +2003,16 @@ function perfumeForm(p, pre = {}){
     ${field("f_size", "الحجم (مل)", inp("f_size", v.size ?? "", 'type="text" inputmode="decimal" list="dlSizes" autocomplete="off" placeholder="100"'))}
     ${radios("f_pack", "التعبئة", PACK.map(x => [x, x]), v.packaging)}
     <div class="grid2">
-      ${field("f_sell", '<span class="t-sell">سعر بيعك (ر.س)</span>', numInp("f_sell", p.sellPrice, "650"))}
-      ${field("f_resell", '<span class="t-resell">سعر الموزعين (ر.س)</span>', numInp("f_resell", p.resellerPrice, "580"))}
+      ${field("f_sell", '<span class="t-sell">بكم تبيعه للزبون؟ (ر.س)</span>', numInp("f_sell", p.sellPrice, "650"))}
+      ${field("f_resell", '<span class="t-resell">بكم تبيعه للموزع؟ (ر.س)</span>', numInp("f_resell", p.resellerPrice, "580"))}
     </div>
     <div id="f_sug"></div>
     <div class="grid2">
-      ${field("f_stock", "الكمية عندك (حبة)", numInp("f_stock", p.stock, "اتركه فاضي"), "فاضي يعني ما تتابع مخزونه")}
-      ${field("f_low", "نبهني إذا قلت عن", numInp("f_low", p.lowStock, String(st.low)))}
+      ${field("f_stock", "كم حبة عندك منه؟", numInp("f_stock", p.stock, "اختياري"), "لو كتبتها، تنقص لحالها مع كل بيعة")}
+      ${field("f_low", "نبهني لما يصير أقل من", numInp("f_low", p.lowStock, String(st.low)))}
     </div>
-    ${field("f_extra", "تكلفة إضافية خاصة بهذا العطر (ر.س)", numInp("f_extra", p.extraCost, "0"), "مثل علبة خاصة أو كرت. تنضاف فوق تكاليف الإعدادات.")}
-    <label class="check"><input type="checkbox" id="f_incat" name="f_incat" ${p.inCatalog === false ? "" : "checked"}>يظهر في كتالوج الموزعين</label>
+    ${field("f_extra", "مصروف إضافي خاص بهذا العطر (ر.س)", numInp("f_extra", p.extraCost, "0"), "مثل علبة خاصة أو هدية معه. ينخصم من ربحك.")}
+    <label class="check"><input type="checkbox" id="f_incat" name="f_incat" ${p.inCatalog === false ? "" : "checked"}>يطلع للموزعين في صفحة الكتالوج</label>
     ${field("f_notes", "ملاحظات", `<textarea class="inp" id="f_notes" name="f_notes" placeholder="الفوحان، الثبات، ملاحظات عن الدفعة…">${esc(p.notes || "")}</textarea>`)}
     ${foot(isNew ? null : "del-perfume")}`;
   openSheet(isNew ? "عطر جديد" : "تعديل العطر", html, async fd => {
@@ -2052,7 +2053,7 @@ function perfumeForm(p, pre = {}){
       $("#f_alert", f).innerHTML = marketAlert(fv.f_name, fv.f_size, fv.f_pack);
       if (p.id) {
         const c = calc({ ...p, extraCost: fv.f_extra, sellPrice: fv.f_sell });
-        $("#f_sug", f).innerHTML = c.cost != null && c.sugD != null ? `<div class="calcbox">لهامش ${fmt(st.target)}%: سعرك المقترح <b class="t-sell">${numH(c.sugD)}</b> · للموزع <b class="t-resell">${c.sugR != null ? numH(c.sugR) : "—"}</b> <button type="button" class="btn ghost small" id="f_usesug">استخدمهم</button></div>` : "";
+        $("#f_sug", f).innerHTML = c.cost != null && c.sugD != null ? `<div class="calcbox">عشان تربح ${fmt(st.target)}%: بيعه للزبون بـ <b class="t-sell">${numH(c.sugD)}</b> وللموزع بـ <b class="t-resell">${c.sugR != null ? numH(c.sugR) : "—"}</b> <button type="button" class="btn ghost small" id="f_usesug">حطهم</button></div>` : "";
         const ub = $("#f_usesug", f); if (ub) ub.onclick = () => { $("#f_sell", f).value = c.sugD; if (c.sugR != null) $("#f_resell", f).value = c.sugR; };
       }
     };
@@ -2076,9 +2077,9 @@ function perfumeForm(p, pre = {}){
 function stockForm(p, mode){
   const isAdd = mode === "add";
   const html = isAdd
-    ? `${field("f_qty", "كم حبة استلمت؟", numInp("f_qty", "", "5"), "تنضاف على الموجود. لو تبي تنقص، اكتب الرقم بالسالب مثل -2")}${foot(null)}`
-    : `${field("f_qty", "كم حبة عندك الحين؟", numInp("f_qty", p.stock ?? "", "0"), p.stock == null ? "من الحين، كل بيعة تنقص منها تلقائيًا." : "اتركه فاضي لو تبي توقف متابعة المخزون.")}${foot(null)}`;
-  openSheet(isAdd ? "استلمت كمية" : "عدد الحبات", html, async fd => {
+    ? `${field("f_qty", "كم حبة وصلتك؟", numInp("f_qty", "", "5"), "تنضاف على اللي عندك. لو تبي تنقص، اكتب الرقم بالسالب مثل -2")}${foot(null)}`
+    : `${field("f_qty", "كم حبة عندك الحين؟", numInp("f_qty", p.stock ?? "", "0"), p.stock == null ? "من الحين، كل بيعة تسجلها تنقص منها لحالها." : "لو مسحت الرقم، نوقف حساب الحبات لهذا العطر.")}${foot(null)}`;
+  openSheet(isAdd ? "وصلتني حبات جديدة" : "كم حبة عندك", html, async fd => {
     const raw = str(fd, "f_qty"), n = parseNum(raw);
     if (isAdd) {
       if (!n) throw fail("اكتب الكمية.");
@@ -2087,7 +2088,7 @@ function stockForm(p, mode){
     } else {
       if (raw !== "" && n == null) throw fail("اكتب رقم.");
       await q(sb.from("perfumes").update({ stock: raw === "" ? null : n }).eq("id", p.id));
-      toast(raw === "" ? "وقفت متابعة المخزون" : "انحفظ العدد");
+      toast(raw === "" ? "وقفنا حساب الحبات لهذا العطر" : "انحفظ العدد");
     }
     closeSheet(); await reload();
   }, f => setTimeout(() => $("#f_qty", f).focus(), 300));
@@ -2095,9 +2096,9 @@ function stockForm(p, mode){
 
 function linkHint(p, price){
   const c = calc(p);
-  if (c.mAvg == null) return `<div class="mkbox"><span class="muted">ما فيه رصد لهذا العطر في السوق بنفس الحجم والتعبئة.</span></div>`;
-  let s = `<div class="mkbox"><b>السوق ${rangeH(c.mMin, c.mMax)} ر.س · المتوسط ${numH(c.mAvg)} (${placesTxt(c.nPlaces)})</b>`;
-  if (price != null) { const full = price + c.fixD + c.mAvg * S.settings.fee / 100; const pr = c.mAvg - full; s += `<span>لو بعت بمتوسط السوق، ربحك من هذا المورد <b class="${pr < 0 ? "t-bad" : "t-good"}">${numH(pr)}</b> ر.س (هامش ${pctH(pr / c.mAvg * 100)})</span>`; }
+  if (c.mAvg == null) return `<div class="mkbox"><span class="muted">ما سجلت سعر هذا العطر في المحلات بنفس الحجم والتعبئة.</span></div>`;
+  let s = `<div class="mkbox"><b>المحلات تبيعه من ${rangeH(c.mMin, c.mMax)} ر.س، والمتوسط ${numH(c.mAvg)} (من ${placesTxt(c.nPlaces)})</b>`;
+  if (price != null) { const full = price + c.fixD + c.mAvg * S.settings.fee / 100; const pr = c.mAvg - full; s += `<span>لو اشتريته من هذا المورد وبعته بمتوسط المحلات، تربح <b class="${pr < 0 ? "t-bad" : "t-good"}">${numH(pr)}</b> ر.س في الحبة (${pctH(pr / c.mAvg * 100)})</span>`; }
   return s + "</div>";
 }
 function linkForm(p, sid, preselect, preName){
@@ -2109,16 +2110,16 @@ function linkForm(p, sid, preselect, preName){
   const sel = preselect || sid || "";
   const html = `
     ${field("f_sup", 'المورد <i>*</i>', `<select class="inp" id="f_sup" name="f_sup">${!sel ? '<option value="">اختر مورد</option>' : ""}${choices.map(s => `<option value="${esc(s.id)}"${s.id === sel ? " selected" : ""}>${esc(s.name)}${s.city ? " — " + esc(s.city) : ""}</option>`).join("")}<option value="__new">+ مورد جديد…</option></select>`, choices.length ? "" : "ما فيه موردين متاحين. اختر «مورد جديد» عشان تضيفه.")}
-    ${field("f_lprice", '<span class="t-cost">سعره لك (ر.س)</span>', numInp("f_lprice", l.price, "420"), "سعر الحبة من هذا المورد. أرخص مورد يصير سعر التكلفة.")}
+    ${field("f_lprice", '<span class="t-cost">بكم يبيعه لك؟ (ر.س للحبة)</span>', numInp("f_lprice", l.price, "420"), "لو عندك أكثر من مورد، نحسب ربحك على الأرخص.")}
     <div id="f_hint">${linkHint(cur, toNum(l.price))}</div>
     ${foot(sid ? "del-link" : null)}`;
-  openSheet(sid ? "تعديل المورد للعطر" : "ربط مورد بالعطر", html, async fd => {
+  openSheet(sid ? "تعديل سعر المورد" : "مين يبيعه لك؟", html, async fd => {
     const id = String(fd.get("f_sup") || "");
     if (!id || id === "__new") throw fail("اختر المورد.");
     const price = toNum(fd.get("f_lprice"));
     if (sid && sid !== id) await q(sb.from("perfume_suppliers").delete().eq("perfume_id", p.id).eq("supplier_id", sid));
     await q(sb.from("perfume_suppliers").upsert({ perfume_id: p.id, supplier_id: id, price }, { onConflict: "perfume_id,supplier_id" }));
-    closeSheet(); toast("انربط المورد");
+    closeSheet(); toast("انحفظ المورد وسعره");
     await reload();
   }, f => {
     $("#f_sup", f).addEventListener("change", e => {
@@ -2180,7 +2181,7 @@ function supNoteForm(n, supplierId){
     ${field("f_note", 'الملاحظة <i>*</i>', `<textarea class="inp" id="f_note" name="f_note" placeholder="مثال: طلبية 10 حبات، وصلت بعد 3 أيام والتغليف ممتاز">${esc(n.note || "")}</textarea>`)}
     ${field("f_date", "التاريخ", inp("f_date", n.notedOn || todayStr(), 'type="date"'))}
     ${foot(isNew ? null : "del-supnote")}`;
-  openSheet(isNew ? "ملاحظة طلبية" : "تعديل الملاحظة", html, async fd => {
+  openSheet(isNew ? "ملاحظة عن طلبية" : "تعديل الملاحظة", html, async fd => {
     const note = str(fd, "f_note"); if (!note) throw fail("اكتب الملاحظة.");
     const row = { note, noted_on: str(fd, "f_date") || todayStr() };
     if (isNew) await q(sb.from("supplier_notes").insert({ ...row, supplier_id: supplierId }));
@@ -2255,16 +2256,16 @@ function itemForm(it, pre = {}){
       ${field("f_size", "الحجم (مل)", inp("f_size", v.size ?? "", 'type="text" inputmode="decimal" list="dlSizes" autocomplete="off" placeholder="100"'))}
     </div>
     <div class="grid2">
-      ${field("f_price", '<span class="t-market">السعر (ر.س)</span>', numInp("f_price", v.price, "1150"))}
-      ${field("f_date", "تاريخ الرصد", inp("f_date", v.seenOn, 'type="date"'))}
+      ${field("f_price", '<span class="t-market">بكم يبيعونه؟ (ر.س)</span>', numInp("f_price", v.price, "1150"))}
+      ${field("f_date", "متى شفته؟", inp("f_date", v.seenOn, 'type="date"'))}
     </div>
     ${radios("f_pack", "التعبئة", PACK.map(x => [x, x]), v.packaging)}
-    ${radios("f_dem", "هل هو ماشي؟", [["", "ما أعرف"], ["high", DEMAND.high], ["mid", DEMAND.mid], ["low", DEMAND.low]], v.demand)}
+    ${radios("f_dem", "هل عليه طلب؟", [["", "ما أعرف"], ["high", DEMAND.high], ["mid", DEMAND.mid], ["low", DEMAND.low]], v.demand)}
     <div id="w_url"${kindOf(v.shopId) === "store" ? " hidden" : ""}>${field("f_url", "رابط العطر في الموقع", inp("f_url", v.url, 'type="url" inputmode="url" dir="ltr" autocomplete="off" placeholder="https://"'))}</div>
     ${field("f_notes", "ملاحظات", `<textarea class="inp" id="f_notes" name="f_notes" placeholder="كلام البايع، عروض، الكمية المعروضة…">${esc(v.notes || "")}</textarea>`)}
     ${imagePicker(it.image, "صورة الرف أو التسعيرة")}
     ${foot(isNew ? null : "del-item", isNew ? '<button type="submit" class="btn ghost" data-mode="next">حفظ وأضف التالي</button>' : "")}`;
-  openSheet(isNew ? "رصد عطر" : "تعديل الرصد", html, async (fd, mode) => {
+  openSheet(isNew ? "سجّل سعر عطر من محل" : "تعديل السعر", html, async (fd, mode) => {
     const shopId = str(fd, "f_shop");
     if (!shopId || shopId === "__new") throw fail("اختر المحل أو الموقع.");
     const name = str(fd, "f_name");
@@ -2286,7 +2287,7 @@ function itemForm(it, pre = {}){
     S.lastShop = shopId; ls.set("lastShop", shopId);
     await reload();
     if (mode === "next") { itemForm(null, { shopId, seenOn: row.seen_on }); toast("انحفظ. سجّل العطر اللي بعده"); }
-    else { closeSheet(); toast(isNew ? "انحفظ الرصد" : "انحفظ التعديل"); }
+    else { closeSheet(); toast(isNew ? "انحفظ السعر" : "انحفظ التعديل"); }
   }, f => {
     bindImagePicker(f, img);
     const upd = () => { const fv = formVals(); $("#f_alert", f).innerHTML = marketAlert(fv.f_name, fv.f_size, fv.f_pack, it.id); };
@@ -2311,7 +2312,7 @@ function itemForm(it, pre = {}){
   });
   delHandler = async () => {
     closeSheet();
-    try { await q(sb.from("market_items").delete().eq("id", it.id)); removeImage(it.image); toast("انحذف الرصد"); await reload(); }
+    try { await q(sb.from("market_items").delete().eq("id", it.id)); removeImage(it.image); toast("انحذف السعر"); await reload(); }
     catch (e) { toast(errMsg(e)); }
   };
 }
@@ -2330,13 +2331,13 @@ function saleForm(s, pre = {}){
   if (pre.resellerId && !res.some(r => r.id === pre.resellerId)) res.push({ id: pre.resellerId, name: pre.resellerName || "الموزع الجديد" });
   const oldOpt = !isNew && !s.perfumeId ? `<option value="__old" selected>${esc(s.name)} (محذوف من عطوري)</option>` : "";
   const html = `
-    ${radios("f_kind", "العملية", [["sale", "بيع"], ["return", "مرتجع (رجع للمخزون)"]], v.kind)}
+    ${radios("f_kind", "وش صار؟", [["sale", "بعت"], ["return", "رجع لي عطر"]], v.kind)}
     ${field("f_perf", 'العطر <i>*</i>', `<select class="inp" id="f_perf" name="f_perf">${!v.perfumeId && !oldOpt ? '<option value="">اختر العطر</option>' : ""}${oldOpt}${perfs.map(p => `<option value="${esc(p.id)}"${p.id === v.perfumeId ? " selected" : ""}>${esc(p.name)}${p.size ? " · " + fmt(Number(p.size)) + " مل" : ""}</option>`).join("")}</select>`, perfs.length ? "" : "أضف العطر في «العطور» أول.")}
-    ${radios("f_chan", "لمين", [["direct", "زبون مباشر"], ["reseller", "موزع"]], v.channel)}
+    ${radios("f_chan", "لمين؟", [["direct", "زبون"], ["reseller", "موزع"]], v.channel)}
     <div id="w_res"${v.channel === "reseller" ? "" : " hidden"}>${field("f_res", "الموزع", `<select class="inp" id="f_res" name="f_res">${!v.resellerId ? '<option value="">اختر الموزع</option>' : ""}${res.map(r => `<option value="${esc(r.id)}"${r.id === v.resellerId ? " selected" : ""}>${esc(r.name)}</option>`).join("")}<option value="__new">+ موزع جديد…</option></select>`)}</div>
     <div class="grid2">
-      ${field("f_qty", "الكمية (حبة)", numInp("f_qty", v.qty, "1"))}
-      ${field("f_price", '<span class="t-sell">سعر الحبة (ر.س)</span>', numInp("f_price", v.price, "650"))}
+      ${field("f_qty", "كم حبة؟", numInp("f_qty", v.qty, "1"))}
+      ${field("f_price", '<span class="t-sell">بكم الحبة؟ (ر.س)</span>', numInp("f_price", v.price, "650"))}
     </div>
     <div id="w_cust"${v.channel === "direct" ? "" : " hidden"}>${field("f_cust", "اسم الزبون (اختياري)", inp("f_cust", v.customer, 'autocomplete="off"'))}</div>
     ${field("f_date", "التاريخ", inp("f_date", v.soldOn, 'type="date"'))}
@@ -2344,7 +2345,7 @@ function saleForm(s, pre = {}){
     <div id="f_prevbox"></div>
     ${foot(isNew ? null : "del-sale", isNew ? '<button type="submit" class="btn ghost" data-mode="next">حفظ وأضف التالي</button>' : "")}`;
   const unitCostFor = (p, chan) => { const c = calc(p); return c.cost == null ? null : c.cost + st.pack + (toNumZ(p.extraCost) || 0) + (chan === "direct" ? st.ship : 0); };
-  openSheet(isNew ? "بيعة جديدة" : "تعديل البيعة", html, async (fd, mode) => {
+  openSheet(isNew ? "سجّل بيعة" : "تعديل البيعة", html, async (fd, mode) => {
     const pid = str(fd, "f_perf");
     if (!pid) throw fail("اختر العطر.");
     const p = pid === "__old" ? null : perfById(pid);
@@ -2365,7 +2366,7 @@ function saleForm(s, pre = {}){
     if (isNew) await q(sb.from("sales").insert(row)); else await q(sb.from("sales").update(row).eq("id", s.id));
     await reload();
     if (mode === "next") { saleForm(null, { channel: chan, resellerId: rid, soldOn: row.sold_on, kind: row.kind }); toast("انحفظت. سجّل اللي بعدها"); }
-    else { closeSheet(); toast(row.kind === "return" ? "انحفظ المرتجع" : isNew ? "انحفظت البيعة" : "انحفظ التعديل"); }
+    else { closeSheet(); toast(row.kind === "return" ? "انحفظ، ورجعت الحبات لعندك" : isNew ? "انحفظت البيعة" : "انحفظ التعديل"); }
   }, f => {
     let touched = v.price != null;
     const priceEl = $("#f_price", f);
@@ -2386,8 +2387,8 @@ function saleForm(s, pre = {}){
       const tot = qty * (price || 0);
       const pr = uc == null || price == null ? null : qty * (price - uc - price * fee / 100);
       const c = p ? calc(p) : null;
-      const stockWarn = c && c.stock != null && !ret && isNew && qty > c.stock ? `<span class="t-warn">عندك ${piecesTxt(Math.max(c.stock, 0))} بس في المخزون.</span>` : "";
-      $("#f_prevbox", f).innerHTML = `<div class="calcbox${stockWarn ? " warnb" : ""}"><span>${ret ? "المرتجع" : "الإجمالي"}: <b class="t-sell">${numH(tot)}</b> ر.س · ${pr == null ? '<span class="muted">الربح ما ينحسب (ما فيه سعر مورد)</span>' : `${ret ? "ينخصم من الربح" : "ربحك"}: <b class="${pr < 0 ? "t-bad" : "t-good"}">${numH(pr)}</b> ر.س`}</span>${stockWarn}</div>`;
+      const stockWarn = c && c.stock != null && !ret && isNew && qty > c.stock ? `<span class="t-warn">انتبه: عندك ${piecesTxt(Math.max(c.stock, 0))} بس من هذا العطر.</span>` : "";
+      $("#f_prevbox", f).innerHTML = `<div class="calcbox${stockWarn ? " warnb" : ""}"><span>${ret ? "قيمة اللي رجع" : "المجموع"}: <b class="t-sell">${numH(tot)}</b> ر.س · ${pr == null ? '<span class="muted">ما نقدر نحسب الربح لأنك ما حددت بكم تشتريه</span>' : `${ret ? "ينخصم من ربحك" : "ربحك"}: <b class="${pr < 0 ? "t-bad" : "t-good"}">${numH(pr)}</b> ر.س`}</span>${stockWarn}</div>`;
     };
     $("#f_perf", f).addEventListener("change", () => { touched = false; autofill(); preview(); });
     f.querySelectorAll('input[name="f_chan"]').forEach(r => r.addEventListener("change", () => {
@@ -2437,17 +2438,17 @@ function paymentForm(pay, resellerId){
   const rid = pay.resellerId || resellerId;
   const b = resellerBalance(rid);
   const html = `
-    ${field("f_amt", '<span class="t-good">المبلغ (ر.س)</span>', numInp("f_amt", pay.amount, b.owed > 0 ? fmt(b.owed) : "500"), isNew && b.owed > 0 ? `الباقي عليه ${fmt(b.owed)} ر.س` : "")}
+    ${field("f_amt", '<span class="t-good">كم دفع لك؟ (ر.س)</span>', numInp("f_amt", pay.amount, b.owed > 0 ? fmt(b.owed) : "500"), isNew && b.owed > 0 ? `باقي عليه ${fmt(b.owed)} ر.س` : "")}
     ${field("f_date", "التاريخ", inp("f_date", pay.paidOn || todayStr(), 'type="date"'))}
     ${field("f_notes", "ملاحظات", inp("f_notes", pay.notes, 'autocomplete="off" placeholder="تحويل، كاش…"'))}
     ${foot(isNew ? null : "del-payment")}`;
-  openSheet(isNew ? "تسجيل دفعة" : "تعديل الدفعة", html, async fd => {
+  openSheet(isNew ? "دفع لي فلوس" : "تعديل المبلغ", html, async fd => {
     const amount = toNum(fd.get("f_amt")); if (!amount) throw fail("اكتب المبلغ.");
     const row = { amount, paid_on: str(fd, "f_date") || todayStr(), notes: str(fd, "f_notes") };
     if (isNew) await q(sb.from("reseller_payments").insert({ ...row, reseller_id: rid })); else await q(sb.from("reseller_payments").update(row).eq("id", pay.id));
-    closeSheet(); toast("انحفظت الدفعة"); await reload();
+    closeSheet(); toast("انحفظ المبلغ"); await reload();
   }, f => setTimeout(() => $("#f_amt", f).focus(), 300));
-  delHandler = async () => { closeSheet(); try { await q(sb.from("reseller_payments").delete().eq("id", pay.id)); toast("انحذفت الدفعة"); await reload(); } catch (e) { toast(errMsg(e)); } };
+  delHandler = async () => { closeSheet(); try { await q(sb.from("reseller_payments").delete().eq("id", pay.id)); toast("انحذف المبلغ"); await reload(); } catch (e) { toast(errMsg(e)); } };
 }
 
 function watchForm(w, pre = {}){
@@ -2456,18 +2457,18 @@ function watchForm(w, pre = {}){
     ${isNew ? sugField('اسم العطر <i>*</i>', pre.name, "اكتبه بالإنجليزي مثل العلبة") + field("f_brand", "الماركة", inp("f_brand", pre.brand, 'autocomplete="off"')) : `<p style="margin:0;font-weight:800;font-size:18px">${esc(w.name)}</p>`}
     ${field("f_note", "ملاحظة", `<textarea class="inp" id="f_note" name="f_note" placeholder="ليش نبي نجربه؟ مثال: ماشي في 3 محلات، نسأل المورد عن سعره">${esc(w.note || pre.note || "")}</textarea>`)}
     ${foot(isNew ? null : "unwatch-sheet")}`;
-  openSheet(isNew ? "متابعة عطر" : "ملاحظة المتابعة", html, async fd => {
+  openSheet(isNew ? "أضف عطر لقائمة المتابعة" : "ملاحظتك عن العطر", html, async fd => {
     if (isNew) {
       const name = str(fd, "f_name"); if (!name) throw fail("اكتب اسم العطر.");
-      const key = norm(name); if (watchByKey(key)) throw fail("هذا العطر في المتابعة من قبل.");
+      const key = norm(name); if (watchByKey(key)) throw fail("هذا العطر موجود في القائمة من قبل.");
       await q(sb.from("watchlist").insert({ perfume_key: key, perfume_name: name, brand: str(fd, "f_brand"), note: str(fd, "f_note") }));
-      toast("انضاف للمتابعة");
+      toast("انضاف لقائمة المتابعة");
     } else { await q(sb.from("watchlist").update({ note: str(fd, "f_note") }).eq("id", w.id)); toast("انحفظت الملاحظة"); }
     closeSheet(); await reload();
   }, f => { if (isNew) attachSuggest(f, s => { if (!$("#f_brand", f).value && s.brand) $("#f_brand", f).value = s.brand; }); });
   delHandler = async () => { closeSheet(); await unwatch(w.id); };
 }
-async function unwatch(id){ try { await q(sb.from("watchlist").delete().eq("id", id)); toast("انشال من المتابعة"); await reload(); } catch (e) { toast(errMsg(e)); } }
+async function unwatch(id){ try { await q(sb.from("watchlist").delete().eq("id", id)); toast("انشال من قائمة المتابعة"); await reload(); } catch (e) { toast(errMsg(e)); } }
 
 async function copyText(text, btn){
   try { await navigator.clipboard.writeText(text); toast("انسخ"); }
@@ -2746,9 +2747,9 @@ async function runCatalog(token){
       const msg = encodeURIComponent(`السلام عليكم، أبي أطلب: ${it.name}${it.size ? " " + fmt(Number(it.size)) + " مل" : ""}`);
       return `<article class="pcard" style="cursor:default"><div class="pimg">${it.image ? `<img src="${esc(imgUrl(it.image))}" alt="" loading="lazy" data-fb="1">` : bottle()}</div>
         <div class="pbody"><div class="pname">${esc(it.name)}</div><div class="pmeta">${meta || "&nbsp;"}</div>
-        <div class="cat-price">${it.price != null ? money(Number(it.price)) : '<span class="muted" style="font-size:14px;font-weight:500">اسأل عن السعر</span>'}</div>
-        ${it.retail != null ? `<div class="cat-retail">سعر البيع المقترح ${numH(Number(it.retail))} ر.س</div>` : ""}
-        <div class="chips">${it.available === false ? '<span class="chip bad">نفد</span>' : it.available === true ? '<span class="chip good">متوفر</span>' : ""}</div>
+        <div class="cat-retail">سعره لك</div><div class="cat-price" style="margin-top:0">${it.price != null ? money(Number(it.price)) : '<span class="muted" style="font-size:14px;font-weight:500">اسأل عن السعر</span>'}</div>
+        ${it.retail != null ? `<div class="cat-retail">بيعه للزبون بـ ${numH(Number(it.retail))} ر.س</div>` : ""}
+        <div class="chips">${it.available === false ? '<span class="chip bad">خلص حاليًا</span>' : it.available === true ? '<span class="chip good">متوفر</span>' : ""}</div>
         ${wa && it.available !== false ? `<a class="btn soft small" style="margin-top:8px" href="https://wa.me/${wa}?text=${msg}" target="_blank" rel="noopener noreferrer">${I.chat}اطلب</a>` : ""}</div></article>`;
     }).join("") : `<div class="empty" style="grid-column:1/-1"><p>ما فيه نتائج.</p></div>`;
   };
@@ -2874,7 +2875,7 @@ document.addEventListener("click", async e => {
     case "add-sale-perfume": { const p = curP(); if (p) saleForm(null, { perfumeId: p.id }); break; }
     case "add-item-group": if (g) itemForm(null, { name: g.name, brand: g.brand, size: g.combos[0] && g.combos[0].size, packaging: g.combos[0] && g.combos[0].pack }); break;
     case "group-to-catalog": if (g) { const w = watchByKey(g.key); perfumeForm(null, { name: g.name, brand: g.brand, size: g.combos[0] && g.combos[0].size, packaging: g.combos[0] && g.combos[0].pack, watchId: w && w.id }); } break;
-    case "watch-group": if (g) { try { await q(sb.from("watchlist").insert({ perfume_key: g.key, perfume_name: g.name, brand: g.brand || "" })); toast("انضاف للمتابعة"); await reload(); } catch (x) { toast(errMsg(x)); } } break;
+    case "watch-group": if (g) { try { await q(sb.from("watchlist").insert({ perfume_key: g.key, perfume_name: g.name, brand: g.brand || "" })); toast("انضاف لقائمة المتابعة"); await reload(); } catch (x) { toast(errMsg(x)); } } break;
     case "unwatch": unwatch(el.dataset.id); break;
     case "unwatch-sheet": if (delHandler) delHandler(); break;
     case "edit-watch": { const w = S.watch.find(x => x.id === el.dataset.id); if (w) watchForm(w); break; }
@@ -2898,7 +2899,7 @@ document.addEventListener("click", async e => {
     case "stock-set": { const p = curP(); if (p) stockForm(p, "set"); break; }
     case "calc-apply": {
       const col = el.dataset.chan === "reseller" ? "reseller_price" : "sell_price";
-      try { await q(sb.from("perfumes").update({ [col]: +el.dataset.price }).eq("id", el.dataset.id)); toast("انحفظ السعر"); await reload(); } catch (x) { toast(errMsg(x)); }
+      try { await q(sb.from("perfumes").update({ [col]: +el.dataset.price }).eq("id", el.dataset.id)); toast("انحفظ السعر للعطر"); await reload(); } catch (x) { toast(errMsg(x)); }
       break;
     }
     case "theme": applyTheme(el.dataset.v); document.querySelectorAll('[data-act="theme"]').forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === el.dataset.v))); break;
