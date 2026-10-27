@@ -221,20 +221,18 @@ textarea.inp{min-height:84px;resize:vertical}
 .mk-say.good{background:var(--good-soft);color:var(--good)}
 .mk-say.warn{background:var(--warn-soft);color:var(--warn)}
 .mk-title{font-size:16px;font-weight:800;margin:0}
-.cmp{display:grid;grid-template-columns:auto minmax(60px,1fr) auto;gap:12px 10px;align-items:center}
-.cmp-row{display:contents}
-.cmp-row.r-cost{--rc:var(--c-cost)} .cmp-row.r-market{--rc:var(--c-market)} .cmp-row.r-sell{--rc:var(--c-sell)} .cmp-row.r-resell{--rc:var(--c-resell)}
-.cmp-k{font-size:14px;color:var(--ink);line-height:1.35}
-.cmp-k .dot{color:var(--rc);margin-inline-end:6px;vertical-align:middle}
-.cmp-k small{display:block;font-size:12px;color:var(--muted);padding-inline-start:14px}
-.cmp-bar{display:block;height:10px;border-radius:5px;background:var(--sunk);overflow:hidden}
-.cmp-bar i{display:block;height:100%;border-radius:5px;background:var(--rc)}
-.cmp-row.r-market .cmp-bar i{opacity:.7}
-.cmp-v{font-weight:700;white-space:nowrap;color:var(--rc);font-variant-numeric:tabular-nums}
-.cmp-v small{font-weight:500;font-size:12px}
-.cmp-row.you .cmp-k{font-weight:800}
-.cmp-row.you .cmp-bar{height:14px;border-radius:7px}
-.cmp-row.you .cmp-v{font-size:17px}
+.r-sell{--rc:var(--c-sell);--rs:var(--c-sell-soft)} .r-cost{--rc:var(--c-cost);--rs:var(--c-cost-soft)} .r-market{--rc:var(--c-market);--rs:var(--c-market-soft)} .r-resell{--rc:var(--c-resell);--rs:var(--c-resell-soft)}
+.track{position:relative;direction:ltr;margin:12px 0 2px}
+.tk-rail{position:absolute;left:0;right:0;height:8px;border-radius:4px;background:var(--sunk)}
+.tk-band{position:absolute;height:8px;border-radius:4px;background:var(--c-market-soft);box-shadow:inset 0 0 0 1.5px var(--c-market)}
+.tk-dot{position:absolute;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--surface);border:2px solid var(--c-market);box-sizing:border-box}
+.tk-pin{position:absolute;width:4px;height:24px;margin-left:-2px;border-radius:2px;background:var(--rc)}
+.tk-pin.r-sell{width:6px;margin-left:-3px}
+.tk-line{position:absolute;width:0;border-left:1.5px dashed var(--rc);margin-left:-.75px;opacity:.85}
+.tk-lab{position:absolute;transform:translateX(-50%);direction:rtl;white-space:nowrap;height:24px;line-height:24px;padding:0 10px;border-radius:999px;font-size:12.5px;font-weight:600;background:var(--rs);color:var(--rc)}
+.tk-lab b{font-weight:800}
+.tk-lab.r-sell{background:var(--c-sell);color:var(--surface)}
+.tk-end{position:absolute;font-size:11.5px;color:var(--muted);direction:rtl}
 
 /* rows */
 .rows{display:grid}
@@ -590,7 +588,7 @@ const pct = n => (Math.round(n * 10) / 10).toString();
 const numH = v => `<bdi dir="ltr" class="num">${fmt(v)}</bdi>`;
 const pctH = n => `<bdi dir="ltr" class="num">${pct(n)}%</bdi>`;
 const range = (a, b) => a === b ? fmt(a) : fmt(a) + "–" + fmt(b);
-const rangeH = (a, b) => `<bdi dir="ltr" class="num">${range(a, b)}</bdi>`;
+const rangeH = (a, b) => a === b ? `<span class="num">${fmt(a)}</span>` : `من <span class="num">${fmt(a)}</span> إلى <span class="num">${fmt(b)}</span>`;
 const SAR = '<span class="cur">ر.س</span>';
 const money = v => v == null ? '—' : `${numH(v)}${SAR}`;
 const arDigits = s => String(s ?? "").replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
@@ -1257,35 +1255,61 @@ function marketHTML(c, p){
       ? `<p class="hint">أسعار السوق المسجلة لهذا العطر بحجم أو تعبئة مختلفة، لذا لا تدخل في المقارنة. سجّل سعره${c.size ? " بحجم " + fmt(c.size) + " مل" : ""} وتعبئة «${esc(p.packaging)}» للمقارنة.</p>`
       : `<p class="hint">سجّل أسعار هذا العطر في السوق لمقارنتها بسعر بيعك.</p>`;
   }
-  const shopOf = v => { const it = c.mk.comp.find(i => toNum(i.price) === v); const sh = it && shopById(it.shopId); return sh ? sh.name : ""; };
   const one = c.mMin === c.mMax;
-  const rows = [];
-  if (c.cost != null) rows.push({ k: "سعر الشراء", v: c.cost, role: "cost" });
-  if (one) rows.push({ k: "سعر السوق", v: c.mMin, role: "market", sub: shopOf(c.mMin) });
-  else {
-    rows.push({ k: "أقل سعر في السوق", v: c.mMin, role: "market", sub: shopOf(c.mMin) });
-    if (c.mPrices.length > 2) rows.push({ k: "متوسط السوق", v: Math.round(c.mAvg), role: "market" });
-    rows.push({ k: "أعلى سعر في السوق", v: c.mMax, role: "market", sub: shopOf(c.mMax) });
+  const shopOf = v => { const it = c.mk.comp.find(i => toNum(i.price) === v); const sh = it && shopById(it.shopId); return sh ? sh.name : ""; };
+  // المقياس: من الأقل (يسار) إلى الأعلى (يمين)
+  const vals = [...c.mPrices]; for (const v of [c.sell, c.cost, c.resell]) if (v != null) vals.push(v);
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  if (hi === lo) { lo *= 0.9; hi *= 1.1; }
+  const pad = (hi - lo) * 0.08; lo -= pad; hi += pad;
+  const pos = v => (v - lo) / (hi - lo) * 100;
+  // عرض تقريبي لكل بطاقة كنسبة من عرض الشريط (لمنع التداخل)
+  const wOf = html => Math.min(60, (html.replace(/<[^>]+>/g, "").length * 6.8 + 24) / 3.3);
+  // البطاقات: كل سعر ببطاقة ملونة باسمه وقيمته، موزعة على صفوف حتى لا تتداخل
+  const labs = [];
+  if (c.sell != null) labs.push({ role: "sell", at: pos(c.sell), html: `سعر البيع <b>${numH(c.sell)}</b>`, pref: ["t1", "t2", "b1", "b2"] });
+  labs.push({ role: "market", at: (pos(c.mMin) + pos(c.mMax)) / 2, html: one ? `السوق <b>${numH(c.mMin)}</b>` : `السوق: من <b>${numH(c.mMin)}</b> إلى <b>${numH(c.mMax)}</b>`, pref: ["b1", "t1", "b2", "t2"] });
+  if (c.cost != null) labs.push({ role: "cost", at: pos(c.cost), html: `الشراء <b>${numH(c.cost)}</b>`, pref: ["b1", "t1", "b2", "t2"] });
+  if (c.resell != null) labs.push({ role: "resell", at: pos(c.resell), html: `الموزع <b>${numH(c.resell)}</b>`, pref: ["t1", "b1", "t2", "b2"] });
+  const lanes = { t2: [], t1: [], b1: [], b2: [] };
+  for (const L of labs) {
+    L.w = wOf(L.html); L.x = Math.min(100 - L.w / 2, Math.max(L.w / 2, L.at));
+    let best = L.pref[0], bestD = -1e9;
+    for (const ln of L.pref) {
+      const d = Math.min(1e9, ...lanes[ln].map(o => Math.abs(o.x - L.x) - (o.w + L.w) / 2 - 2));
+      if (d >= 0) { best = ln; break; }
+      if (d > bestD) { bestD = d; best = ln; }
+    }
+    L.lane = best; lanes[best].push(L);
   }
-  if (c.resell != null) rows.push({ k: "سعر البيع للموزع", v: c.resell, role: "resell" });
-  if (c.sell != null) rows.push({ k: "سعر البيع للعميل", v: c.sell, role: "sell", you: true });
-  rows.sort((a, b) => a.v - b.v || (a.you ? 1 : -1));
-  const mx = Math.max(...rows.map(r => r.v)) || 1;
+  const off = lanes.t2.length ? 0 : (lanes.t1.length ? -30 : -60);
+  const Y = { t2: 0 + off, t1: 30 + off, rail: 66 + off, b1: 88 + off, b2: 118 + off };
+  const railY = Y.rail, CH = 24;
+  const bottom = lanes.b2.length ? Y.b2 + CH : lanes.b1.length ? Y.b1 + CH : railY + 14;
+  const H = bottom + 22;
+  let g = `<span class="tk-rail" style="top:${railY}px"></span>`;
+  if (!one) g += `<span class="tk-band" style="top:${railY}px;left:${pos(c.mMin).toFixed(2)}%;width:${(pos(c.mMax) - pos(c.mMin)).toFixed(2)}%"></span>`;
+  g += c.mPrices.map(v => `<span class="tk-dot" style="top:${railY - 1}px;left:${pos(v).toFixed(2)}%"></span>`).join("");
+  for (const [role, v] of [["cost", c.cost], ["resell", c.resell], ["sell", c.sell]]) if (v != null) g += `<span class="tk-pin r-${role}" style="top:${railY - 8}px;left:${pos(v).toFixed(2)}%"></span>`;
+  for (const L of labs) {
+    const top = L.lane[0] === "t";
+    const y1 = top ? Y[L.lane] + CH : railY + 16, y2 = top ? railY - 8 : Y[L.lane];
+    if (y2 > y1) g += `<span class="tk-line r-${L.role}" style="left:${L.at.toFixed(2)}%;top:${y1}px;height:${y2 - y1}px"></span>`;
+    g += `<span class="tk-lab r-${L.role}" style="left:${L.x.toFixed(2)}%;top:${Y[L.lane]}px">${L.html}</span>`;
+  }
+  g += `<span class="tk-end" style="top:${bottom + 4}px;left:0">الأقل</span><span class="tk-end" style="top:${bottom + 4}px;right:0">الأعلى</span>`;
   let say, cls;
   if (c.sell == null) { say = `لم يُحدَّد سعر البيع. أقل سعر في السوق ${numH(c.mMin)} ر.س.`; cls = ""; }
   else if (c.sell < c.mMin) { say = `سعر بيعك أقل من جميع أسعار السوق، بفارق ${numH(c.mMin - c.sell)} ر.س عن أقل سعر.`; cls = "good"; }
   else if (c.sell > c.mMax) { say = `سعر بيعك أعلى من جميع أسعار السوق، بفارق ${numH(c.sell - c.mMax)} ر.س (${pctH((c.sell - c.mMax) / c.mMax * 100)}) عن ${one ? "سعر السوق" : "أعلى سعر"}.`; cls = "warn"; }
-  else if (Math.abs(c.vsAvg) < 1) { say = "سعر بيعك مطابق تقريبًا لمتوسط السوق."; cls = "good"; }
+  else if (Math.abs(c.vsAvg) < 1) { say = "سعر بيعك ضمن نطاق السوق، ومطابق تقريبًا للمتوسط."; cls = "good"; }
   else { say = c.vsAvg < 0 ? `سعر بيعك ضمن نطاق السوق، وأقل من المتوسط بنسبة ${pctH(-c.vsAvg)}.` : `سعر بيعك ضمن نطاق السوق، وأعلى من المتوسط بنسبة ${pctH(c.vsAvg)}.`; cls = "good"; }
+  const cheap = shopOf(c.mMin);
   return `<div class="market">
-    <div class="sec-row" style="margin:0 0 8px"><h3 class="mk-title">مقارنة سعرك بالسوق</h3></div>
-    <div class="cmp">${rows.map(r => `<div class="cmp-row r-${r.role}${r.you ? " you" : ""}">
-      <span class="cmp-k"><i class="dot"></i>${r.k}${r.sub ? `<small>${esc(r.sub)}</small>` : ""}</span>
-      <span class="cmp-bar"><i style="width:${Math.max(r.v / mx * 100, 2).toFixed(1)}%"></i></span>
-      <span class="cmp-v">${numH(r.v)} <small>ر.س</small></span>
-    </div>`).join("")}</div>
+    <h3 class="mk-title">مقارنة سعرك بالسوق</h3>
+    <div class="track" style="height:${H}px" role="img" aria-label="${esc(say)}">${g}</div>
     <p class="mk-say ${cls}">${say}</p>
-    <p class="hint">المقارنة مع ${nPrices(c.mPrices.length)} مسجلة في ${placesTxt(c.nPlaces)}، ${c.size ? `بالحجم نفسه (${fmt(c.size)} مل) و` : "ب"}التعبئة نفسها (${esc(p.packaging)}).</p>
+    <p class="hint">${one ? `سعر السوق ${numH(c.mMin)} ر.س` : `أسعار السوق من ${numH(c.mMin)} إلى ${numH(c.mMax)} ر.س${c.mPrices.length > 2 ? `، والمتوسط ${numH(Math.round(c.mAvg))} ر.س` : ""}`}${cheap ? `، وأقل سعر لدى «${esc(cheap)}»` : ""}. المقارنة مع ${nPrices(c.mPrices.length)} مسجلة في ${placesTxt(c.nPlaces)}، ${c.size ? `بالحجم نفسه (${fmt(c.size)} مل) و` : "ب"}التعبئة نفسها (${esc(p.packaging)}).</p>
   </div>`;
 }
 
