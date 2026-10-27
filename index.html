@@ -108,6 +108,9 @@ main{padding-block:16px calc(var(--nav-h) + 110px + env(safe-area-inset-bottom,0
 .inp:focus,.search input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
 .tools select.inp{width:auto;flex:0 0 auto}
 textarea.inp{min-height:84px;resize:vertical}
+.inp[readonly]{background:var(--sunk);color:var(--ink);cursor:default}
+.inp[readonly]:focus{border-color:var(--line);box-shadow:none}
+.spbox{border:1px dashed var(--warn);background:var(--warn-soft);border-radius:12px;padding:12px;display:grid;gap:10px}
 .sum{font-size:14px;color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
 .sum b{color:var(--ink);font-weight:700}
 .seg{display:flex;background:var(--sunk);border-radius:11px;padding:3px;gap:2px;width:100%}
@@ -803,16 +806,19 @@ const stockChip = c => c.stockState == null ? "" : c.stockState === "out" ? '<sp
 /* ---------- sales math ---------- */
 const sgn = s => s.kind === "return" ? -1 : 1;
 const saleTotal = s => sgn(s) * s.qty * (Number(s.unitPrice) || 0);
+const isSpecial = s => s.listPrice != null && Number(s.unitPrice) < Number(s.listPrice);
+const saleDiscount = s => isSpecial(s) ? sgn(s) * s.qty * (Number(s.listPrice) - Number(s.unitPrice)) : 0;
 const saleProfit = s => s.unitCost == null ? null : sgn(s) * s.qty * ((Number(s.unitPrice) || 0) - Number(s.unitCost) - (Number(s.unitPrice) || 0) * (Number(s.feePct) || 0) / 100);
 function salesStats(list){
-  let revenue = 0, profit = 0, units = 0, unknown = 0, direct = 0, viaRes = 0; const byPay = { card: 0, transfer: 0, cash: 0, none: 0 };
+  let revenue = 0, profit = 0, units = 0, unknown = 0, direct = 0, viaRes = 0, discount = 0, nDisc = 0; const byPay = { card: 0, transfer: 0, cash: 0, none: 0 };
   for (const s of list) {
     const t = saleTotal(s); revenue += t; units += sgn(s) * s.qty;
     if (s.channel === "reseller") viaRes += t; else direct += t;
     if (s.channel !== "reseller") byPay[PAY[s.payMethod] ? s.payMethod : "none"] += t;
     const p = saleProfit(s); if (p == null) unknown++; else profit += p;
+    if (isSpecial(s)) { discount += saleDiscount(s); if (s.kind !== "return") nDisc += s.qty; }
   }
-  return { revenue, profit, units, unknown, count: list.length, direct, viaRes, byPay, margin: revenue > 0 ? profit / revenue * 100 : null };
+  return { revenue, profit, units, unknown, count: list.length, direct, viaRes, byPay, discount, nDisc, margin: revenue > 0 ? profit / revenue * 100 : null };
 }
 function resellerBalance(rid){
   const ss = S.sales.filter(s => s.resellerId === rid);
@@ -904,7 +910,7 @@ async function reload(){
     S.sales = sl.map(r => ({
       id: r.id, perfumeId: r.perfume_id, name: r.perfume_name, size: r.size, qty: Number(r.qty) || 0, kind: r.kind || "sale",
       unitPrice: r.unit_price, unitCost: r.unit_cost, feePct: r.fee_pct, channel: r.channel || "direct", resellerId: r.reseller_id,
-      customer: r.customer, soldOn: r.sold_on, notes: r.notes, payMethod: r.payment_method || "", ...ts(r)
+      customer: r.customer, soldOn: r.sold_on, notes: r.notes, payMethod: r.payment_method || "", listPrice: r.list_price ?? null, ...ts(r)
     }));
     S.payments = pay.map(r => ({ id: r.id, resellerId: r.reseller_id, amount: r.amount, paidOn: r.paid_on, notes: r.notes, method: r.method || "", ...ts(r) }));
     S.supNotes = sn.map(r => ({ id: r.id, supplierId: r.supplier_id, notedOn: r.noted_on, note: r.note, ...ts(r) }));
@@ -1283,8 +1289,9 @@ function saleRow(s, o = {}){
   const pf = saleProfit(s), tot = saleTotal(s);
   const ch = s.channel === "reseller" ? `<span class="chip resell">موزع${r ? ": " + esc(r.name) : ""}</span>` : `<span class="chip">عميل</span>`;
   const pay = PAY_SHORT[s.payMethod] ? `<span class="chip cost">${PAY_SHORT[s.payMethod]}</span>` : "";
-  const sub = [`${piecesTxt(s.qty)} × ${fmt(Number(s.unitPrice) || 0)} ر.س`, s.customer ? esc(s.customer) : "", o.showDate ? relDay(s.soldOn) : ""].filter(Boolean).join(" · ");
-  return `<div class="row"><div class="r-main"><span class="r-name">${esc(s.name)}${s.kind === "return" ? '<span class="chip bad">مرتجع</span>' : ""}${o.hideWho ? "" : ch}${pay}</span><span class="r-sub">${sub}</span></div>
+  const sp = isSpecial(s) ? '<span class="chip warn">سعر خاص</span>' : "";
+  const sub = [`${piecesTxt(s.qty)} × ${fmt(Number(s.unitPrice) || 0)} ر.س${sp ? ` <span class="muted">(بدل ${fmt(Number(s.listPrice))})</span>` : ""}`, s.customer ? esc(s.customer) : "", o.showDate ? relDay(s.soldOn) : ""].filter(Boolean).join(" · ");
+  return `<div class="row"><div class="r-main"><span class="r-name">${esc(s.name)}${s.kind === "return" ? '<span class="chip bad">مرتجع</span>' : ""}${o.hideWho ? "" : ch}${pay}${sp}</span><span class="r-sub">${sub}</span></div>
     <span class="r-price t-sell">${money(tot)}<small class="${pf == null ? "muted" : pf < 0 ? "t-bad" : "t-good"}">${pf == null ? "الربح غير محدد" : (s.kind === "return" ? "خُصم من الربح " : pf < 0 ? "خسارة " : "ربح ") + numH(Math.abs(pf))}</small></span>
     <button type="button" class="icon-btn" data-act="edit-sale" data-id="${esc(s.id)}" aria-label="تعديل العملية">${I.edit}</button></div>`;
 }
@@ -1406,6 +1413,7 @@ function renderSales(){
         ${stat("صافي الربح", ms.profit, ms.profit < 0 ? "bad" : "good", { sub: ms.margin != null ? `<span class="${mClass(ms.margin)}">هامش الربح ${pctH(ms.margin)}</span>` : "" })}
       </div>
       ${ms.count ? `<p class="hint" style="margin:0">مبيعات العملاء: <b class="t-sell">${numH(ms.direct)}</b> ر.س · مبيعات الموزعين: <b class="t-resell">${numH(ms.viaRes)}</b> ر.س</p>${payLine ? `<p class="hint" style="margin:0">مبيعات العملاء حسب طريقة الدفع: ${payLine}</p>` : ""}` : ""}
+      ${ms.nDisc ? `<p class="hint" style="margin:0">المبيعات بسعر خاص: <b>${piecesTxt(ms.nDisc)}</b>، بإجمالي خصم <b class="t-warn">${numH(ms.discount)}</b> ر.س عن السعر المعتمد.</p>` : ""}
       ${ms.unknown ? `<p class="hint" style="margin:0">${ms.unknown === 1 ? "توجد عملية واحدة" : `توجد ${ms.unknown} عمليات`} دون سعر شراء، لذا لم يُحتسب ربحها. أضف المورد وسعر الشراء من صفحة العطر.</p>` : ""}
       ${list.length ? `<section class="panel"><div class="rows">${Object.entries(days).map(([d, arr]) => `<div class="dayhead">${esc(relDay(d))}</div>${arr.map(s => saleRow(s)).join("")}`).join("")}</div></section>`
         : `<div class="empty">${bottle()}<h2>لا توجد مبيعات في ${esc(monthName(S.month))}</h2><p>سجّل كل عملية بيع مع العطر والكمية والسعر وطريقة الدفع. يُحتسب الربح تلقائيًا وتُخصم الكمية من المخزون.</p><button type="button" class="btn primary" data-act="add-sale">${I.plus}تسجيل عملية بيع</button></div>`}`;
@@ -2357,11 +2365,16 @@ function saleForm(s, pre = {}){
   const isNew = !s; s = s || {};
   const st = S.settings;
   const lastPay = ls.get("pay");
+  const sSpecial = !isNew && isSpecial(s);
   const v = {
     kind: s.kind || pre.kind || "sale", perfumeId: s.perfumeId || pre.perfumeId || "", qty: s.qty || pre.qty || 1,
-    price: s.unitPrice ?? pre.price, channel: s.channel || pre.channel || (pre.resellerId ? "reseller" : "direct"),
+    channel: s.channel || pre.channel || (pre.resellerId ? "reseller" : "direct"),
     resellerId: s.resellerId || pre.resellerId || "", customer: s.customer ?? pre.customer, soldOn: s.soldOn || pre.soldOn || todayStr(), notes: s.notes ?? pre.notes,
-    pay: isNew ? (pre.pay || (PAY[lastPay] ? lastPay : "")) : (s.payMethod || "")
+    pay: isNew ? (pre.pay || (PAY[lastPay] ? lastPay : "")) : (s.payMethod || ""),
+    list: isNew ? pre.price : (s.listPrice ?? s.unitPrice),
+    sp: isNew ? !!pre.sp : sSpecial,
+    spPrice: isNew ? pre.spPrice : (sSpecial ? s.unitPrice : ""),
+    spQty: pre.spQty
   };
   const perfs = S.perfumes.slice().sort(byName);
   const res = S.resellers.slice().sort(byName);
@@ -2374,22 +2387,44 @@ function saleForm(s, pre = {}){
     <div id="w_res"${v.channel === "reseller" ? "" : " hidden"}>${field("f_res", "الموزع", `<select class="inp" id="f_res" name="f_res">${!v.resellerId ? '<option value="">اختر الموزع</option>' : ""}${res.map(r => `<option value="${esc(r.id)}"${r.id === v.resellerId ? " selected" : ""}>${esc(r.name)}</option>`).join("")}<option value="__new">+ إضافة موزع جديد…</option></select>`, "تُسجَّل مبالغ الموزع من صفحته عبر «تسجيل دفعة».")}</div>
     <div class="grid2">
       ${field("f_qty", "الكمية (قطعة)", numInp("f_qty", v.qty, "1"))}
-      ${field("f_price", '<span class="t-sell">سعر القطعة (ر.س)</span>', numInp("f_price", v.price, "650"))}
+      ${field("f_price", '<span class="t-sell">السعر المعتمد للقطعة (ر.س)</span>', numInp("f_price", v.list, "650"))}
+    </div>
+    <p class="f-hint" id="f_phint" style="margin:-6px 0 0"></p>
+    <label class="check"><input type="checkbox" id="f_sp" name="f_sp" value="1"${v.sp ? " checked" : ""}>بيع بسعر خاص (خصم لعميل أو موزع محدد)</label>
+    <div class="spbox" id="w_sp"${v.sp ? "" : " hidden"}>
+      <div class="grid2">
+        ${field("f_spprice", '<span class="t-warn">السعر الخاص (ر.س)</span>', numInp("f_spprice", v.spPrice, "600"))}
+        ${isNew ? field("f_spqty", "عدد القطع بالسعر الخاص", numInp("f_spqty", v.spQty ?? "", "جميع القطع")) : ""}
+      </div>
+      <span class="f-hint" style="margin:0">${isNew ? "اتركه فارغًا إذا كانت جميع القطع بالسعر الخاص. تُسجَّل القطع المتبقية بالسعر المعتمد." : "يُطبَّق السعر الخاص على جميع قطع هذه العملية."}</span>
     </div>
     <div id="w_pay"${v.channel === "direct" ? "" : " hidden"}>${radios("f_pay", 'طريقة الدفع <i>*</i>', payOpts(), v.pay)}</div>
     <div id="w_cust"${v.channel === "direct" ? "" : " hidden"}>${field("f_cust", "اسم العميل (اختياري)", inp("f_cust", v.customer, 'autocomplete="off"'))}</div>
     ${field("f_date", "التاريخ", inp("f_date", v.soldOn, 'type="date"'))}
-    ${field("f_notes", "ملاحظات", `<textarea class="inp" id="f_notes" name="f_notes" placeholder="اختياري">${esc(v.notes || "")}</textarea>`)}
+    ${field("f_notes", "ملاحظات", `<textarea class="inp" id="f_notes" name="f_notes" placeholder="اختياري، مثل سبب السعر الخاص">${esc(v.notes || "")}</textarea>`)}
     <div id="f_prevbox"></div>
     ${foot(isNew ? null : "del-sale", isNew ? '<button type="submit" class="btn ghost" data-mode="next">حفظ وتسجيل عملية أخرى</button>' : "")}`;
   const unitCostFor = (p, chan) => { const c = calc(p); return c.cost == null ? null : c.cost + st.pack + (toNumZ(p.extraCost) || 0) + (chan === "direct" ? st.ship : 0); };
+  // تقسيم الكمية بين السعر المعتمد والسعر الخاص
+  const splitOf = (qty, sp, rawSpQty) => {
+    if (!sp) return { nList: qty, nSp: 0 };
+    if (!isNew || rawSpQty == null || String(rawSpQty).trim() === "") return { nList: 0, nSp: qty };
+    const n = toNum(rawSpQty);
+    return n == null ? { nList: 0, nSp: qty, bad: true } : { nList: Math.max(qty - n, 0), nSp: Math.min(n, qty), over: n > qty };
+  };
   openSheet(isNew ? "تسجيل عملية بيع" : "تعديل العملية", html, async (fd, mode) => {
     const pid = str(fd, "f_perf");
     if (!pid) throw fail("يُرجى اختيار العطر.");
     const p = pid === "__old" ? null : perfById(pid);
     if (pid !== "__old" && !p) throw fail("يُرجى اختيار العطر.");
     const qty = toNum(fd.get("f_qty")); if (!qty) throw fail("يُرجى إدخال الكمية.");
-    const price = toNumZ(fd.get("f_price")); if (price == null) throw fail("يُرجى إدخال سعر القطعة.");
+    const list = toNumZ(fd.get("f_price")); if (list == null) throw fail("يُرجى إدخال سعر القطعة.");
+    const sp = !!fd.get("f_sp");
+    const spPrice = sp ? toNumZ(fd.get("f_spprice")) : null;
+    if (sp && spPrice == null) throw fail("يُرجى إدخال السعر الخاص للقطعة.");
+    const split = splitOf(qty, sp, fd.get("f_spqty"));
+    if (split.bad || (sp && !split.nSp)) throw fail("يُرجى إدخال عدد صحيح للقطع بالسعر الخاص.");
+    if (split.over) throw fail("عدد القطع بالسعر الخاص أكبر من الكمية الإجمالية.");
     const chan = str(fd, "f_chan") || "direct";
     const rid = chan === "reseller" ? str(fd, "f_res") : "";
     if (chan === "reseller" && (!rid || rid === "__new")) throw fail("يُرجى اختيار الموزع.");
@@ -2397,56 +2432,88 @@ function saleForm(s, pre = {}){
     if (chan === "direct" && !PAY[pay]) throw fail("يُرجى تحديد طريقة الدفع.");
     const same = !isNew && (p ? p.id === s.perfumeId : pid === "__old") && chan === s.channel;
     const keepFee = same && pay === (s.payMethod || "");
-    const row = {
+    const base = {
       perfume_id: p ? p.id : s.perfumeId || null, perfume_name: p ? p.name : s.name, size: p ? toNum(p.size) : s.size,
-      qty, kind: str(fd, "f_kind") || "sale", unit_price: price,
+      kind: str(fd, "f_kind") || "sale", list_price: list,
       unit_cost: same ? (s.unitCost ?? (p ? unitCostFor(p, chan) : null)) : (p ? unitCostFor(p, chan) : s.unitCost),
       fee_pct: keepFee ? (Number(s.feePct) || 0) : (pay === "card" ? st.fee : 0),
       payment_method: pay,
       channel: chan, reseller_id: rid || null, customer: chan === "direct" ? str(fd, "f_cust") : "", sold_on: str(fd, "f_date") || todayStr(), notes: str(fd, "f_notes")
     };
-    if (isNew) await q(sb.from("sales").insert(row)); else await q(sb.from("sales").update(row).eq("id", s.id));
+    const rows = [];
+    if (split.nList) rows.push({ ...base, qty: split.nList, unit_price: list });
+    if (split.nSp) rows.push({ ...base, qty: split.nSp, unit_price: spPrice });
+    if (isNew) await q(sb.from("sales").insert(rows)); else await q(sb.from("sales").update(rows[0]).eq("id", s.id));
     if (pay) ls.set("pay", pay);
     await reload();
-    if (mode === "next") { saleForm(null, { channel: chan, resellerId: rid, soldOn: row.sold_on, kind: row.kind, pay }); toast("تم الحفظ. يمكنك تسجيل العملية التالية"); }
-    else { closeSheet(); toast(row.kind === "return" ? "تم تسجيل المرتجع وإعادة الكمية إلى المخزون" : isNew ? "تم تسجيل عملية البيع" : "تم حفظ التعديل"); }
+    const ret = base.kind === "return";
+    const msg = rows.length > 1 ? `تم تسجيل ${piecesTxt(split.nList)} بالسعر المعتمد و${piecesTxt(split.nSp)} بالسعر الخاص`
+      : ret ? "تم تسجيل المرتجع وإعادة الكمية إلى المخزون" : isNew ? "تم تسجيل عملية البيع" : "تم حفظ التعديل";
+    if (mode === "next") { saleForm(null, { channel: chan, resellerId: rid, soldOn: base.sold_on, kind: base.kind, pay }); toast("تم الحفظ. يمكنك تسجيل العملية التالية"); }
+    else { closeSheet(); toast(msg); }
   }, f => {
-    let touched = v.price != null;
-    const priceEl = $("#f_price", f);
-    priceEl.addEventListener("input", () => { touched = true; });
+    const priceEl = $("#f_price", f), hintEl = $("#f_phint", f);
     const chanVal = () => (f.querySelector('input[name="f_chan"]:checked') || {}).value || "direct";
+    const stdPrice = () => {
+      const p = perfById($("#f_perf", f).value); if (!p) return null;
+      return chanVal() === "reseller" ? (toNum(p.resellerPrice) ?? toNum(p.sellPrice)) : toNum(p.sellPrice);
+    };
     const autofill = () => {
-      if (touched) return;
-      const p = perfById($("#f_perf", f).value); if (!p) return;
-      const val = chanVal() === "reseller" ? (p.resellerPrice ?? p.sellPrice) : p.sellPrice;
-      priceEl.value = val ?? "";
+      if (!isNew) { priceEl.readOnly = false; hintEl.textContent = "السعر المعتمد وقت تسجيل العملية."; return; }
+      const p = perfById($("#f_perf", f).value), val = stdPrice();
+      if (val != null) {
+        priceEl.value = val; priceEl.readOnly = true;
+        hintEl.textContent = `سعر ${chanVal() === "reseller" ? "البيع للموزع" : "البيع للعميل"} المحدد للعطر. للبيع بسعر أقل، فعّل خيار «بيع بسعر خاص».`;
+      } else {
+        if (priceEl.readOnly) priceEl.value = "";
+        priceEl.readOnly = false;
+        hintEl.textContent = p ? "لم يُحدَّد سعر بيع لهذا العطر. يُرجى إدخال سعر القطعة." : "";
+      }
     };
     const preview = () => {
       const fv = formVals(); const p = perfById(fv.f_perf);
-      const qty = toNum(fv.f_qty) || 0, price = toNumZ(fv.f_price), chan = fv.f_chan || "direct", ret = fv.f_kind === "return";
+      const qty = toNum(fv.f_qty) || 0, list = toNumZ(fv.f_price), chan = fv.f_chan || "direct", ret = fv.f_kind === "return";
       if (!p && fv.f_perf !== "__old") { $("#f_prevbox", f).innerHTML = ""; return; }
+      const sp = !!fv.f_sp, spPrice = sp ? toNumZ(fv.f_spprice) : null;
+      const { nList, nSp } = splitOf(qty, sp, fv.f_spqty);
       const uc = p ? unitCostFor(p, chan) : s.unitCost;
       const card = chan === "direct" && fv.f_pay === "card";
       const fee = card ? (!isNew && s.payMethod === "card" && Number(s.feePct) ? Number(s.feePct) : st.fee) : 0;
-      const tot = qty * (price || 0);
-      const pr = uc == null || price == null ? null : qty * (price - uc - price * fee / 100);
+      const unitPr = P => uc == null || P == null ? null : P - uc - P * fee / 100;
+      const tot = nList * (list || 0) + nSp * (spPrice ?? 0);
+      const pr = uc == null || list == null || (nSp && spPrice == null) ? null : nList * unitPr(list) + nSp * unitPr(spPrice);
       const c = p ? calc(p) : null;
-      const stockWarn = c && c.stock != null && !ret && isNew && qty > c.stock ? `<span class="t-warn">تنبيه: الكمية المتوفرة من هذا العطر ${piecesTxt(Math.max(c.stock, 0))} فقط.</span>` : "";
-      const feeTxt = card && fee && price != null ? ` · عمولة البطاقة: ${numH(qty * price * fee / 100)} ر.س` : "";
-      $("#f_prevbox", f).innerHTML = `<div class="calcbox${stockWarn ? " warnb" : ""}"><span>${ret ? "قيمة المرتجع" : "الإجمالي"}: <b class="t-sell">${numH(tot)}</b> ر.س · ${pr == null ? '<span class="muted">يتعذّر احتساب الربح لعدم تحديد سعر الشراء</span>' : `${ret ? "يُخصم من الربح" : "صافي الربح"}: <b class="${pr < 0 ? "t-bad" : "t-good"}">${numH(pr)}</b> ر.س${feeTxt}`}</span>${stockWarn}</div>`;
+      const lines = [];
+      lines.push(`<span>${ret ? "قيمة المرتجع" : "الإجمالي"}: <b class="t-sell">${numH(tot)}</b> ر.س · ${pr == null ? '<span class="muted">يتعذّر احتساب الربح لعدم تحديد سعر الشراء</span>' : `${ret ? "يُخصم من الربح" : "صافي الربح"}: <b class="${pr < 0 ? "t-bad" : "t-good"}">${numH(pr)}</b> ر.س`}${card && fee && tot ? ` · عمولة البطاقة: ${numH(tot * fee / 100)} ر.س` : ""}</span>`);
+      if (sp && spPrice != null && list != null && nSp) {
+        const disc = nSp * (list - spPrice);
+        lines.push(`<span>${nList ? `${piecesTxt(nList)} بالسعر المعتمد (${numH(list)} ر.س) و` : ""}${piecesTxt(nSp)} بالسعر الخاص (${numH(spPrice)} ر.س)${disc > 0 ? ` · إجمالي الخصم: <b class="t-warn">${numH(disc)}</b> ر.س` : ""}</span>`);
+        if (uc != null && spPrice > 0 && list > 0) {
+          const mSp = unitPr(spPrice) / spPrice * 100, mList = unitPr(list) / list * 100;
+          lines.push(`<span>هامش الربح بالسعر الخاص <b class="${mClass(mSp)}">${pctH(mSp)}</b> مقابل ${pctH(mList)} بالسعر المعتمد.</span>`);
+          if (unitPr(spPrice) < 0) lines.push(`<span class="t-bad">تنبيه: السعر الخاص أقل من تكلفة القطعة (${numH(uc + spPrice * fee / 100)} ر.س)، وستكون العملية بخسارة.</span>`);
+        }
+      }
+      if (c && c.stock != null && !ret && isNew && qty > c.stock) lines.push(`<span class="t-warn">تنبيه: الكمية المتوفرة من هذا العطر ${piecesTxt(Math.max(c.stock, 0))} فقط.</span>`);
+      const warn = lines.some(l => l.includes("تنبيه"));
+      $("#f_prevbox", f).innerHTML = `<div class="calcbox${warn ? " warnb" : ""}" style="display:grid;gap:4px">${lines.join("")}</div>`;
     };
-    $("#f_perf", f).addEventListener("change", () => { touched = false; autofill(); preview(); });
+    $("#f_perf", f).addEventListener("change", () => { autofill(); preview(); });
     f.querySelectorAll('input[name="f_chan"]').forEach(r => r.addEventListener("change", () => {
       const c = chanVal(); $("#w_res", f).hidden = c !== "reseller"; $("#w_cust", f).hidden = c !== "direct"; $("#w_pay", f).hidden = c !== "direct";
-      if (isNew) touched = false; autofill(); preview();
+      autofill(); preview();
     }));
     f.querySelectorAll('input[name="f_pay"]').forEach(r => r.addEventListener("change", preview));
+    $("#f_sp", f).addEventListener("change", e => {
+      $("#w_sp", f).hidden = !e.target.checked; preview();
+      if (e.target.checked) setTimeout(() => $("#f_spprice", f).focus(), 50);
+    });
     $("#f_res", f).addEventListener("change", e => {
       if (e.target.value !== "__new") return;
       const fv = formVals();
-      resellerForm(null, (newId, newName) => saleForm(s.id ? s : null, { kind: fv.f_kind, perfumeId: fv.f_perf, qty: fv.f_qty, price: fv.f_price, channel: "reseller", resellerId: newId, resellerName: newName, soldOn: fv.f_date, notes: fv.f_notes }));
+      resellerForm(null, (newId, newName) => saleForm(s.id ? s : null, { kind: fv.f_kind, perfumeId: fv.f_perf, qty: fv.f_qty, price: fv.f_price, sp: !!fv.f_sp, spPrice: fv.f_spprice, spQty: fv.f_spqty, channel: "reseller", resellerId: newId, resellerName: newName, soldOn: fv.f_date, notes: fv.f_notes }));
     });
-    for (const id of ["#f_qty", "#f_price"]) $(id, f).addEventListener("input", preview);
+    for (const id of ["#f_qty", "#f_price", "#f_spprice", "#f_spqty"]) { const el = $(id, f); if (el) el.addEventListener("input", preview); }
     f.querySelectorAll('input[name="f_kind"]').forEach(r => r.addEventListener("change", preview));
     autofill(); preview();
   });
@@ -2620,7 +2687,8 @@ function buildWorkbook(ExcelJS){
     { h: "التاريخ", k: "date", w: 12, fmt: DATE }, { h: "العطر", k: "name", w: 28 }, { h: "نوع العملية", k: "kind", w: 11 },
     { h: "الكمية", k: "qty", w: 9 }, { h: "سعر القطعة (ر.س)", k: "price", w: 14, fmt: MONEY }, { h: "الإجمالي (ر.س)", k: "total", w: 14, fmt: MONEY },
     { h: "تكلفة القطعة (ر.س)", k: "cost", w: 14, fmt: MONEY }, { h: "عمولة البطاقة %", k: "fee", w: 11 }, { h: "صافي الربح (ر.س)", k: "profit", w: 14, fmt: MONEY },
-    { h: "المشتري", k: "chan", w: 10 }, { h: "طريقة الدفع", k: "pay", w: 14 }, { h: "الموزع", k: "res", w: 20 }, { h: "العميل", k: "cust", w: 18 }, { h: "ملاحظات", k: "notes", w: 30 }
+    { h: "المشتري", k: "chan", w: 10 }, { h: "طريقة الدفع", k: "pay", w: 14 }, { h: "الموزع", k: "res", w: 20 }, { h: "العميل", k: "cust", w: 18 },
+    { h: "السعر المعتمد (ر.س)", k: "list", w: 14, fmt: MONEY }, { h: "الخصم (ر.س)", k: "disc", w: 12, fmt: MONEY }, { h: "ملاحظات", k: "notes", w: 30 }
   ]);
   const sales = S.sales.slice().sort((a, b) => String(b.soldOn).localeCompare(String(a.soldOn)) || b.createdAt - a.createdAt);
   sales.forEach((s, i) => {
@@ -2629,10 +2697,11 @@ function buildWorkbook(ExcelJS){
       date: dayDate(s.soldOn), name: s.name, kind: s.kind === "return" ? "مرتجع" : "بيع", qty: s.qty, price: Number(s.unitPrice) || 0,
       total: f(`${sg}*D${r}*E${r}`, saleTotal(s)), cost: s.unitCost == null ? null : Number(s.unitCost), fee: Number(s.feePct) || 0,
       profit: f(`IF(ISNUMBER(G${r}),${sg}*D${r}*(E${r}-G${r}-E${r}*H${r}/100),"")`, saleProfit(s)),
-      chan: s.channel === "reseller" ? "موزع" : "عميل", pay: PAY_SHORT[s.payMethod] || "", res: s.resellerId ? (resById(s.resellerId) || {}).name || "" : "", cust: s.customer || "", notes: s.notes || ""
+      chan: s.channel === "reseller" ? "موزع" : "عميل", pay: PAY_SHORT[s.payMethod] || "", res: s.resellerId ? (resById(s.resellerId) || {}).name || "" : "", cust: s.customer || "", list: s.listPrice == null ? null : Number(s.listPrice),
+      disc: f(`IF(AND(ISNUMBER(N${r}),N${r}>E${r}),${sg}*D${r}*(N${r}-E${r}),"")`, isSpecial(s) ? saleDiscount(s) : null), notes: s.notes || ""
     });
   });
-  finish(wsS, [], [14]);
+  finish(wsS, [], [16]);
 
   // 3) الموزعين
   const wsR = sheet("الموزعون", [
