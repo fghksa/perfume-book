@@ -2960,7 +2960,7 @@ async function runCatalog(token){
   const wa = waDigits(data.phone || "");
   const showGain = !!data.show_retail;
   head.innerHTML = `<h1>${esc(data.title || "كتالوج العطور")}</h1>${data.note ? `<p>${esc(data.note)}</p>` : ""}${showGain ? `<div class="cat-legend">
-      <span><i class="dot" style="color:var(--c-resell)"></i><b>سعر الموزع:</b> سعر القطعة عند الشراء منّا.</span>
+      <span><i class="dot" style="color:var(--c-resell)"></i><b>السعر المطلوب:</b> سعر القطعة عند الشراء منّا.</span>
       <span><i class="dot" style="color:var(--c-sell)"></i><b>سعر البيع المقترح:</b> السعر المقترح لبيع القطعة لعملائك.</span>
       <span><i class="dot" style="color:var(--good)"></i><b>ربحك المتوقع:</b> الفرق بين السعرين عن كل قطعة.</span></div>` : ""}${wa ? `<div class="btnrow"><a class="btn primary" href="https://wa.me/${wa}" target="_blank" rel="noopener noreferrer">${I.chat}الطلب عبر واتساب</a></div>` : ""}`;
   const items = data.items || [];
