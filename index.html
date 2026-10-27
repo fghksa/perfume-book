@@ -397,6 +397,19 @@ fieldset.field legend{padding:0;margin-bottom:5px}
 .cat-head p{margin:0;color:var(--muted);white-space:pre-wrap}
 .cat-price{font-size:20px;font-weight:800;color:var(--c-resell);margin-top:4px}
 .cat-retail{font-size:13px;color:var(--muted)}
+.cat-legend{display:grid;gap:4px;font-size:13.5px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:4px}
+.cat-legend b{color:var(--ink);font-weight:700}
+.cat-legend .dot{margin-inline-end:6px}
+.cp{display:grid;gap:5px;margin-top:8px}
+.cp-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 6px;font-size:13px}
+.cp-row span{color:var(--muted)}
+.cp-row b{font-weight:800;white-space:nowrap}
+.cp-row small{font-size:11px;font-weight:600}
+.cp-main b{font-size:19px;color:var(--c-resell)}
+.cp-sug b{color:var(--c-sell)}
+.cp-gain{background:var(--good-soft);border-radius:8px;padding:6px 8px}
+.cp-gain span,.cp-gain b{color:var(--good)}
+.cp-gain em{flex-basis:100%;font-style:normal;font-size:11.5px;color:var(--good);opacity:.9}
 .cat-main{padding-block:10px 40px}
 
 @media (min-width:720px){
@@ -712,7 +725,7 @@ const placesTxt = n => n === 1 ? "متجر واحد" : n === 2 ? "متجرين" 
 const piecesTxt = n => { n = Math.round(n * 100) / 100; return n === 1 ? "قطعة واحدة" : n === 2 ? "قطعتان" : `${fmt(n)} ${n > 2 && n <= 10 ? "قطع" : "قطعة"}`; };
 
 /* ---------- state ---------- */
-const DEFAULT_SETTINGS = { pack: 0, ship: 0, fee: 0, target: 30, low: 2, catEnabled: false, catToken: null, catTitle: "كتالوج العطور", catNote: "", catPhone: "", catRetail: false };
+const DEFAULT_SETTINGS = { pack: 0, ship: 0, fee: 0, target: 30, low: 2, catEnabled: false, catToken: null, catTitle: "كتالوج العطور", catNote: "", catPhone: "", catRetail: true };
 const S = {
   user: null, member: null, members: [], channel: null, live: false,
   perfumes: [], suppliers: [], shops: [], items: [], groups: new Map(),
@@ -801,6 +814,10 @@ function calc(p){
   const margin = profit != null ? profit / sell * 100 : null;
   const rProfit = resell != null && fullR != null ? resell - fullR : null;
   const rMargin = rProfit != null ? rProfit / resell * 100 : null;
+  // ربح الموزع: سعر البيع المقترح عليه (أو سعر البيع للعميل) − سعر البيع للموزع
+  const retailS = toNum(p.suggestedPrice) ?? sell;
+  const resGain = retailS != null && resell != null ? retailS - resell : null;
+  const resGainPct = resGain != null && retailS ? resGain / retailS * 100 : null;
   const mMin = mPrices.length ? Math.min(...mPrices) : null;
   const mMax = mPrices.length ? Math.max(...mPrices) : null;
   const mAvg = avg(mPrices);
@@ -812,7 +829,7 @@ function calc(p){
   const stock = p.stock == null ? null : Number(p.stock);
   const low = p.lowStock != null ? Number(p.lowStock) : st.low;
   const stockState = stock == null ? null : stock <= 0 ? "out" : stock <= low ? "low" : "ok";
-  return { mk, mPrices, cost, sell, resell, size, extra, fixD, fixR, feeAmt, fullD, fullR, profit, margin, rProfit, rMargin, mMin, mMax, mAvg, perMl, vsAvg, nPlaces, sugD, sugR, stock, low, stockState };
+  return { mk, mPrices, cost, sell, resell, size, extra, fixD, fixR, feeAmt, fullD, fullR, profit, margin, rProfit, rMargin, retailS, resGain, resGainPct, mMin, mMax, mAvg, perMl, vsAvg, nPlaces, sugD, sugR, stock, low, stockState };
 }
 const mClass = m => m == null ? "" : m >= 25 ? "good" : m >= 10 ? "warn" : "bad";
 const stockChip = c => c.stockState == null ? "" : c.stockState === "out" ? '<span class="chip bad">نفدت الكمية</span>'
@@ -908,7 +925,7 @@ async function reload(){
     const ts = r => ({ createdAt: Date.parse(r.created_at), updatedAt: Date.parse(r.updated_at), updatedBy: r.updated_by_email });
     S.perfumes = p.map(r => ({
       id: r.id, name: r.name, brand: r.brand, conc: r.conc, size: r.size, packaging: r.packaging || PACK[0],
-      sellPrice: r.sell_price, resellerPrice: r.reseller_price, notes: r.notes, image: r.image_path,
+      sellPrice: r.sell_price, resellerPrice: r.reseller_price, suggestedPrice: r.suggested_price ?? null, notes: r.notes, image: r.image_path,
       stock: r.stock, lowStock: r.low_stock, extraCost: r.extra_cost, inCatalog: r.in_catalog !== false, ...ts(r),
       suppliers: (linksBy[r.id] || []).map(x => ({ id: x.supplier_id, price: x.price }))
     }));
@@ -934,7 +951,7 @@ async function reload(){
     S.settings = st ? {
       pack: Number(st.pack_cost) || 0, ship: Number(st.ship_cost) || 0, fee: Number(st.fee_pct) || 0, target: st.target_margin == null ? 30 : Number(st.target_margin),
       low: st.low_stock == null ? 2 : Number(st.low_stock), catEnabled: !!st.catalog_enabled, catToken: st.catalog_token, catTitle: st.catalog_title || "",
-      catNote: st.catalog_note || "", catPhone: st.catalog_phone || "", catRetail: !!st.catalog_show_retail
+      catNote: st.catalog_note || "", catPhone: st.catalog_phone || "", catRetail: st.catalog_show_suggested !== false
     } : { ...DEFAULT_SETTINGS };
     buildGroups();
     S.loaded = true;
@@ -1374,7 +1391,6 @@ function renderPerfume(){
   const hasExtras = c.cost != null && (c.fullD !== c.cost);
   const ps = S.sales.filter(s => s.perfumeId === p.id).sort((a, b) => String(b.soldOn).localeCompare(String(a.soldOn)) || b.createdAt - a.createdAt);
   const pst = salesStats(ps);
-  const resMargin = c.sell != null && c.resell != null ? (c.sell - c.resell) / c.sell * 100 : null;
   const stockPanel = c.stock != null
     ? `<div class="stock-row"><button type="button" class="round-btn" data-act="stock-adj" data-d="1" aria-label="زيادة قطعة">+</button><div class="stock-num"><b class="${c.stockState === "out" ? "t-bad" : c.stockState === "low" ? "t-warn" : ""}">${numH(c.stock)}</b><span>قطعة متوفرة</span></div><button type="button" class="round-btn" data-act="stock-adj" data-d="-1" aria-label="إنقاص قطعة">−</button></div>
        <p class="hint" style="text-align:center">يظهر تنبيه عند انخفاض الكمية عن ${fmt(c.low)}. تُخصم الكمية تلقائيًا عند تسجيل البيع، وتُضاف عند تسجيل المرتجع.</p>
@@ -1395,7 +1411,7 @@ function renderPerfume(){
       <h2 class="sec">الأسعار والربحية</h2>
       <div class="stats">
         ${stat("سعر البيع للعميل", c.sell, "sell", { hl: true, sub: c.perMl != null ? `<span class="t-sell">سعر المل: ${numH(c.perMl)} ر.س</span>` : "" })}
-        ${stat("سعر البيع للموزع", c.resell, "resell", { sub: resMargin != null ? `<span class="muted">هامش الموزع ${pctH(resMargin)}</span>` : "" })}
+        ${stat("سعر البيع للموزع", c.resell, "resell", { sub: c.resGain != null ? `<span class="muted">ربح الموزع ${numH(c.resGain)} ر.س (${pctH(c.resGainPct)})${toNum(p.suggestedPrice) != null ? `<br>بسعر البيع المقترح ${numH(c.retailS)} ر.س` : ""}</span>` : "" })}
         ${stat("سعر الشراء", c.cost, "cost", { sub: links.length > 1 ? '<span class="muted">من أقل مورد سعرًا</span>' : "" })}
         ${hasExtras ? stat("إجمالي تكلفة القطعة", c.fullD, "cost", { wide: true, sub: `<span class="muted">${parts}</span>` }) : ""}
         ${stat("صافي الربح من القطعة (عميل)", c.profit, mClass(c.margin) || "good", { sub: c.margin != null ? `هامش الربح ${pctH(c.margin)}` : "", cls: mClass(c.margin) })}
@@ -1427,18 +1443,18 @@ function resellerPricing(){
   const ps = S.perfumes.filter(p => toNum(p.resellerPrice) != null).sort(byName);
   if (!ps.length) return `<section class="panel"><h2 class="sec">تسعير الموزعين</h2><p class="r-empty">لم يُحدَّد سعر البيع للموزع لأي عطر. أضفه من «تعديل البيانات» في صفحة العطر.</p></section>`;
   return `<section class="panel"><h2 class="sec">تسعير الموزعين</h2>
-    <p class="hint" style="margin-top:4px">لكل قطعة: سعر الشراء من المورد، وصافي ربحنا عند البيع للموزع، وربح الموزع عند البيع بسعر البيع للعميل.</p>
+    <p class="hint" style="margin-top:4px">لكل قطعة: سعر الشراء من المورد، وصافي ربحنا عند البيع للموزع، وربح الموزع عند البيع بالسعر المقترح عليه. يظهر سعر البيع للموزع والسعر المقترح وربح الموزع في كتالوج الموزعين.</p>
     <div class="rows" style="margin-top:6px">${ps.map(p => {
       const c = calc(p);
-      const rm = c.sell != null ? c.sell - c.resell : null, rmp = rm != null ? rm / c.sell * 100 : null;
+      const rm = c.resGain, rmp = c.resGainPct;
       return `<button type="button" class="row" data-act="open-perfume" data-id="${esc(p.id)}" style="width:100%;border-inline:0;border-bottom:0;background:transparent;text-align:start;flex-wrap:wrap;cursor:pointer">
-        <div class="r-main" style="min-width:150px"><span class="r-name">${esc(p.name)}</span><span class="r-sub">سعر الشراء: <b class="t-cost">${c.cost != null ? numH(c.cost) + " ر.س" : "غير محدد"}</b> · سعر البيع للموزع: <b class="t-resell">${numH(c.resell)} ر.س</b></span></div>
+        <div class="r-main" style="min-width:150px"><span class="r-name">${esc(p.name)}</span><span class="r-sub">سعر الشراء: <b class="t-cost">${c.cost != null ? numH(c.cost) + " ر.س" : "غير محدد"}</b> · سعر البيع للموزع: <b class="t-resell">${numH(c.resell)} ر.س</b>${c.retailS != null ? ` · السعر المقترح: <b class="t-sell">${numH(c.retailS)} ر.س</b>` : ""}</span></div>
         <div style="display:grid;gap:2px;text-align:end;font-size:13.5px">
           <span>صافي ربحنا: <b class="${c.rProfit == null ? "muted" : c.rProfit < 0 ? "t-bad" : "t-good"}">${c.rProfit != null ? numH(c.rProfit) + " ر.س" : "غير محدد"}</b>${c.rMargin != null ? ` <span class="${mClass(c.rMargin)}">(${pctH(c.rMargin)})</span>` : ""}</span>
           <span>ربح الموزع: <b class="t-resell">${rm != null ? numH(rm) + " ر.س" : "غير محدد"}</b>${rmp != null ? ` <span class="muted">(${pctH(rmp)})</span>` : ""}</span>
         </div></button>`;
     }).join("")}</div>
-    <p class="hint">صافي ربحنا محسوب بعد خصم تكلفة التغليف والتكاليف الخاصة بالعطر. ربح الموزع = سعر البيع للعميل − سعر البيع للموزع، وتُحتسب النسب من سعر البيع.</p></section>`;
+    <p class="hint">صافي ربحنا محسوب بعد خصم تكلفة التغليف والتكاليف الخاصة بالعطر. ربح الموزع = السعر المقترح − سعر البيع للموزع، ويُستخدم سعر البيع للعميل إذا لم يُحدَّد سعر مقترح. تُحتسب النسب من سعر البيع.</p></section>`;
 }
 function renderSales(){
   const box = $("#v-sales");
@@ -1467,7 +1483,7 @@ function renderSales(){
     const rs = S.resellers.map(r => ({ r, b: resellerBalance(r.id) })).sort((a, b) => b.b.owed - a.b.owed || byName(a.r, b.r));
     const totOwed = sum(rs.map(x => Math.max(x.b.owed, 0)));
     box.innerHTML = `${seg}
-      ${rs.length ? `<div class="sum"><span>عدد الموزعين: <b class="num">${rs.length}</b></span><span>إجمالي المستحق: <b class="t-warn">${numH(totOwed)}</b> ر.س</span>${S.settings.catEnabled && S.settings.catToken ? `<button type="button" class="btn ghost small" data-act="copy-catalog" style="margin-inline-start:auto">${I.link}نسخ رابط الكتالوج</button>` : ""}</div>
+      ${rs.length ? `<div class="sum"><span>عدد الموزعين: <b class="num">${rs.length}</b></span><span>إجمالي المستحق: <b class="t-warn">${numH(totOwed)}</b> ر.س</span>${S.settings.catEnabled && S.settings.catToken ? `<span class="btnrow" style="margin:0 0 0 0;margin-inline-start:auto"><a class="btn ghost small" href="${esc(catalogUrl(S.settings.catToken))}" target="_blank" rel="noopener noreferrer">${I.eye}معاينة الكتالوج</a><button type="button" class="btn ghost small" data-act="copy-catalog">${I.link}نسخ الرابط</button></span>` : ""}</div>
       <div class="slist">${rs.map(({ r, b }) => {
         const wa = waDigits(r.whatsapp || r.phone);
         return `<article class="scard"><button type="button" class="s-open" data-act="open-reseller" data-id="${esc(r.id)}"><div><div class="s-name">${esc(r.name)}${b.owed > 0.004 ? `<span class="chip warn">مستحق: ${numH(b.owed)} ر.س</span>` : b.ops ? '<span class="chip good">لا توجد مستحقات</span>' : ""}</div><div class="s-sub">${[r.city ? esc(r.city) : "", b.ops ? `استلم ${piecesTxt(b.units)} بقيمة ${numH(b.took - b.returned)} ر.س` : "لا توجد عمليات"].filter(Boolean).join(" · ")}</div></div>${I.chev}</button>
@@ -1810,7 +1826,7 @@ function renderSettings(){
         ${field("c_title", "عنوان الكتالوج", inp("c_title", st.catTitle, 'autocomplete="off"'))}
         ${field("c_note", "نص تعريفي يظهر أسفل العنوان", `<textarea class="inp" id="c_note" name="c_note" placeholder="طريقة الطلب، الحد الأدنى للكمية، التوصيل…">${esc(st.catNote)}</textarea>`)}
         ${field("c_phone", "رقم واتساب لاستقبال الطلبات", inp("c_phone", st.catPhone, 'type="tel" inputmode="tel" dir="ltr" autocomplete="off" placeholder="05xxxxxxxx"'), "يظهر أسفل كل عطر زر «طلب» يفتح محادثة واتساب مع هذا الرقم.")}
-        <label class="check"><input type="checkbox" id="c_retail" ${st.catRetail ? "checked" : ""}>إظهار سعر البيع للعميل (كسعر بيع مقترح للموزع)</label>
+        <label class="check"><input type="checkbox" id="c_retail" ${st.catRetail ? "checked" : ""}>إظهار سعر البيع المقترح وربح الموزع المتوقع لكل عطر</label>
         <div class="field"><span class="f-label">رابط الكتالوج</span>
           ${tok ? `<div class="linkbox"><code id="c_url">${esc(catalogUrl(tok))}</code><button type="button" class="icon-btn" data-act="copy-catalog" aria-label="نسخ الرابط">${I.copy}</button></div>
           <div class="btnrow"><a class="btn ghost small" href="${esc(catalogUrl(tok))}" target="_blank" rel="noopener noreferrer">${I.eye}معاينة</a><button type="button" class="btn danger small" data-act="cat-newtoken">إنشاء رابط جديد</button></div>
@@ -1839,7 +1855,7 @@ function renderSettings(){
   $("#catForm", box).addEventListener("submit", async e => {
     e.preventDefault();
     const f = e.currentTarget, btn = f.querySelector("button[type=submit]"), err = $("#cat_err");
-    const row = { catalog_enabled: $("#c_on").checked, catalog_title: f.c_title.value.trim() || "كتالوج العطور", catalog_note: f.c_note.value.trim(), catalog_phone: f.c_phone.value.trim(), catalog_show_retail: $("#c_retail").checked };
+    const row = { catalog_enabled: $("#c_on").checked, catalog_title: f.c_title.value.trim() || "كتالوج العطور", catalog_note: f.c_note.value.trim(), catalog_phone: f.c_phone.value.trim(), catalog_show_suggested: $("#c_retail").checked };
     if (!S.settings.catToken) row.catalog_token = newToken();
     err.hidden = true; btn.disabled = true;
     try { await q(sb.from("app_settings").update(row).eq("id", 1)); toast(row.catalog_enabled ? "تم الحفظ، والرابط مفعّل" : "تم الحفظ، والرابط غير مفعّل"); await reload(); box.dataset.built = ""; renderSettings(); }
@@ -2095,6 +2111,8 @@ function perfumeForm(p, pre = {}){
       ${field("f_sell", '<span class="t-sell">سعر البيع للعميل (ر.س)</span>', numInp("f_sell", p.sellPrice, "650"))}
       ${field("f_resell", '<span class="t-resell">سعر البيع للموزع (ر.س)</span>', numInp("f_resell", p.resellerPrice, "580"))}
     </div>
+    ${field("f_rsug", '<span class="t-sell">سعر البيع المقترح للموزع (ر.س)</span>', numInp("f_rsug", p.suggestedPrice, "اختياري"), "السعر الذي تقترح على الموزع البيع به لعملائه، ويظهر في الكتالوج. إذا تُرك فارغًا يُستخدم سعر البيع للعميل.")}
+    <div id="f_resinfo"></div>
     <div id="f_sug"></div>
     <div class="grid2">
       ${field("f_stock", "الكمية المتوفرة (قطعة)", numInp("f_stock", p.stock, "اختياري"), "عند إدخالها، تُخصم تلقائيًا مع كل عملية بيع")}
@@ -2114,7 +2132,7 @@ function perfumeForm(p, pre = {}){
     if (stockRaw !== "" && stock == null) throw fail("يجب أن تكون الكمية رقمًا.");
     const row = {
       name, brand: str(fd, "f_brand"), conc: str(fd, "f_conc"), size: toNum(fd.get("f_size")), packaging: str(fd, "f_pack") || PACK[0],
-      sell_price: toNum(fd.get("f_sell")), reseller_price: toNum(fd.get("f_resell")), notes: str(fd, "f_notes"),
+      sell_price: toNum(fd.get("f_sell")), reseller_price: toNum(fd.get("f_resell")), suggested_price: toNum(fd.get("f_rsug")), notes: str(fd, "f_notes"),
       stock, low_stock: toNumZ(fd.get("f_low")), extra_cost: toNumZ(fd.get("f_extra")), in_catalog: !!fd.get("f_incat")
     };
     let newImg = null;
@@ -2137,13 +2155,31 @@ function perfumeForm(p, pre = {}){
     }
   }, f => {
     bindImagePicker(f, img);
+    const resInfo = () => {
+      const fv = formVals();
+      const sell = toNum(fv.f_sell), resell = toNum(fv.f_resell), retail = toNum(fv.f_rsug) ?? sell;
+      const box = $("#f_resinfo", f);
+      if (resell == null) { box.innerHTML = ""; return; }
+      const lines = [];
+      if (p.id) {
+        const c = calc({ ...p, extraCost: fv.f_extra, resellerPrice: fv.f_resell });
+        if (c.rProfit != null) lines.push(`<span>عند البيع للموزع بـ ${numH(resell)} ر.س: صافي ربحك <b class="${c.rProfit < 0 ? "t-bad" : "t-good"}">${numH(c.rProfit)}</b> ر.س للقطعة (${pctH(c.rMargin)})</span>`);
+      }
+      if (retail != null) {
+        const g = retail - resell;
+        lines.push(g > 0 ? `<span>ربح الموزع المتوقع عند البيع بـ ${numH(retail)} ر.س: <b class="t-resell">${numH(g)}</b> ر.س للقطعة (${pctH(g / retail * 100)})</span>`
+          : `<span class="t-bad">تنبيه: سعر البيع للموزع لا يترك له ربحًا عند البيع بـ ${numH(retail)} ر.س.</span>`);
+      }
+      box.innerHTML = lines.length ? `<div class="calcbox" style="display:grid;gap:4px">${lines.join("")}</div>` : "";
+    };
     const upd = () => {
       const fv = formVals();
+      resInfo();
       $("#f_alert", f).innerHTML = marketAlert(fv.f_name, fv.f_size, fv.f_pack);
       if (p.id) {
         const c = calc({ ...p, extraCost: fv.f_extra, sellPrice: fv.f_sell });
         $("#f_sug", f).innerHTML = c.cost != null && c.sugD != null ? `<div class="calcbox">لتحقيق هامش ربح ${fmt(st.target)}%: سعر البيع المقترح للعميل <b class="t-sell">${numH(c.sugD)}</b> ر.س، وللموزع <b class="t-resell">${c.sugR != null ? numH(c.sugR) : "—"}</b> ر.س <button type="button" class="btn ghost small" id="f_usesug">اعتماد الأسعار المقترحة</button></div>` : "";
-        const ub = $("#f_usesug", f); if (ub) ub.onclick = () => { $("#f_sell", f).value = c.sugD; if (c.sugR != null) $("#f_resell", f).value = c.sugR; };
+        const ub = $("#f_usesug", f); if (ub) ub.onclick = () => { $("#f_sell", f).value = c.sugD; if (c.sugR != null) $("#f_resell", f).value = c.sugR; resInfo(); };
       }
     };
     attachSuggest(f, s => {
@@ -2152,6 +2188,7 @@ function perfumeForm(p, pre = {}){
       upd();
     });
     for (const id of ["#f_name", "#f_size", "#f_extra"]) { $(id, f).addEventListener("input", upd); $(id, f).addEventListener("change", upd); }
+    for (const id of ["#f_sell", "#f_resell", "#f_rsug"]) $(id, f).addEventListener("input", resInfo);
     f.querySelectorAll('input[name="f_pack"]').forEach(r => r.addEventListener("change", upd));
     upd();
   });
@@ -2771,7 +2808,7 @@ function buildWorkbook(ExcelJS){
     { h: "العطر", k: "name", w: 28 }, { h: "الحجم (مل)", k: "size", w: 10, fmt: "0" }, { h: "سعر الشراء (ر.س)", k: "cost", w: 14, fmt: MONEY },
     { h: "إجمالي تكلفة القطعة (ر.س)", k: "full", w: 17, fmt: MONEY }, { h: "سعر البيع للموزع (ر.س)", k: "resell", w: 15, fmt: MONEY },
     { h: "صافي ربحنا (ر.س)", k: "our", w: 14, fmt: MONEY }, { h: "هامش ربحنا", k: "ourM", w: 11, fmt: PCT },
-    { h: "سعر البيع للعميل (ر.س)", k: "sell", w: 15, fmt: MONEY }, { h: "ربح الموزع (ر.س)", k: "rp", w: 14, fmt: MONEY }, { h: "نسبة ربح الموزع", k: "rpp", w: 13, fmt: PCT }
+    { h: "سعر البيع المقترح (ر.س)", k: "sell", w: 15, fmt: MONEY }, { h: "ربح الموزع (ر.س)", k: "rp", w: 14, fmt: MONEY }, { h: "نسبة ربح الموزع", k: "rpp", w: 13, fmt: PCT }
   ]);
   const rpList = perfumes.filter(p => toNum(p.resellerPrice) != null);
   rpList.forEach((p, i) => {
@@ -2779,9 +2816,9 @@ function buildWorkbook(ExcelJS){
     wsRP.addRow({ name: p.name || "", size: c.size, cost: c.cost, full: r2(c.fullR), resell: c.resell,
       our: f(`IF(AND(ISNUMBER(E${r}),ISNUMBER(D${r})),E${r}-D${r},"")`, c.rProfit),
       ourM: f(`IF(ISNUMBER(F${r}),F${r}/E${r},"")`, c.rMargin != null ? c.rMargin / 100 : null),
-      sell: c.sell,
-      rp: f(`IF(AND(ISNUMBER(H${r}),ISNUMBER(E${r})),H${r}-E${r},"")`, c.sell != null ? c.sell - c.resell : null),
-      rpp: f(`IF(ISNUMBER(I${r}),I${r}/H${r},"")`, c.sell != null ? (c.sell - c.resell) / c.sell : null) });
+      sell: c.retailS,
+      rp: f(`IF(AND(ISNUMBER(H${r}),ISNUMBER(E${r})),H${r}-E${r},"")`, c.resGain),
+      rpp: f(`IF(ISNUMBER(I${r}),I${r}/H${r},"")`, c.resGainPct != null ? c.resGainPct / 100 : null) });
   });
   finish(wsRP);
   marginColors(wsRP, "G", rpList.length + 1);
@@ -2921,7 +2958,11 @@ async function runCatalog(token){
   if (!data) { body.innerHTML = `<div class="empty">${bottle()}<h2>الرابط غير صالح</h2><p>الكتالوج غير مفعّل أو تم تغيير الرابط. يُرجى طلب الرابط المحدّث من المتجر.</p></div>`; return; }
   document.title = data.title || "كتالوج العطور";
   const wa = waDigits(data.phone || "");
-  head.innerHTML = `<h1>${esc(data.title || "كتالوج العطور")}</h1>${data.note ? `<p>${esc(data.note)}</p>` : ""}${wa ? `<div class="btnrow"><a class="btn primary" href="https://wa.me/${wa}" target="_blank" rel="noopener noreferrer">${I.chat}الطلب عبر واتساب</a></div>` : ""}`;
+  const showGain = !!data.show_retail;
+  head.innerHTML = `<h1>${esc(data.title || "كتالوج العطور")}</h1>${data.note ? `<p>${esc(data.note)}</p>` : ""}${showGain ? `<div class="cat-legend">
+      <span><i class="dot" style="color:var(--c-resell)"></i><b>سعر الموزع:</b> سعر القطعة عند الشراء منّا.</span>
+      <span><i class="dot" style="color:var(--c-sell)"></i><b>سعر البيع المقترح:</b> السعر المقترح لبيع القطعة لعملائك.</span>
+      <span><i class="dot" style="color:var(--good)"></i><b>ربحك المتوقع:</b> الفرق بين السعرين عن كل قطعة.</span></div>` : ""}${wa ? `<div class="btnrow"><a class="btn primary" href="https://wa.me/${wa}" target="_blank" rel="noopener noreferrer">${I.chat}الطلب عبر واتساب</a></div>` : ""}`;
   const items = data.items || [];
   if (!items.length) { body.innerHTML = `<div class="empty">${bottle()}<h2>لا توجد عطور متاحة حاليًا</h2></div>`; return; }
   body.innerHTML = `<div class="tools" style="margin-bottom:12px"><label class="search"><span class="vh">بحث</span>${I.search}<input id="catQ" type="search" placeholder="ابحث باسم العطر أو العلامة التجارية" autocomplete="off"></label></div><div class="grid" id="catGrid"></div>`;
@@ -2930,11 +2971,16 @@ async function runCatalog(token){
     const list = items.filter(it => !t || norm((it.name || "") + " " + (it.brand || "")).includes(t));
     $("#catGrid").innerHTML = list.length ? list.map(it => {
       const meta = [it.brand, it.size ? fmt(Number(it.size)) + " مل" : "", it.conc, it.packaging].filter(Boolean).map(esc).join(" · ");
-      const msg = encodeURIComponent(`السلام عليكم، أرغب في طلب: ${it.name}${it.size ? " " + fmt(Number(it.size)) + " مل" : ""}`);
+      const price = it.price != null ? Number(it.price) : null, retail = it.retail != null ? Number(it.retail) : null;
+      const gain = price != null && retail != null ? retail - price : null;
+      const msg = encodeURIComponent(`السلام عليكم، أرغب في طلب: ${it.name}${it.size ? " " + fmt(Number(it.size)) + " مل" : ""}${price != null ? ` (سعر الموزع ${fmt(price)} ر.س)` : ""}`);
       return `<article class="pcard" style="cursor:default"><div class="pimg">${it.image ? `<img src="${esc(imgUrl(it.image))}" alt="" loading="lazy" data-fb="1">` : bottle()}</div>
         <div class="pbody"><div class="pname">${esc(it.name)}</div><div class="pmeta">${meta || "&nbsp;"}</div>
-        <div class="cat-retail">سعر الموزع</div><div class="cat-price" style="margin-top:0">${it.price != null ? money(Number(it.price)) : '<span class="muted" style="font-size:14px;font-weight:500">السعر عند الطلب</span>'}</div>
-        ${it.retail != null ? `<div class="cat-retail">سعر البيع المقترح للعميل: ${numH(Number(it.retail))} ر.س</div>` : ""}
+        <div class="cp">
+          <div class="cp-row cp-main"><span>سعر الموزع</span>${price != null ? `<b>${numH(price)} <small>ر.س</small></b>` : '<b class="muted" style="font-size:13px">عند الطلب</b>'}</div>
+          ${retail != null ? `<div class="cp-row cp-sug"><span>سعر البيع المقترح</span><b>${numH(retail)} <small>ر.س</small></b></div>` : ""}
+          ${gain != null && gain > 0 ? `<div class="cp-row cp-gain"><span>ربحك المتوقع</span><b>${numH(gain)} <small>ر.س</small></b><em>${pctH(gain / retail * 100)} من سعر البيع</em></div>` : ""}
+        </div>
         <div class="chips">${it.available === false ? '<span class="chip bad">غير متوفر حاليًا</span>' : it.available === true ? '<span class="chip good">متوفر</span>' : ""}</div>
         ${wa && it.available !== false ? `<a class="btn soft small" style="margin-top:8px" href="https://wa.me/${wa}?text=${msg}" target="_blank" rel="noopener noreferrer">${I.chat}طلب</a>` : ""}</div></article>`;
     }).join("") : `<div class="empty" style="grid-column:1/-1"><p>لا توجد نتائج.</p></div>`;
