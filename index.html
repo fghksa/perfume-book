@@ -1285,7 +1285,7 @@ function saleRow(s, o = {}){
   const pay = PAY_SHORT[s.payMethod] ? `<span class="chip cost">${PAY_SHORT[s.payMethod]}</span>` : "";
   const sub = [`${piecesTxt(s.qty)} × ${fmt(Number(s.unitPrice) || 0)} ر.س`, s.customer ? esc(s.customer) : "", o.showDate ? relDay(s.soldOn) : ""].filter(Boolean).join(" · ");
   return `<div class="row"><div class="r-main"><span class="r-name">${esc(s.name)}${s.kind === "return" ? '<span class="chip bad">مرتجع</span>' : ""}${o.hideWho ? "" : ch}${pay}</span><span class="r-sub">${sub}</span></div>
-    <span class="r-price t-sell">${money(tot)}<small class="${pf == null ? "muted" : pf < 0 ? "t-bad" : "t-good"}">${pf == null ? "الربح غير محدد" : (pf < 0 ? "خسارة " : "ربح ") + numH(Math.abs(pf))}</small></span>
+    <span class="r-price t-sell">${money(tot)}<small class="${pf == null ? "muted" : pf < 0 ? "t-bad" : "t-good"}">${pf == null ? "الربح غير محدد" : (s.kind === "return" ? "خُصم من الربح " : pf < 0 ? "خسارة " : "ربح ") + numH(Math.abs(pf))}</small></span>
     <button type="button" class="icon-btn" data-act="edit-sale" data-id="${esc(s.id)}" aria-label="تعديل العملية">${I.edit}</button></div>`;
 }
 
