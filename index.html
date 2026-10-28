@@ -397,6 +397,34 @@ fieldset.field legend{padding:0;margin-bottom:5px}
 .cat-head p{margin:0;color:var(--muted);white-space:pre-wrap}
 .cat-price{font-size:20px;font-weight:800;color:var(--c-resell);margin-top:4px}
 .cat-retail{font-size:13px;color:var(--muted)}
+.pnotes{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+.pnotes span{color:var(--accent);font-weight:700}
+.grp{display:grid;gap:2px}
+.prow{width:100%;background:transparent;border:0;border-top:1px solid var(--line);color:inherit;font:inherit;cursor:pointer;text-align:start}
+.prow:first-child{border-top:0}
+.prow .ic{color:var(--muted);flex:none}
+.grp-h{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px}
+.grp-h h2{margin:0;font-size:19px;font-weight:800}
+.grp-h span{font-size:13.5px;color:var(--muted)}
+.grp-sub{margin:0 0 8px;font-size:13px;color:var(--muted)}
+.ptax{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:14px;margin-top:8px}
+.ptax-k{color:var(--muted);font-size:13px;min-width:96px}
+.tag.note{background:var(--accent-soft);border-color:transparent;color:var(--accent);font-weight:600}
+.np{display:grid;gap:8px}
+.np-sel{display:flex;flex-wrap:wrap;gap:6px;min-height:30px;align-items:center;font-size:14px}
+.np-list{display:grid;gap:6px}
+.np-chips{display:flex;flex-wrap:wrap;gap:6px;padding:2px 0 10px}
+.np-chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:14px;color:var(--ink);min-height:34px;cursor:pointer}
+.np-chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700}
+.np-fam{border:1px solid var(--line);border-radius:10px;padding:0 12px;background:var(--surface)}
+.np-fam summary{padding:11px 0;font-weight:700;cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}
+.np-fam summary::-webkit-details-marker{display:none}
+.np-fam summary::after{content:"+";margin-inline-start:auto;color:var(--muted);font-weight:500;font-size:18px;line-height:1}
+.np-fam[open] summary::after{content:"−"}
+.np-addw{display:grid;gap:8px;border:1px dashed var(--accent);background:var(--accent-soft);border-radius:12px;padding:12px}
+.np-addt{font-size:14px}
+.np-addw .btn{justify-self:start}
+.np-k{background:var(--accent);color:var(--surface);border-radius:999px;font-size:12px;padding:1px 8px;line-height:1.4}
 .cat-legend{display:grid;gap:4px;font-size:13.5px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:4px}
 .cat-legend b{color:var(--ink);font-weight:700}
 .cat-legend .dot{margin-inline-end:6px}
@@ -504,6 +532,11 @@ fieldset.field legend{padding:0;margin-bottom:5px}
           <option value="price">الأقل سعرًا</option>
           <option value="stock">الأقل مخزونًا</option>
         </select>
+      </div>
+      <div class="seg" id="lgSeg" role="group" aria-label="تصنيف العطور" hidden>
+        <button type="button" data-act="lgroup" data-v="" aria-pressed="true">دون تصنيف</button>
+        <button type="button" data-act="lgroup" data-v="note" aria-pressed="false">حسب النوتة</button>
+        <button type="button" data-act="lgroup" data-v="price" aria-pressed="false">حسب السعر</button>
       </div>
       <div class="sum" id="listSum"></div>
       <div id="listBody"><div class="empty"><p>جارٍ تحميل العطور…</p></div></div>
@@ -630,6 +663,51 @@ const PAY = { card: "بطاقة (مدى / Apple Pay)", transfer: "تحويل ب�
 const PAY_SHORT = { card: "بطاقة", transfer: "تحويل بنكي", cash: "نقدًا" };
 const CONC = ["Parfum", "Extrait de Parfum", "EDP", "EDT", "EDC", "زيت عطري", "أخرى"];
 
+/* ---------- التصنيف: العائلات والنوتات العطرية وفئات السعر ---------- */
+const SCENT = [
+  ["عودي", [["Oud", "عود"], ["Oud Oil", "دهن العود"], ["Cambodian Oud", "عود كمبودي"], ["Indian Oud", "عود هندي"], ["Malaysian Oud", "عود ماليزي"], ["Laotian Oud", "عود لاوسي"]]],
+  ["بخوري وراتنجي", [["Incense", "بخور"], ["Frankincense", "لبان"], ["Myrrh", "مر"], ["Benzoin", "جاوي"], ["Labdanum", "لادن"], ["Elemi", "إليمي"]]],
+  ["عنبري وشرقي", [["Amber", "عنبر"], ["Ambergris", "عنبر رمادي"], ["Ambroxan", "أمبروكسان"], ["Amberwood", "خشب العنبر"]]],
+  ["خشبي", [["Sandalwood", "صندل"], ["Cedarwood", "أرز"], ["Vetiver", "فيتيفر"], ["Patchouli", "باتشولي"], ["Cashmere Wood", "خشب الكشمير"], ["Guaiac Wood", "غاياك"], ["Birch", "بتولا"], ["Cypress", "سرو"], ["Rosewood", "خشب الورد"], ["Dry Woods", "أخشاب جافة"]]],
+  ["مسكي", [["White Musk", "مسك أبيض"], ["Tahara Musk", "مسك الطهارة"], ["Black Musk", "مسك أسود"], ["Deer Musk", "مسك الغزال"], ["Clean Musk", "مسك نظيف"], ["Ambrette", "أمبريت"]]],
+  ["زهري", [["Rose", "ورد"], ["Taif Rose", "ورد طائفي"], ["Damask Rose", "ورد دمشقي"], ["Bulgarian Rose", "ورد بلغاري"], ["Jasmine", "ياسمين"], ["Jasmine Sambac", "ياسمين سامباك"], ["Lily", "زنبق"], ["Lily of the Valley", "زنبق الوادي"], ["Iris", "سوسن"], ["Violet", "بنفسج"], ["Orchid", "أوركيد"], ["Narcissus", "نرجس"], ["Tuberose", "تيوبروز"], ["Gardenia", "غاردينيا"], ["Peony", "فاوانيا"], ["Magnolia", "ماغنوليا"], ["Orange Blossom", "زهر البرتقال"], ["Neroli", "نيرولي"], ["Ylang-Ylang", "إيلانغ إيلانغ"], ["Lilac", "ليلك"], ["Osmanthus", "أوسمانثوس"], ["Freesia", "فريزيا"]]],
+  ["حمضي", [["Bergamot", "برغموت"], ["Lemon", "ليمون"], ["Orange", "برتقال"], ["Bitter Orange", "برتقال مر"], ["Mandarin", "يوسفي"], ["Grapefruit", "جريب فروت"], ["Lime", "ليم"], ["Yuzu", "يوزو"], ["Petitgrain", "بتي غرين"]]],
+  ["فواكهي", [["Apple", "تفاح"], ["Pear", "كمثرى"], ["Peach", "خوخ"], ["Apricot", "مشمش"], ["Pineapple", "أناناس"], ["Berries", "توت"], ["Raspberry", "توت أحمر"], ["Blackcurrant", "كشمش أسود"], ["Fig", "تين"], ["Pomegranate", "رمان"], ["Coconut", "جوز الهند"], ["Plum", "برقوق"], ["Lychee", "ليتشي"], ["Mango", "مانجو"], ["Cherry", "كرز"], ["Melon", "شمام"], ["Watermelon", "بطيخ"]]],
+  ["توابل", [["Saffron", "زعفران"], ["Cardamom", "هيل"], ["Cinnamon", "قرفة"], ["Pink Pepper", "فلفل وردي"], ["Black Pepper", "فلفل أسود"], ["Ginger", "زنجبيل"], ["Clove", "قرنفل"], ["Nutmeg", "جوزة الطيب"], ["Anise", "يانسون"], ["Cumin", "كمون"], ["Coriander", "كزبرة"]]],
+  ["حلو (جورماند)", [["Vanilla", "فانيلا"], ["Caramel", "كراميل"], ["Chocolate", "شوكولاتة"], ["Cacao", "كاكاو"], ["Coffee", "قهوة"], ["Honey", "عسل"], ["Tonka Bean", "تونكا"], ["Praline", "برالين"], ["Candy", "حلوى"], ["Almond", "لوز"], ["Milk", "حليب"]]],
+  ["عشبي وأخضر", [["Lavender", "لافندر"], ["Mint", "نعناع"], ["Basil", "ريحان"], ["Rosemary", "إكليل الجبل"], ["Sage", "مريمية"], ["Chamomile", "بابونج"], ["Tea", "شاي"], ["Green Tea", "شاي أخضر"], ["Green Leaves", "أوراق خضراء"], ["Cut Grass", "عشب مقطوع"], ["Galbanum", "غالبانوم"], ["Oakmoss", "طحلب السنديان"]]],
+  ["منعش ومائي", [["Aquatic", "مائي"], ["Sea Breeze", "نسيم البحر"], ["Sea Salt", "ملح البحر"], ["Ozonic", "أوزوني"], ["Cucumber", "خيار"], ["Aldehydes", "ألدهيدات"]]],
+  ["جلدي ودخاني", [["Leather", "جلد"], ["Suede", "جلد سويدي"], ["Tobacco", "تبغ"], ["Smoke", "دخان"], ["Birch Tar", "قطران"]]],
+  ["بودري", [["Powdery", "بودرة"], ["Orris", "أوريس"], ["Heliotrope", "هليوتروب"]]]
+];
+const NOTE_UNKNOWN = "غير معروفة", FAM_OTHER = "نوتات أخرى";
+const FAMS = SCENT.map(x => x[0]);
+const NOTE_BASE_COUNT = SCENT.reduce((n, [, ns]) => n + ns.length, 0);
+// خريطة النوتة ← العائلة، والنوتة ← الاسم العربي (للبحث). تشمل القائمة الأساسية والنوتات الإضافية
+const NOTE_FAM = new Map(), NOTE_AR = new Map();
+function applyCustomNotes(list){
+  NOTE_FAM.clear(); NOTE_AR.clear();
+  for (const [f, ns] of SCENT) for (const [en, ar] of ns) { NOTE_FAM.set(en, f); NOTE_AR.set(en, ar); }
+  for (const c of list || []) {
+    if (!NOTE_FAM.has(c.name)) NOTE_FAM.set(c.name, FAMS.includes(c.fam) ? c.fam : FAM_OTHER);
+    if (c.ar && !NOTE_AR.has(c.name)) NOTE_AR.set(c.name, c.ar);
+  }
+}
+const famOf = n => NOTE_FAM.get(n) || FAM_OTHER;
+applyCustomNotes([]);
+const knownNotes = p => (p.scent || []).filter(n => n !== NOTE_UNKNOWN);
+const famsOf = p => [...new Set(knownNotes(p).map(famOf))];
+// فئات السعر حسب سعر البيع للعميل
+const PRICE_TIERS = [
+  { max: 300, label: "أقل من 300 ر.س" },
+  { max: 500, label: "من 300 إلى 499 ر.س" },
+  { max: 750, label: "من 500 إلى 749 ر.س" },
+  { max: 1000, label: "من 750 إلى 999 ر.س" },
+  { max: 1500, label: "من 1,000 إلى 1,499 ر.س" },
+  { max: Infinity, label: "1,500 ر.س فأكثر" }
+];
+const priceTier = v => { if (v == null) return { i: PRICE_TIERS.length, label: "دون سعر بيع" }; const i = PRICE_TIERS.findIndex(t => v < t.max); return { i, label: PRICE_TIERS[i].label }; };
+
 const svg = (d, extra = "") => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"${extra}>${d}</svg>`;
 const ST = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
 const I = {
@@ -729,10 +807,10 @@ const DEFAULT_SETTINGS = { pack: 0, ship: 0, fee: 0, target: 30, low: 2, catEnab
 const S = {
   user: null, member: null, members: [], channel: null, live: false,
   perfumes: [], suppliers: [], shops: [], items: [], groups: new Map(),
-  resellers: [], sales: [], payments: [], supNotes: [], watch: [], history: [],
+  resellers: [], sales: [], payments: [], supNotes: [], watch: [], history: [], customNotes: [],
   settings: { ...DEFAULT_SETTINGS }, loaded: false,
   view: "home", id: null, stack: [], scroll: {},
-  q: "", sq: "", mq: "", sort: ls.get("sort") || "new", msort: ls.get("msort") || "seen", msub: "items", ssub: "sales", month: thisMonth(),
+  q: "", sq: "", mq: "", sort: ls.get("sort") || "new", lgroup: ls.get("lgroup") || "", msort: ls.get("msort") || "seen", msub: "items", ssub: "sales", month: thisMonth(),
   lastShop: ls.get("lastShop") || "", calcPre: null
 };
 $("#sort").value = S.sort;
@@ -899,7 +977,7 @@ async function reload(){
   reloading = true;
   try {
     const memQ = isOwner() ? sb.from("members").select("*").order("created_at") : sb.from("members").select("*").eq("user_id", S.user.id);
-    const [p, s, ln, sh, mi, mem, rs, sl, pay, sn, wl, ph, st] = await Promise.all([
+    const [p, s, ln, sh, mi, mem, rs, sl, pay, sn, wl, ph, st, cn] = await Promise.all([
       q(sb.from("perfumes").select("*")),
       q(sb.from("suppliers").select("*")),
       q(sb.from("perfume_suppliers").select("*")),
@@ -912,7 +990,8 @@ async function reload(){
       q(sb.from("supplier_notes").select("*")),
       q(sb.from("watchlist").select("*")),
       q(sb.from("price_history").select("perfume_id,kind,supplier_id,price,at").order("at")),
-      q(sb.from("app_settings").select("*").eq("id", 1).maybeSingle())
+      q(sb.from("app_settings").select("*").eq("id", 1).maybeSingle()),
+      q(sb.from("custom_notes").select("*")).catch(() => [])
     ]);
     const me = mem.find(r => r.user_id === S.user.id);
     if (!me || me.status !== "active") { S.member = me || null; reloading = false; reloadAgain = false; checkMember(); return; }
@@ -925,7 +1004,7 @@ async function reload(){
     const ts = r => ({ createdAt: Date.parse(r.created_at), updatedAt: Date.parse(r.updated_at), updatedBy: r.updated_by_email });
     S.perfumes = p.map(r => ({
       id: r.id, name: r.name, brand: r.brand, conc: r.conc, size: r.size, packaging: r.packaging || PACK[0],
-      sellPrice: r.sell_price, resellerPrice: r.reseller_price, suggestedPrice: r.suggested_price ?? null, notes: r.notes, image: r.image_path,
+      sellPrice: r.sell_price, resellerPrice: r.reseller_price, suggestedPrice: r.suggested_price ?? null, scent: Array.isArray(r.scent_notes) ? r.scent_notes : [], notes: r.notes, image: r.image_path,
       stock: r.stock, lowStock: r.low_stock, extraCost: r.extra_cost, inCatalog: r.in_catalog !== false, ...ts(r),
       suppliers: (linksBy[r.id] || []).map(x => ({ id: x.supplier_id, price: x.price }))
     }));
@@ -946,6 +1025,8 @@ async function reload(){
     }));
     S.payments = pay.map(r => ({ id: r.id, resellerId: r.reseller_id, amount: r.amount, paidOn: r.paid_on, notes: r.notes, method: r.method || "", ...ts(r) }));
     S.supNotes = sn.map(r => ({ id: r.id, supplierId: r.supplier_id, notedOn: r.noted_on, note: r.note, ...ts(r) }));
+    S.customNotes = (cn || []).map(r => ({ id: r.id, name: r.name, ar: r.name_ar || "", fam: FAMS.includes(r.family) ? r.family : FAM_OTHER, ...ts(r) })).sort((a, b) => a.name.localeCompare(b.name));
+    applyCustomNotes(S.customNotes);
     S.watch = wl.map(r => ({ id: r.id, key: r.perfume_key, name: r.perfume_name, brand: r.brand, note: r.note, ...ts(r) }));
     S.history = ph.map(r => ({ perfumeId: r.perfume_id, kind: r.kind, supplierId: r.supplier_id, price: r.price == null ? null : Number(r.price), at: Date.parse(r.at) }));
     S.settings = st ? {
@@ -1017,7 +1098,7 @@ async function checkMember(){
     return;
   }
   S.loaded = false; S.perfumes = []; S.suppliers = []; S.shops = []; S.items = []; S.groups = new Map(); S.members = [];
-  S.resellers = []; S.sales = []; S.payments = []; S.supNotes = []; S.watch = []; S.history = [];
+  S.resellers = []; S.sales = []; S.payments = []; S.supNotes = []; S.watch = []; S.history = []; S.customNotes = [];
   closeSheet();
   showPending(broken ? "setup" : !m ? "none" : m.status === "removed" ? "removed" : "pending");
   startRealtime();
@@ -1230,6 +1311,7 @@ function cardHTML(p){
     <div class="pbody">
       <div class="pname">${esc(p.name || "دون اسم")}</div>
       <div class="pmeta">${meta || "&nbsp;"}</div>
+      ${(() => { const kn = knownNotes(p); return kn.length ? `<div class="pnotes" dir="ltr" title="${esc(kn.join(", "))}">${esc(kn.slice(0, 3).join(" · "))}${kn.length > 3 ? ` <span>+${kn.length - 3}</span>` : ""}</div>` : ""; })()}
       <div class="pprice">${c.sell != null ? money(c.sell) : '<span class="muted" style="font-size:14px;font-weight:500">لم يُحدَّد سعر البيع</span>'}</div>
       <div class="pmkt">${c.mMin != null ? `السوق: ${rangeH(c.mMin, c.mMax)}` : c.mk.all.length ? "مسجل في السوق بحجم مختلف" : '<span class="muted">لا توجد أسعار سوق</span>'}</div>
       ${chips.length ? `<div class="chips">${chips.join("")}</div>` : ""}
@@ -1240,6 +1322,8 @@ function renderList(){
   const body = $("#listBody"), sumEl = $("#listSum");
   if (!S.loaded) return;
   $("#listTools").hidden = !S.perfumes.length;
+  $("#lgSeg").hidden = !S.perfumes.length;
+  for (const b of $("#lgSeg").querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.v === S.lgroup));
   if (!S.perfumes.length) {
     sumEl.innerHTML = "";
     body.innerHTML = `<div class="empty">${bottle()}<h2>لا توجد عطور بعد</h2><p>أضف العطر مع صورته وسعر بيعه، ثم حدّد المورد وسعر الشراء لاحتساب الربح.</p><button type="button" class="btn primary" data-act="add-perfume">${I.plus}إضافة عطر</button></div>`;
@@ -1247,7 +1331,7 @@ function renderList(){
   }
   const qs = norm(S.q);
   let arr = S.perfumes.map(p => ({ p, c: calc(p) }));
-  if (qs) arr = arr.filter(({ p }) => norm([p.name, p.brand, p.conc, p.notes].join(" ")).includes(qs));
+  if (qs) arr = arr.filter(({ p }) => norm([p.name, p.brand, p.conc, p.notes, (p.scent || []).join(" "), (p.scent || []).map(n => NOTE_AR.get(n) || "").join(" "), famsOf(p).join(" ")].join(" ")).includes(qs));
   const by = {
     new: (a, b) => (b.p.createdAt || 0) - (a.p.createdAt || 0),
     name: (a, b) => byName(a.p, b.p),
@@ -1260,7 +1344,37 @@ function renderList(){
   const ms = S.perfumes.map(calc).map(c => c.margin).filter(m => m != null);
   const avgM = avg(ms);
   sumEl.innerHTML = `<span>عدد العطور: <b class="num">${S.perfumes.length}</b></span>${avgM != null ? `<span>متوسط هامش الربح: <b>${pctH(avgM)}</b></span>` : ""}`;
-  body.innerHTML = arr.length ? `<div class="grid">${arr.map(x => cardHTML(x.p)).join("")}</div>` : `<div class="empty"><p>لا توجد نتائج مطابقة لـ «${esc(S.q)}».</p></div>`;
+  if (!arr.length) { body.innerHTML = `<div class="empty"><p>لا توجد نتائج مطابقة لـ «${esc(S.q)}».</p></div>`; return; }
+  const grid = items => `<div class="grid">${items.map(x => cardHTML(x.p)).join("")}</div>`;
+  // عرض مختصر داخل التصنيف: صف لكل عطر
+  const prow = ({ p, c }) => {
+    const kn = knownNotes(p);
+    const sub = [c.size ? esc(`${fmt(c.size)} مل`) : "", kn.length ? `<bdi dir="ltr">${esc(kn.join(", "))}</bdi>` : ((p.scent || []).includes(NOTE_UNKNOWN) ? "النوتة غير معروفة" : "")].filter(Boolean).join(" · ");
+    return `<button type="button" class="row prow" data-act="open-perfume" data-id="${esc(p.id)}"><span class="r-thumb">${imgTag(p)}</span><span class="r-main"><span class="r-name">${esc(p.name || "دون اسم")}</span>${sub ? `<span class="r-sub">${sub}</span>` : ""}</span><span class="r-price t-sell">${c.sell != null ? money(c.sell) : '<span class="muted" style="font-size:13px;font-weight:500">دون سعر</span>'}${c.margin != null ? `<small class="${mClass(c.margin)}">هامش ${pctH(c.margin)}</small>` : ""}</span>${I.chev}</button>`;
+  };
+  const sec = (title, n, sub, items) => `<section class="panel grp"><div class="grp-h"><h2>${esc(title)}</h2><span>${nPerf(n)}</span></div>${sub ? `<p class="grp-sub">${sub}</p>` : ""}<div class="rows">${items.map(prow).join("")}</div></section>`;
+  if (S.lgroup === "note") {
+    let out = "";
+    for (const fam of [...SCENT.map(x => x[0]), FAM_OTHER]) {
+      const items = arr.filter(x => famsOf(x.p).includes(fam));
+      if (!items.length) continue;
+      const here = [...new Set(items.flatMap(x => knownNotes(x.p).filter(n => famOf(n) === fam)))];
+      out += sec(fam, items.length, `<bdi dir="ltr">${esc(here.join(", "))}</bdi>`, items);
+    }
+    const unk = arr.filter(x => !knownNotes(x.p).length && (x.p.scent || []).includes(NOTE_UNKNOWN));
+    const none = arr.filter(x => !(x.p.scent || []).length);
+    if (unk.length) out += sec("النوتة غير معروفة", unk.length, "", unk);
+    if (none.length) out += sec("لم تُحدَّد النوتات", none.length, "حدّد نوتات العطر من «تعديل البيانات» في صفحته.", none);
+    const multi = arr.some(x => famsOf(x.p).length > 1);
+    body.innerHTML = (multi ? '<p class="hint" style="margin:0 0 4px">يظهر العطر تحت كل عائلة عطرية تنتمي إليها نوتاته.</p>' : "") + out;
+  } else if (S.lgroup === "price") {
+    const tiers = new Map();
+    for (const x of arr) { const t = priceTier(x.c.sell); (tiers.get(t.i) || tiers.set(t.i, { t, items: [] }).get(t.i)).items.push(x); }
+    body.innerHTML = '<p class="hint" style="margin:0 0 4px">التصنيف حسب سعر البيع للعميل.</p>' + [...tiers.values()].sort((a, b) => a.t.i - b.t.i).map(({ t, items }) => {
+      const m = avg(items.map(x => x.c.margin).filter(v => v != null));
+      return sec(t.label, items.length, m != null ? `متوسط هامش الربح: <b class="${mClass(m)}">${pctH(m)}</b>` : "", items);
+    }).join("");
+  } else body.innerHTML = grid(arr);
 }
 
 function stat(k, v, role, opts = {}){
@@ -1403,6 +1517,9 @@ function renderPerfume(){
         <div class="eyebrow">${esc(p.brand || "دون علامة تجارية")}</div>
         <h1 class="ptitle">${esc(p.name || "دون اسم")}</h1>
         <div class="tags">${p.conc ? `<span class="tag">${esc(p.conc)}</span>` : ""}${c.size ? `<span class="tag"><span class="num">${fmt(c.size)}</span> مل</span>` : ""}<span class="tag">${esc(p.packaging)}</span>${!p.inCatalog ? '<span class="tag muted">مخفي من كتالوج الموزعين</span>' : ""}</div>
+        <div class="ptax"><span class="ptax-k">النوتات العطرية</span><div class="tags">${knownNotes(p).length ? knownNotes(p).map(n => `<span class="tag note" dir="ltr" title="${esc((NOTE_AR.get(n) ? NOTE_AR.get(n) + " · " : "") + famOf(n))}">${esc(n)}</span>`).join("") : `<span class="tag muted">${(p.scent || []).includes(NOTE_UNKNOWN) ? "غير معروفة" : "لم تُحدَّد"}</span>`}</div></div>
+        ${famsOf(p).length ? `<div class="ptax"><span class="ptax-k">العائلة العطرية</span><span>${esc(famsOf(p).join("، "))}</span></div>` : ""}
+        <div class="ptax"><span class="ptax-k">فئة السعر</span><span>${esc(priceTier(c.sell).label)}</span></div>
         ${editedLine(p)}
         <div class="btnrow"><button type="button" class="btn primary" data-act="add-sale-perfume">${I.cart}تسجيل بيع</button><button type="button" class="btn ghost" data-act="edit-perfume">${I.edit}تعديل البيانات</button></div>
       </div>
@@ -1790,7 +1907,7 @@ function renderSettings(){
   const box = $("#v-settings");
   if (!S.loaded) { box.innerHTML = loadingHTML("جارٍ التحميل…"); return; }
   const nPend = isOwner() ? S.members.filter(m => m.status === "pending").length : 0;
-  if (box.dataset.built === "1") { const tb = $("#set_team_n"); if (tb) tb.textContent = nPend ? `(${nPend} طلب)` : ""; return; }
+  if (box.dataset.built === "1") { const tb = $("#set_team_n"); if (tb) tb.textContent = nPend ? `(${nPend} طلب)` : ""; renderNotesBox(); return; }
   box.dataset.built = "1";
   const st = S.settings, th = currentTheme();
   const tok = st.catToken;
@@ -1838,9 +1955,14 @@ function renderSettings(){
         <button type="submit" class="btn primary">حفظ</button>
       </form>
     </section>
+    <section class="panel"><div class="sec-row" style="margin:0"><h2 class="sec">النوتات الإضافية</h2><button type="button" class="btn ghost small" data-act="add-note">${I.plus}إضافة نوتة</button></div>
+      <p class="hint" style="margin-top:4px">نوتات تضيفها إلى القائمة الأساسية (${NOTE_BASE_COUNT} نوتة). تظهر ضمن العائلة التي تحددها عند اختيار نوتات أي عطر، ويمكن أيضًا إضافتها مباشرة من نموذج العطر بكتابة اسمها في البحث.</p>
+      <div id="set_notes"></div>
+    </section>
     ${isOwner() ? `<section class="panel"><div class="sec-row" style="margin:0"><h2 class="sec">الفريق <span class="muted" id="set_team_n" style="font-size:14px;font-weight:500">${nPend ? `(${nPend} طلب)` : ""}</span></h2><button type="button" class="btn ghost small" data-act="team">${I.users}إدارة الفريق</button></div></section>` : ""}
     <section class="panel"><div class="sec-row" style="margin:0"><h2 class="sec">البيانات</h2><button type="button" class="btn ghost small" data-act="export"><span class="t-good">${I.sheet}</span>تصدير إلى Excel</button></div><p class="hint">تنزيل ملف Excel يتضمن جميع البيانات: العطور، والمبيعات، والموزعين، والموردين، وأسعار السوق.</p></section>
     <section class="panel"><div class="sec-row" style="margin:0"><div><h2 class="sec">الحساب</h2><span class="muted" style="font-size:14px"><bdi dir="ltr">${esc(S.user ? S.user.email : "")}</bdi></span></div><button type="button" class="btn danger small" data-act="logout">تسجيل الخروج</button></div></section>`;
+  renderNotesBox();
   $("#costForm", box).addEventListener("submit", async e => {
     e.preventDefault();
     const f = e.currentTarget, btn = f.querySelector("button[type=submit]"), err = $("#cost_err");
@@ -2091,6 +2213,129 @@ function marketAlert(name, size, pack, excludeId){
   </div>`;
 }
 
+
+/* ---------- اختيار النوتات العطرية ---------- */
+const famOptions = sel => [...FAMS, FAM_OTHER].map(x => `<option value="${esc(x)}"${x === sel ? " selected" : ""}>${esc(x === FAM_OTHER ? "دون عائلة (نوتات أخرى)" : x)}</option>`).join("");
+const notePicker = () => `<fieldset class="field np"><legend class="f-label">النوتات العطرية</legend>
+  <div class="np-sel" id="np_sel"></div>
+  <input class="inp" id="np_q" type="search" placeholder="ابحث بالعربي أو الإنجليزي، مثل: Oud أو عود" autocomplete="off" enterkeyhint="done">
+  <div class="np-list" id="np_list"></div>
+  <div class="np-addw" id="np_addw" hidden>
+    <span class="np-addt" id="np_addt"></span>
+    <div class="grid2">
+      <label class="field" for="np_fam"><span class="f-label">العائلة العطرية</span><select class="inp" id="np_fam">${famOptions(FAM_OTHER)}</select></label>
+      <label class="field" for="np_ar"><span class="f-label">الاسم بالعربي (اختياري)</span><input class="inp" id="np_ar" autocomplete="off" placeholder="للبحث بالعربي"></label>
+    </div>
+    <button type="button" class="btn primary small" id="np_add">+ إضافة النوتة إلى القائمة</button>
+  </div>
+  <label class="check"><input type="checkbox" id="np_unk">نوتة العطر غير معروفة</label>
+  <input type="hidden" name="f_scent" id="f_scent">
+</fieldset>`;
+function bindNotePicker(f, initial){
+  const st = { sel: (initial || []).filter(n => n !== NOTE_UNKNOWN), unk: (initial || []).includes(NOTE_UNKNOWN) && !(initial || []).some(n => n !== NOTE_UNKNOWN), open: new Set() };
+  const selEl = $("#np_sel", f), qi = $("#np_q", f), list = $("#np_list", f), addw = $("#np_addw", f), addBtn = $("#np_add", f), addT = $("#np_addt", f), unk = $("#np_unk", f), hid = $("#f_scent", f);
+  const all = () => [...NOTE_FAM.keys()];
+  const hit = (n, qv) => norm(n).includes(qv) || norm(NOTE_AR.get(n) || "").includes(qv);
+  const same = (n, v) => norm(n) === norm(v) || norm(NOTE_AR.get(n) || "") === norm(v);
+  const famNotes = fam => [...((SCENT.find(x => x[0] === fam) || [, []])[1]).map(([en]) => en), ...S.customNotes.filter(c => c.fam === fam).map(c => c.name)];
+  const chip = n => `<button type="button" class="np-chip${st.sel.includes(n) ? " on" : ""}" dir="ltr" data-n="${esc(n)}" aria-pressed="${st.sel.includes(n)}"${NOTE_AR.get(n) ? ` title="${esc(NOTE_AR.get(n))}"` : ""}>${esc(n)}</button>`;
+  const famBox = (fam, ns, forceOpen) => {
+    const k = ns.filter(n => st.sel.includes(n)).length;
+    return `<details class="np-fam" data-fam="${esc(fam)}"${forceOpen || st.open.has(fam) ? " open" : ""}><summary>${esc(fam)}${k ? `<span class="np-k">${k}</span>` : ""}</summary><div class="np-chips">${ns.map(chip).join("")}</div></details>`;
+  };
+  const draw = () => {
+    hid.value = JSON.stringify(st.unk ? [NOTE_UNKNOWN] : st.sel);
+    unk.checked = st.unk;
+    selEl.innerHTML = st.unk ? '<span class="muted">النوتة غير معروفة</span>'
+      : st.sel.length ? st.sel.map(n => `<button type="button" class="np-chip on" dir="ltr" data-rm="${esc(n)}" aria-label="إزالة ${esc(n)}">${esc(n)} <span aria-hidden="true">×</span></button>`).join("")
+      : '<span class="muted">لم تُحدَّد نوتات. اختر من العائلات أدناه أو ابحث باسم النوتة.</span>';
+    qi.disabled = st.unk;
+    if (st.unk) { list.innerHTML = ""; addw.hidden = true; return; }
+    const v = qi.value.trim(), qv = norm(v);
+    if (qv) {
+      const hits = all().filter(n => hit(n, qv));
+      list.innerHTML = hits.length ? `<div class="np-chips">${hits.map(chip).join("")}</div>` : "";
+      const exact = all().some(n => same(n, v)) || st.sel.some(n => same(n, v));
+      addw.hidden = exact;
+      if (!exact) addT.innerHTML = `${hits.length ? "" : "النوتة غير موجودة في القائمة. "}إضافة <b dir="ltr">${esc(v)}</b> كنوتة جديدة:`;
+    } else {
+      addw.hidden = true;
+      const other = [...new Set([...S.customNotes.filter(c => c.fam === FAM_OTHER).map(c => c.name), ...st.sel.filter(n => !NOTE_FAM.has(n))])];
+      list.innerHTML = FAMS.map(fam => famBox(fam, famNotes(fam))).join("") + (other.length ? famBox(FAM_OTHER, other, true) : "");
+    }
+  };
+  const toggle = n => { st.sel = st.sel.includes(n) ? st.sel.filter(x => x !== n) : [...st.sel, n]; draw(); };
+  const addNote = async () => {
+    const v = qi.value.trim().replace(/\s+/g, " "); if (!v) return;
+    const known = all().find(n => same(n, v));
+    if (known) { if (!st.sel.includes(known)) st.sel = [...st.sel, known]; qi.value = ""; draw(); return; }
+    const fam = $("#np_fam", f).value, ar = $("#np_ar", f).value.trim();
+    addBtn.disabled = true;
+    try {
+      const row = await q(sb.from("custom_notes").insert({ name: v, name_ar: ar, family: fam === FAM_OTHER ? "" : fam }).select("id").single());
+      S.customNotes.push({ id: row.id, name: v, ar, fam }); S.customNotes.sort((a, b) => a.name.localeCompare(b.name));
+      applyCustomNotes(S.customNotes);
+      toast(`تمت إضافة ${v} إلى قائمة النوتات`);
+    } catch (e) { toast(`${errMsg(e)} أُضيفت النوتة لهذا العطر فقط.`); }
+    addBtn.disabled = false;
+    if (!st.sel.includes(v)) st.sel = [...st.sel, v];
+    if (fam !== FAM_OTHER) st.open.add(fam);
+    qi.value = ""; $("#np_ar", f).value = "";
+    draw();
+  };
+  list.addEventListener("click", e => { const b = e.target.closest("[data-n]"); if (b) toggle(b.dataset.n); });
+  list.addEventListener("toggle", e => { const d = e.target; if (d.matches && d.matches("details[data-fam]")) { if (d.open) st.open.add(d.dataset.fam); else st.open.delete(d.dataset.fam); } }, true);
+  selEl.addEventListener("click", e => { const b = e.target.closest("[data-rm]"); if (b) toggle(b.dataset.rm); });
+  qi.addEventListener("input", draw);
+  qi.addEventListener("keydown", e => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    const v = qi.value.trim(); if (!v) return;
+    const hits = all().filter(n => hit(n, norm(v)));
+    if (hits.length === 1) { if (!st.sel.includes(hits[0])) st.sel = [...st.sel, hits[0]]; qi.value = ""; draw(); }
+    else if (!hits.length) $("#np_fam", f).focus();
+  });
+  addBtn.addEventListener("click", addNote);
+  unk.addEventListener("change", () => { st.unk = unk.checked; if (st.unk) { st.sel = []; qi.value = ""; } draw(); });
+  draw();
+}
+
+/* ---------- النوتات الإضافية (في الإعدادات) ---------- */
+function renderNotesBox(){
+  const box = $("#set_notes"); if (!box) return;
+  const use = n => S.perfumes.filter(p => (p.scent || []).includes(n)).length;
+  const adhoc = [...new Set(S.perfumes.flatMap(p => p.scent || []))].filter(n => n !== NOTE_UNKNOWN && !NOTE_FAM.has(n)).sort();
+  box.innerHTML = (S.customNotes.length
+    ? `<div class="rows">${S.customNotes.map(c => `<div class="row"><div class="r-main"><span class="r-name"><bdi dir="ltr">${esc(c.name)}</bdi>${c.ar ? `<span class="muted" style="font-weight:500">${esc(c.ar)}</span>` : ""}</span><span class="r-sub">${esc(c.fam)} · ${use(c.name) ? `مستخدمة في ${nPerf(use(c.name))}` : "غير مستخدمة بعد"}</span></div><button type="button" class="icon-btn" data-act="edit-note" data-id="${esc(c.id)}" aria-label="تعديل النوتة">${I.edit}</button></div>`).join("")}</div>`
+    : '<p class="r-empty">لم تُضف نوتات بعد.</p>')
+    + (adhoc.length ? `<div class="sublabel">نوتات مسجلة في العطور وغير موجودة في القائمة</div><div class="rows">${adhoc.map(n => `<div class="row"><div class="r-main"><span class="r-name"><bdi dir="ltr">${esc(n)}</bdi></span><span class="r-sub">مستخدمة في ${nPerf(use(n))}</span></div><button type="button" class="btn soft small" data-act="adopt-note" data-n="${esc(n)}">إضافة إلى القائمة</button></div>`).join("")}</div>` : "");
+}
+function noteForm(c, preName){
+  const isNew = !c; c = c || {};
+  const html = `
+    ${field("f_nn", 'اسم النوتة بالإنجليزي <i>*</i>', inp("f_nn", c.name ?? preName ?? "", 'dir="ltr" autocomplete="off" placeholder="Oak Wood"'))}
+    ${field("f_nar", "الاسم بالعربي (اختياري)", inp("f_nar", c.ar, 'autocomplete="off" placeholder="خشب البلوط"'), "يُستخدم للبحث عن النوتة بالعربي.")}
+    ${field("f_nfam", "العائلة العطرية", `<select class="inp" id="f_nfam" name="f_nfam">${famOptions(c.fam || FAM_OTHER)}</select>`, "تظهر النوتة ضمن هذه العائلة عند اختيار نوتات أي عطر، وفي التصنيف حسب النوتة.")}
+    ${foot(isNew ? null : "del-note")}`;
+  openSheet(isNew ? "إضافة نوتة" : "تعديل النوتة", html, async fd => {
+    const name = str(fd, "f_nn").replace(/\s+/g, " ");
+    if (!name) throw fail("يُرجى إدخال اسم النوتة.");
+    const clash = [...NOTE_FAM.keys()].find(n => norm(n) === norm(name) && n !== c.name);
+    if (clash) throw fail(`النوتة ${clash} موجودة مسبقًا في القائمة.`);
+    const fam = str(fd, "f_nfam");
+    const row = { name, name_ar: str(fd, "f_nar"), family: fam === FAM_OTHER ? "" : fam };
+    if (isNew) await q(sb.from("custom_notes").insert(row));
+    else {
+      await q(sb.from("custom_notes").update(row).eq("id", c.id));
+      if (name !== c.name) for (const p of S.perfumes.filter(p => (p.scent || []).includes(c.name)))
+        await q(sb.from("perfumes").update({ scent_notes: p.scent.map(n => n === c.name ? name : n) }).eq("id", p.id));
+    }
+    closeSheet(); toast(isNew ? "تمت إضافة النوتة إلى القائمة" : "تم حفظ النوتة"); await reload();
+  }, f => setTimeout(() => { if (!c.name && !preName) $("#f_nn", f).focus(); }, 300));
+  delHandler = async () => { closeSheet(); try { await q(sb.from("custom_notes").delete().eq("id", c.id)); toast("تم حذف النوتة من القائمة"); await reload(); } catch (e) { toast(errMsg(e)); } };
+}
+const parseScent = v => { try { const a = JSON.parse(v || "[]"); return Array.isArray(a) ? a.map(String).filter(Boolean) : []; } catch { return []; } };
+
 /* ---------- forms ---------- */
 function perfumeForm(p, pre = {}){
   const isNew = !p; p = p || {};
@@ -2107,6 +2352,7 @@ function perfumeForm(p, pre = {}){
     </div>
     ${field("f_size", "الحجم (مل)", inp("f_size", v.size ?? "", 'type="text" inputmode="decimal" list="dlSizes" autocomplete="off" placeholder="100"'))}
     ${radios("f_pack", "نوع التعبئة", PACK.map(x => [x, x]), v.packaging)}
+    ${notePicker()}
     <div class="grid2">
       ${field("f_sell", '<span class="t-sell">سعر البيع للعميل (ر.س)</span>', numInp("f_sell", p.sellPrice, "650"))}
       ${field("f_resell", '<span class="t-resell">سعر البيع للموزع (ر.س)</span>', numInp("f_resell", p.resellerPrice, "580"))}
@@ -2132,7 +2378,7 @@ function perfumeForm(p, pre = {}){
     if (stockRaw !== "" && stock == null) throw fail("يجب أن تكون الكمية رقمًا.");
     const row = {
       name, brand: str(fd, "f_brand"), conc: str(fd, "f_conc"), size: toNum(fd.get("f_size")), packaging: str(fd, "f_pack") || PACK[0],
-      sell_price: toNum(fd.get("f_sell")), reseller_price: toNum(fd.get("f_resell")), suggested_price: toNum(fd.get("f_rsug")), notes: str(fd, "f_notes"),
+      sell_price: toNum(fd.get("f_sell")), reseller_price: toNum(fd.get("f_resell")), suggested_price: toNum(fd.get("f_rsug")), scent_notes: parseScent(fd.get("f_scent")), notes: str(fd, "f_notes"),
       stock, low_stock: toNumZ(fd.get("f_low")), extra_cost: toNumZ(fd.get("f_extra")), in_catalog: !!fd.get("f_incat")
     };
     let newImg = null;
@@ -2155,6 +2401,7 @@ function perfumeForm(p, pre = {}){
     }
   }, f => {
     bindImagePicker(f, img);
+    bindNotePicker(f, p.scent || pre.scent || []);
     const resInfo = () => {
       const fv = formVals();
       const sell = toNum(fv.f_sell), resell = toNum(fv.f_resell), retail = toNum(fv.f_rsug) ?? sell;
@@ -2744,7 +2991,8 @@ function buildWorkbook(ExcelJS){
     { h: "أقل سعر في السوق (ر.س)", k: "mMin", w: 16, fmt: MONEY }, { h: "متوسط السوق (ر.س)", k: "mAvg", w: 15, fmt: MONEY },
     { h: "أعلى سعر في السوق (ر.س)", k: "mMax", w: 16, fmt: MONEY }, { h: "الفرق عن متوسط السوق", k: "vsAvg", w: 15, fmt: PCT },
     { h: "عدد المتاجر", k: "nPlaces", w: 11 }, { h: "ضمن الكتالوج", k: "cat", w: 11 },
-    { h: "ملاحظات", k: "notes", w: 36 }, { h: "آخر تعديل", k: "updated", w: 18, fmt: "yyyy-mm-dd hh:mm" }, { h: "بواسطة", k: "by", w: 22 }
+    { h: "ملاحظات", k: "notes", w: 36 }, { h: "آخر تعديل", k: "updated", w: 18, fmt: "yyyy-mm-dd hh:mm" }, { h: "بواسطة", k: "by", w: 22 },
+    { h: "النوتات العطرية", k: "scent", w: 30 }, { h: "العائلة العطرية", k: "fams", w: 22 }, { h: "فئة السعر", k: "tier", w: 20 }
   ]);
   perfumes.forEach((p, i) => {
     const r = i + 2, c = calc(p);
@@ -2758,7 +3006,8 @@ function buildWorkbook(ExcelJS){
       rMargin: f(`IF(ISNUMBER(O${r}),O${r}/H${r},"")`, c.rMargin != null ? c.rMargin / 100 : null),
       mMin: c.mMin, mAvg: r2(c.mAvg), mMax: c.mMax,
       vsAvg: f(`IF(AND(ISNUMBER(G${r}),ISNUMBER(R${r})),(G${r}-R${r})/R${r},"")`, c.vsAvg != null ? c.vsAvg / 100 : null),
-      nPlaces: c.nPlaces, cat: p.inCatalog ? "✓" : "", notes: p.notes || "", updated: localDate(p.updatedAt), by: p.updatedBy || ""
+      nPlaces: c.nPlaces, cat: p.inCatalog ? "✓" : "", notes: p.notes || "", updated: localDate(p.updatedAt), by: p.updatedBy || "",
+      scent: (p.scent || []).join(", "), fams: famsOf(p).join("، "), tier: priceTier(c.sell).label
     });
   });
   finish(wsP, [], [23]);
@@ -2971,13 +3220,14 @@ async function runCatalog(token){
     const list = items.filter(it => !t || norm((it.name || "") + " " + (it.brand || "")).includes(t));
     $("#catGrid").innerHTML = list.length ? list.map(it => {
       const meta = [it.brand, it.size ? fmt(Number(it.size)) + " مل" : "", it.conc, it.packaging].filter(Boolean).map(esc).join(" · ");
+      const sc = (Array.isArray(it.scent) ? it.scent : []).filter(n => n !== NOTE_UNKNOWN);
       const price = it.price != null ? Number(it.price) : null, retail = it.retail != null ? Number(it.retail) : null;
       const gain = price != null && retail != null ? retail - price : null;
       const msg = encodeURIComponent(`السلام عليكم، أرغب في طلب: ${it.name}${it.size ? " " + fmt(Number(it.size)) + " مل" : ""}${price != null ? ` (سعر الموزع ${fmt(price)} ر.س)` : ""}`);
       return `<article class="pcard" style="cursor:default"><div class="pimg">${it.image ? `<img src="${esc(imgUrl(it.image))}" alt="" loading="lazy" data-fb="1">` : bottle()}</div>
-        <div class="pbody"><div class="pname">${esc(it.name)}</div><div class="pmeta">${meta || "&nbsp;"}</div>
+        <div class="pbody"><div class="pname">${esc(it.name)}</div><div class="pmeta">${meta || "&nbsp;"}</div>${sc.length ? `<div class="pnotes" dir="ltr" title="${esc(sc.join(", "))}">${esc(sc.join(" · "))}</div>` : ""}
         <div class="cp">
-          <div class="cp-row cp-main"><span>السعر المطلوب</span>${price != null ? `<b>${numH(price)} <small>ر.س</small></b>` : '<b class="muted" style="font-size:13px">عند الطلب</b>'}</div>
+          <div class="cp-row cp-main"><span>سعر الموزع</span>${price != null ? `<b>${numH(price)} <small>ر.س</small></b>` : '<b class="muted" style="font-size:13px">عند الطلب</b>'}</div>
           ${retail != null ? `<div class="cp-row cp-sug"><span>سعر البيع المقترح</span><b>${numH(retail)} <small>ر.س</small></b></div>` : ""}
           ${gain != null && gain > 0 ? `<div class="cp-row cp-gain"><span>ربحك المتوقع</span><b>${numH(gain)} <small>ر.س</small></b><em>${pctH(gain / retail * 100)} من سعر البيع</em></div>` : ""}
         </div>
@@ -3075,6 +3325,10 @@ document.addEventListener("click", async e => {
     case "tab": go(el.dataset.v); break;
     case "msub": S.msub = el.dataset.v; S.mq = ""; $("#mq").value = ""; render(); break;
     case "ssub": S.ssub = el.dataset.v; render(); break;
+    case "add-note": noteForm(null); break;
+    case "adopt-note": noteForm(null, el.dataset.n); break;
+    case "edit-note": { const c = S.customNotes.find(x => x.id === el.dataset.id); if (c) noteForm(c); break; }
+    case "lgroup": S.lgroup = el.dataset.v || ""; ls.set("lgroup", S.lgroup); renderList(); break;
     case "sales-resellers": S.ssub = "resellers"; go("sales"); break;
     case "market-watch": S.msub = "watch"; go("market"); break;
     case "month": { const n = shiftMonth(S.month, +el.dataset.d); if (n <= thisMonth()) { S.month = n; render(); } break; }
@@ -3147,8 +3401,8 @@ document.addEventListener("click", async e => {
     case "mem-set": setMember(el.dataset.uid, { status: el.dataset.status }, el.dataset.status === "active" ? "تم قبول الحساب" : "تم رفض الطلب"); break;
     case "mem-role": setMember(el.dataset.uid, { role: el.dataset.role }, el.dataset.role === "owner" ? "تم منح صلاحية المدير" : "تم إلغاء صلاحية المدير"); break;
     case "mem-stop": if (arm(el, "اضغط مرة أخرى للتأكيد")) setMember(el.dataset.uid, { status: "removed", role: "member" }, "تم إيقاف الحساب"); break;
-    case "del-perfume": case "del-link": case "del-supplier": case "del-shop": case "del-item": case "del-sale": case "del-reseller": case "del-payment": case "del-supnote": {
-      const labels = { "del-perfume": "اضغط مرة أخرى لتأكيد حذف العطر", "del-supplier": "اضغط مرة أخرى لتأكيد حذف المورد", "del-shop": "اضغط مرة أخرى: سيُحذف المتجر وجميع أسعاره", "del-reseller": "اضغط مرة أخرى لتأكيد حذف الموزع" };
+    case "del-perfume": case "del-link": case "del-supplier": case "del-shop": case "del-item": case "del-sale": case "del-reseller": case "del-payment": case "del-supnote": case "del-note": {
+      const labels = { "del-perfume": "اضغط مرة أخرى لتأكيد حذف العطر", "del-supplier": "اضغط مرة أخرى لتأكيد حذف المورد", "del-shop": "اضغط مرة أخرى: سيُحذف المتجر وجميع أسعاره", "del-reseller": "اضغط مرة أخرى لتأكيد حذف الموزع", "del-note": "اضغط مرة أخرى: تُحذف من القائمة وتبقى في العطور المسجلة عليها" };
       if (arm(el, labels[a] || "اضغط مرة أخرى للتأكيد") && delHandler) delHandler();
       break;
     }
