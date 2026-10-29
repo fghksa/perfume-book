@@ -1,0 +1,32 @@
+# دفتر العطور — يبقي قاعدة البيانات نشطة حتى لا يوقفها Supabase بعد أسبوع من قلة الاستخدام.
+# يعمل تلقائيًا كل 3 أيام، ويمكن تشغيله يدويًا من تبويب Actions.
+name: keep-alive
+on:
+  schedule:
+    - cron: "17 3 */3 * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            "https://qwkqtqyzfiebfpnefflf.supabase.co/rest/v1/rpc/public_catalog" \
+            -H "apikey: sb_publishable_0RSo4Ik_wHU-C8vjlfTfVg_DuBX3CC7" \
+            -H "Content-Type: application/json" \
+            -d '{"p_token":"keep-alive"}')
+          echo "Supabase responded: $code"
+          test "$code" = "200"
+      - uses: actions/checkout@v4
+      - name: Record last run
+        run: |
+          mkdir -p .github
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/last-keep-alive.txt
+          git config user.name "keep-alive"
+          git config user.email "keep-alive@users.noreply.github.com"
+          git add .github/last-keep-alive.txt
+          git commit -m "keep-alive" || true
+          git push || true
