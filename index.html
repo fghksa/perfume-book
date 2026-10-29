@@ -298,6 +298,27 @@ button.tile{cursor:pointer}
 .tile .v{font-size:24px;font-weight:800;line-height:1.25;overflow-wrap:anywhere}
 .tile .s{font-size:13px;color:var(--muted)}
 .qacts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.mgrid{gap:10px}
+.mgrid.c1{grid-template-columns:minmax(0,1fr)} .mgrid.c2{grid-template-columns:repeat(2,minmax(0,1fr))} .mgrid.c3{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.mcard .pimg{position:relative}
+.mcard .pimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.mgrid.c1 .pimg{aspect-ratio:4/3}
+.mgrid.c1 .pname{font-size:18px}
+.mgrid.c3 .pbody{padding:8px 8px 10px}
+.mgrid.c3 .pname{font-size:13.5px}
+.mgrid.c3 .pmeta,.mgrid.c3 .pnotes{font-size:11.5px}
+.mgrid.c3 .mc-price b{font-size:14px}
+.mgrid.c3 .pnotes,.mgrid.c3 .mc-chips{display:none}
+.mcard .chip{white-space:normal;text-align:start}
+.mcard .chips{margin:0}
+.mc-price{font-size:13px;margin-top:2px}
+.mc-price b{font-size:17px;font-weight:800}
+.mgrp .mgrid{margin-top:10px}
+.gimg{position:relative;width:100%;aspect-ratio:1/1;max-height:420px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);overflow:hidden;display:grid;place-items:center;color:var(--band);margin-bottom:8px}
+.gimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.gimg .bottle{width:34%;height:auto}
+.gimg-btn{position:absolute;bottom:10px;inset-inline-start:10px;background:var(--surface)}
+.prow .r-thumb{margin-inline-end:2px}
 .goal{display:grid;gap:5px;margin-top:10px}
 .goal-h{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 10px;font-size:14px}
 .goal-bar{display:block;height:10px;border-radius:5px;background:var(--sunk);overflow:hidden}
@@ -617,6 +638,12 @@ fieldset.field legend{padding:0;margin-bottom:5px}
         <button type="button" data-act="mgroup" data-v="note" aria-pressed="false">حسب النوتة</button>
         <button type="button" data-act="mgroup" data-v="price" aria-pressed="false">حسب السعر</button>
       </div>
+      <div class="seg" id="mlSeg" role="group" aria-label="طريقة عرض العطور" hidden>
+        <button type="button" data-act="mlayout" data-v="list" aria-pressed="false">قائمة</button>
+        <button type="button" data-act="mlayout" data-v="1" aria-pressed="false">عطر واحد</button>
+        <button type="button" data-act="mlayout" data-v="2" aria-pressed="true">عطران</button>
+        <button type="button" data-act="mlayout" data-v="3" aria-pressed="false">3 عطور</button>
+      </div>
       <div class="sum" id="mSum"></div>
       <div id="mBody"><div class="empty"><p>جارٍ تحميل بيانات السوق…</p></div></div>
     </section>
@@ -858,7 +885,7 @@ const S = {
   resellers: [], sales: [], payments: [], supNotes: [], watch: [], history: [], customNotes: [], mScents: new Map(), moves: [], avgCost: new Map(), bottles: [], supplies: [], boxes: [], partners: [], pMoves: [],
   settings: { ...DEFAULT_SETTINGS }, loaded: false,
   view: "home", id: null, stack: [], scroll: {},
-  q: "", sq: "", mq: "", sort: ls.get("sort") || "new", lgroup: ls.get("lgroup") || "", mgroup: ls.get("mgroup") || "", msort: ls.get("msort") || "seen", msub: "items", ssub: "sales", month: thisMonth(),
+  q: "", sq: "", mq: "", sort: ls.get("sort") || "new", lgroup: ls.get("lgroup") || "", mgroup: ls.get("mgroup") || "", mlayout: ["list", "1", "2", "3"].includes(ls.get("mlayout")) ? ls.get("mlayout") : "2", msort: ls.get("msort") || "seen", msub: "items", ssub: "sales", month: thisMonth(),
   lastShop: ls.get("lastShop") || "", calcPre: null
 };
 $("#sort").value = S.sort;
@@ -911,6 +938,9 @@ function buildGroups(){
     }).sort((a, b) => b.n - a.n || (b.size || 0) - (a.size || 0));
     g.catalog = S.perfumes.find(p => norm(p.name) === g.key) || null;
     g.scent = scentOfKey(g.key);
+    // صورة العطر في السوق: الصورة المحددة له، ثم صورته في «العطور»، ثم أحدث صورة مسجلة مع الأسعار
+    g.ownImage = (S.mImgs && S.mImgs.get(g.key)) || null;
+    g.image = g.ownImage || (g.catalog && g.catalog.image) || (g.items.filter(i => i.image).sort((a, b) => String(b.seenOn).localeCompare(String(a.seenOn)))[0] || {}).image || null;
     const ref = g.combos[0] || {};
     g.refPrice = ref.avg ?? null;   // متوسط سعر الحجم والتعبئة الأكثر تسجيلًا (لفئة السعر)
   }
@@ -1192,6 +1222,7 @@ async function reload(){
     S.partners = (pt || []).map(r => ({ id: r.id, name: r.name, share: Number(r.share_pct) || 0, ...ts(r) })).sort((a, b) => a.createdAt - b.createdAt);
     S.pMoves = (pm || []).map(r => ({ id: r.id, partnerId: r.partner_id, kind: r.kind, amount: Number(r.amount) || 0, on: r.moved_on, notes: r.notes || "", ...ts(r) })).sort((a, b) => String(b.on).localeCompare(String(a.on)) || b.createdAt - a.createdAt);
     S.mScents = new Map((msc || []).map(r => [r.perfume_key, Array.isArray(r.scent_notes) ? r.scent_notes : []]));
+    S.mImgs = new Map((msc || []).filter(r => r.image_path).map(r => [r.perfume_key, r.image_path]));
     S.watch = wl.map(r => ({ id: r.id, key: r.perfume_key, name: r.perfume_name, brand: r.brand, note: r.note, ...ts(r) }));
     S.history = ph.map(r => ({ perfumeId: r.perfume_id, kind: r.kind, supplierId: r.supplier_id, price: r.price == null ? null : Number(r.price), at: Date.parse(r.at) }));
     S.settings = st ? {
@@ -1265,7 +1296,7 @@ async function checkMember(){
     return;
   }
   S.loaded = false; S.perfumes = []; S.suppliers = []; S.shops = []; S.items = []; S.groups = new Map(); S.members = [];
-  S.resellers = []; S.sales = []; S.payments = []; S.supNotes = []; S.watch = []; S.history = []; S.customNotes = []; S.mScents = new Map(); S.moves = []; S.avgCost = new Map(); S.bottles = []; S.supplies = []; S.boxes = []; S.partners = []; S.pMoves = [];
+  S.resellers = []; S.sales = []; S.payments = []; S.supNotes = []; S.watch = []; S.history = []; S.customNotes = []; S.mScents = new Map(); S.mImgs = new Map(); S.moves = []; S.avgCost = new Map(); S.bottles = []; S.supplies = []; S.boxes = []; S.partners = []; S.pMoves = [];
   closeSheet();
   showPending(broken ? "setup" : !m ? "none" : m.status === "removed" ? "removed" : "pending");
   startRealtime();
@@ -2182,6 +2213,25 @@ function watchCard(w){
     <div class="btnrow" style="margin:0">${inCat ? `<button type="button" class="btn ghost small" data-act="open-perfume" data-id="${esc(inCat.id)}">عرض في العطور</button>` : `<button type="button" class="btn soft small" data-act="watch-to-catalog" data-id="${esc(w.id)}">${I.plus}إضافة إلى العطور</button>`}<button type="button" class="btn ghost small" data-act="edit-watch" data-id="${esc(w.id)}">${I.edit}ملاحظة</button><button type="button" class="btn danger small" data-act="unwatch" data-id="${esc(w.id)}">إزالة من القائمة</button></div>
   </article>`;
 }
+/* ---------- عرض عطور السوق: قائمة أو بطاقات بالصور ---------- */
+const mImg = g => g.image ? `<img src="${esc(imgUrl(g.image))}" alt="" loading="lazy" data-fb="1">` : bottle();
+function mrow(g){
+  const m = g.combos[0], kn = knownNotes(g);
+  const sub = [m ? [m.size ? `${fmt(m.size)} مل` : "", m.pack].filter(Boolean).map(esc).join(" ") : "", m && m.min != null ? `${rangeH(m.min, m.max)} ر.س` : "", `في ${placesTxt(g.places)}`].filter(Boolean).join(" · ");
+  return `<button type="button" class="row prow" data-act="open-group" data-key="${esc(g.key)}"><span class="r-thumb">${mImg(g)}</span><span class="r-main"><span class="r-name">${esc(g.name)}${g.catalog ? '<span class="chip acc">ضمن عطورك</span>' : ""}${watchByKey(g.key) ? `<span class="chip warn">${I.star}متابعة</span>` : ""}</span><span class="r-sub">${sub}</span>${kn.length ? `<span class="r-sub"><bdi dir="ltr">${esc(kn.join(", "))}</bdi></span>` : ""}</span><span class="r-price t-market">${g.refPrice != null ? money(Math.round(g.refPrice)) : "—"}<small class="muted">متوسط السعر</small></span>${I.chev}</button>`;
+}
+function mcard(g){
+  const m = g.combos[0], kn = knownNotes(g), dc = demandChips(g);
+  const tags = (watchByKey(g.key) ? `<span class="chip warn">${I.star}متابعة</span>` : "") + (g.catalog ? '<span class="chip acc">ضمن عطورك</span>' : "") + dc;
+  return `<button type="button" class="pcard mcard" data-act="open-group" data-key="${esc(g.key)}"><div class="pimg">${mImg(g)}</div>
+    <div class="pbody"><div class="pname">${esc(g.name)}</div>${g.brand ? `<div class="pmeta"><bdi>${esc(g.brand)}</bdi></div>` : ""}
+      ${m && m.min != null ? `<div class="mc-price t-market"><b>${rangeH(m.min, m.max)}</b> <small>ر.س</small></div><div class="pmeta">${[m.size ? `${fmt(m.size)} مل` : "", esc(m.pack)].filter(Boolean).join(" · ")}</div>` : '<div class="pmeta">لا يوجد سعر مسجل</div>'}
+      <div class="pmeta">متوفر في ${placesTxt(g.places)}</div>
+      ${kn.length ? `<div class="pnotes" dir="ltr">${esc(kn.join(" · "))}</div>` : ""}
+      ${tags ? `<div class="chips mc-chips" style="margin:2px 0 0">${tags}</div>` : ""}
+    </div></button>`;
+}
+const mlist = list => S.mlayout === "list" ? `<div class="rows">${list.map(mrow).join("")}</div>` : `<div class="grid mgrid c${S.mlayout}">${list.map(mcard).join("")}</div>`;
 function renderMarket(){
   const sub = S.msub;
   $("#mSegI").setAttribute("aria-pressed", String(sub === "items"));
@@ -2190,6 +2240,8 @@ function renderMarket(){
   $("#msort").hidden = sub !== "items";
   $("#mgSeg").hidden = sub !== "items" || !S.items.length;
   for (const b of $("#mgSeg").querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.v === S.mgroup));
+  $("#mlSeg").hidden = sub !== "items" || !S.items.length;
+  for (const b of $("#mlSeg").querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.v === S.mlayout));
   $("#mq").placeholder = sub === "shops" ? "ابحث باسم المتجر أو المدينة" : "ابحث باسم العطر أو العلامة التجارية";
   const body = $("#mBody");
   if (!S.loaded) return;
@@ -2204,13 +2256,7 @@ function renderMarket(){
     const by = { seen: (a, b) => b.places - a.places || b.items.length - a.items.length, demand: (a, b) => b.score - a.score || b.places - a.places, new: (a, b) => String(b.last).localeCompare(String(a.last)), name: (a, b) => a.name.localeCompare(b.name, "ar") }[S.msort] || (() => 0);
     arr.sort(by);
     if (!arr.length) { body.innerHTML = `<div class="empty"><p>لا توجد نتائج مطابقة لـ «${esc(S.mq)}».</p></div>`; return; }
-    // عرض مختصر داخل التصنيف: صف لكل عطر
-    const mrow = g => {
-      const m = g.combos[0], kn = knownNotes(g);
-      const sub = [m ? [m.size ? `${fmt(m.size)} مل` : "", m.pack].filter(Boolean).map(esc).join(" ") : "", m && m.min != null ? `${rangeH(m.min, m.max)} ر.س` : "", `في ${placesTxt(g.places)}`].filter(Boolean).join(" · ");
-      return `<button type="button" class="row prow" data-act="open-group" data-key="${esc(g.key)}"><span class="r-main"><span class="r-name">${esc(g.name)}${g.catalog ? '<span class="chip acc">ضمن عطورك</span>' : ""}${watchByKey(g.key) ? `<span class="chip warn">${I.star}متابعة</span>` : ""}</span><span class="r-sub">${sub}</span>${kn.length ? `<span class="r-sub"><bdi dir="ltr">${esc(kn.join(", "))}</bdi></span>` : ""}</span><span class="r-price t-market">${g.refPrice != null ? money(Math.round(g.refPrice)) : "—"}<small class="muted">متوسط السعر</small></span>${I.chev}</button>`;
-    };
-    const msec = (title, list, sub) => `<section class="panel grp mgrp"><div class="grp-h"><h2>${esc(title)}</h2><span>${nPerf(list.length)}</span></div>${sub ? `<p class="grp-sub">${sub}</p>` : ""}<div class="rows">${list.map(mrow).join("")}</div></section>`;
+    const msec = (title, list, sub) => `<section class="panel grp mgrp"><div class="grp-h"><h2>${esc(title)}</h2><span>${nPerf(list.length)}</span></div>${sub ? `<p class="grp-sub">${sub}</p>` : ""}${mlist(list)}</section>`;
     if (S.mgroup === "note") {
       let out = "";
       for (const fam of [...FAMS, FAM_OTHER]) {
@@ -2229,7 +2275,7 @@ function renderMarket(){
       for (const g of arr) { const t = priceTier(g.refPrice); (tiers.get(t.i) || tiers.set(t.i, { t, list: [] }).get(t.i)).list.push(g); }
       body.innerHTML = '<p class="hint" style="margin:0 0 4px">التصنيف حسب متوسط سعر الحجم والتعبئة الأكثر تسجيلًا لكل عطر.</p>'
         + [...tiers.values()].sort((a, b) => a.t.i - b.t.i).map(({ t, list }) => msec(t.label, list, "")).join("");
-    } else body.innerHTML = `<div class="slist">${arr.map(groupCard).join("")}</div>`;
+    } else body.innerHTML = S.mlayout === "list" ? `<section class="panel">${mlist(arr)}</section>` : mlist(arr);
   } else if (sub === "shops") {
     $("#mTools").hidden = !S.shops.length;
     if (!S.shops.length) { body.innerHTML = `<div class="empty">${bottle()}<h2>لا توجد متاجر بعد</h2><p>أضف المتجر مرة واحدة مع موقعه على خرائط Google أو رابطه الإلكتروني، ثم سجّل أسعار العطور فيه.</p><button type="button" class="btn primary" data-act="add-shop">${I.plus}إضافة متجر</button></div>`; return; }
@@ -2254,6 +2300,7 @@ function renderGroup(){
   const w = watchByKey(g.key);
   box.innerHTML = `
     <section class="panel shead">
+      <div class="gimg">${mImg(g)}<button type="button" class="btn ghost small gimg-btn" data-act="edit-mimg" data-key="${esc(g.key)}">${I.edit}${g.ownImage ? "تغيير الصورة" : g.image ? "اختيار صورة أخرى" : "إضافة صورة"}</button></div>
       <div class="eyebrow">${esc(g.brand || "دون علامة تجارية")}</div>
       <h1 class="ptitle">${esc(g.name)}</h1>
       <div class="tags"><span class="tag">متوفر في ${placesTxt(g.places)}</span><span class="tag">الأسعار المسجلة: <span class="num">${g.items.length}</span></span>${g.pmMin != null ? `<span class="tag t-market">سعر المل: ${rangeH(g.pmMin, g.pmMax)} ر.س</span>` : ""}</div>
@@ -2811,6 +2858,22 @@ async function saveScentForKey(key, name, sc){
   const p = S.perfumes.find(x => norm(x.name) === key);
   if (p) await q(sb.from("perfumes").update({ scent_notes: sc }).eq("id", p.id));
   else await q(sb.from("market_scents").upsert({ perfume_key: key, perfume_name: name, scent_notes: sc }, { onConflict: "perfume_key" }));
+}
+// صورة العطر في السوق (تُحفظ مع نوتات السوق)
+function mImageForm(key, name){
+  const cur = (S.mImgs && S.mImgs.get(key)) || null, img = { picked: null, remove: false };
+  const g = S.groups.get(key);
+  const html = `${imagePicker(cur, "اختيار صورة")}
+    <p class="hint" style="margin:0">تظهر هذه الصورة للعطر في صفحة السوق.${!cur && g && g.image ? " الصورة المعروضة حاليًا مأخوذة " + (g.catalog && g.catalog.image === g.image ? "من صفحة العطر في «العطور»." : "من آخر سعر مسجل مع صورة.") : ""}</p>
+    ${foot(null)}`;
+  openSheet(`صورة العطر: ${name}`, html, async () => {
+    if (!img.picked && !img.remove) { closeSheet(); return; }
+    const newImg = img.picked ? await uploadImage(img.picked) : null;
+    try { await q(sb.from("market_scents").upsert({ perfume_key: key, perfume_name: name, image_path: newImg }, { onConflict: "perfume_key" })); }
+    catch (e) { removeImage(newImg); throw e; }
+    if (cur) removeImage(cur);
+    closeSheet(); toast(newImg ? "تم حفظ الصورة" : "تمت إزالة الصورة"); await reload();
+  }, f => bindImagePicker(f, img));
 }
 function scentForm(key, name){
   openSheet(`النوتات العطرية: ${name}`, notePicker() + foot(null), async fd => {
@@ -4541,6 +4604,8 @@ document.addEventListener("click", async e => {
     case "adopt-note": noteForm(null, el.dataset.n); break;
     case "edit-note": { const c = S.customNotes.find(x => x.id === el.dataset.id); if (c) noteForm(c); break; }
     case "mgroup": S.mgroup = el.dataset.v || ""; ls.set("mgroup", S.mgroup); renderMarket(); break;
+    case "mlayout": S.mlayout = el.dataset.v; ls.set("mlayout", S.mlayout); renderMarket(); break;
+    case "edit-mimg": { const gg = S.groups.get(el.dataset.key); if (gg) mImageForm(gg.key, gg.name); break; }
     case "edit-mscent": { const gg = S.groups.get(el.dataset.key); if (gg) scentForm(gg.key, gg.name); break; }
     case "lgroup": S.lgroup = el.dataset.v || ""; ls.set("lgroup", S.lgroup); renderList(); break;
     case "sales-resellers": S.ssub = "resellers"; go("sales"); break;
