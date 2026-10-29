@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="دفتر العطور">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="robots" content="noindex, nofollow">
 <title>دفتر العطور</title>
 <script>try{var t=localStorage.getItem("pb_theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
@@ -118,8 +121,8 @@ textarea.inp{min-height:84px;resize:vertical}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
 
 /* perfume grid */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
-.pcard{display:flex;flex-direction:column;text-align:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;padding:0;transition:border-color .15s,transform .15s}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(160px,100%),1fr));gap:12px}
+.pcard{display:flex;flex-direction:column;min-width:0;text-align:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;padding:0;transition:border-color .15s,transform .15s}
 .pcard:hover{border-color:var(--band)}
 .pcard:active{transform:scale(.985)}
 .pimg{aspect-ratio:1/1;max-width:100%;background:var(--surface);display:grid;place-items:center;border-bottom:1px solid var(--line);overflow:hidden;color:var(--band)}
@@ -127,7 +130,7 @@ textarea.inp{min-height:84px;resize:vertical}
 .pimg .bottle{width:42%;height:auto}
 .pbody{display:grid;gap:3px;padding:10px 12px 12px;min-width:0}
 .pname{font-weight:700;font-size:16px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.pmeta{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pmeta{font-size:13px;color:var(--muted);overflow-wrap:anywhere;line-height:1.45}
 .pprice{font-size:21px;font-weight:800;margin-top:4px;color:var(--c-sell)}
 .pmkt{font-size:13px;color:var(--c-market)}
 .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
@@ -171,7 +174,7 @@ textarea.inp{min-height:84px;resize:vertical}
 
 /* detail */
 .phero{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:20px;align-items:center}
-.phero-img{aspect-ratio:1/1;max-width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:grid;place-items:center;color:var(--band)}
+.phero-img{aspect-ratio:1/1;width:100%;max-width:300px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:grid;place-items:center;color:var(--band)}
 .phero-img img{width:100%;height:100%;object-fit:contain}
 .phero-img .bottle{width:34%}
 .phero-info{display:grid;gap:8px;align-content:center;min-width:0}
@@ -295,6 +298,14 @@ button.tile{cursor:pointer}
 .tile .v{font-size:24px;font-weight:800;line-height:1.25;overflow-wrap:anywhere}
 .tile .s{font-size:13px;color:var(--muted)}
 .qacts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.goal{display:grid;gap:5px;margin-top:10px}
+.goal-h{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 10px;font-size:14px}
+.goal-bar{display:block;height:10px;border-radius:5px;background:var(--sunk);overflow:hidden}
+.goal-bar i{display:block;height:100%;border-radius:5px}
+.goal-bar i.sell{background:var(--c-sell)} .goal-bar i.good{background:var(--good)}
+.ins-row{display:grid;grid-template-columns:minmax(90px,auto) 1fr auto auto;gap:8px;align-items:center;font-size:14px;margin-top:8px}
+.ins-bar{display:block;height:9px;border-radius:5px;background:var(--sunk);overflow:hidden}
+.ins-bar i{display:block;height:100%;background:var(--accent);border-radius:5px}
 .qact{display:flex;flex-direction:column;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:12px 4px;font-size:13.5px;font-weight:700;text-align:center}
 .qact .qi{width:40px;height:40px;border-radius:12px;display:grid;place-items:center}
 .qact .qi .ic{width:22px;height:22px}
@@ -397,7 +408,7 @@ fieldset.field legend{padding:0;margin-bottom:5px}
 .cat-head p{margin:0;color:var(--muted);white-space:pre-wrap}
 .cat-price{font-size:20px;font-weight:800;color:var(--c-resell);margin-top:4px}
 .cat-retail{font-size:13px;color:var(--muted)}
-.pnotes{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+.pnotes{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere;text-align:right}
 .pnotes span{color:var(--accent);font-weight:700}
 .grp{display:grid;gap:2px}
 .mgrp + .mgrp{margin-top:12px}
@@ -424,6 +435,16 @@ fieldset.field legend{padding:0;margin-bottom:5px}
 .np-fam summary::-webkit-details-marker{display:none}
 .np-fam summary::after{content:"+";margin-inline-start:auto;color:var(--muted);font-weight:500;font-size:18px;line-height:1}
 .np-fam[open] summary::after{content:"−"}
+.st-row .inp{width:86px;flex:none;text-align:center}
+.st-diff{font-weight:700}
+.mlbar{display:inline-block;width:56px;height:7px;border-radius:4px;background:var(--sunk);overflow:hidden;vertical-align:middle;margin-inline-end:6px}
+.mlbar i{display:block;height:100%;background:var(--c-cost);border-radius:4px}
+.mlbar i.low{background:var(--warn)}
+.bx-row{display:grid;grid-template-columns:minmax(0,1fr) 64px minmax(0,.8fr) 36px;gap:6px;align-items:center;margin-bottom:6px}
+.bx-row .inp{min-height:42px;padding:8px}
+.bx-fill{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px;font-size:13px;color:var(--muted)}
+.bx-fill .inp{width:auto;min-height:38px;padding:6px 8px}
+.bx-fill #bx_ml{width:64px}
 .np-addw{display:grid;gap:8px;border:1px dashed var(--accent);background:var(--accent-soft);border-radius:12px;padding:12px}
 .np-addt{font-size:14px}
 .np-addw .btn{justify-self:start}
@@ -442,6 +463,16 @@ fieldset.field legend{padding:0;margin-bottom:5px}
 .cp-gain span,.cp-gain b{color:var(--good)}
 .cp-gain em{flex-basis:100%;font-style:normal;font-size:11.5px;color:var(--good);opacity:.9}
 .cat-main{padding-block:10px 40px}
+.qty-step{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;border:1px solid var(--line);border-radius:10px;padding:3px}
+.qty-step button{width:38px;height:36px;border:0;border-radius:8px;background:var(--sunk);font-size:20px;font-weight:700;color:var(--ink);cursor:pointer}
+.qty-step span{font-weight:800;font-size:17px;min-width:24px;text-align:center}
+.pcard.in-cart{border-color:var(--c-resell);box-shadow:0 0 0 1px var(--c-resell)}
+.cart-bar{position:sticky;bottom:0;z-index:5;margin:16px -16px -40px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;box-shadow:0 -6px 18px rgba(0,0,0,.08)}
+.cart-sum{grid-column:1/-1;font-size:15px}
+.cart-bar .inp{min-height:42px}
+.cart-bar #cartSend{grid-column:1/-1}
+@media print{.cart-bar,.btnrow{display:none}}
+.cat-sec{font-size:20px;font-weight:800;margin:22px 0 10px}
 
 @media (min-width:720px){
   .layer{align-items:center}
@@ -451,7 +482,7 @@ fieldset.field legend{padding:0;margin-bottom:5px}
 }
 @media (max-width:640px){
   .phero{grid-template-columns:minmax(0,1fr);gap:14px}
-  .phero-img{aspect-ratio:4/3}
+  .phero-img{width:min(100%,260px);justify-self:center}
 }
 @media (max-width:380px){ .grid2{grid-template-columns:1fr} .qact{font-size:12.5px} }
 @media (prefers-reduced-motion:reduce){ .sheet,.scrim,.pcard{transition:none} }
@@ -536,6 +567,11 @@ fieldset.field legend{padding:0;margin-bottom:5px}
           <option value="stock">الأقل مخزونًا</option>
         </select>
       </div>
+      <div class="btnrow" id="listActs" style="margin:0" hidden>
+        <button type="button" class="btn soft small" data-act="add-purchase">+ تسجيل طلبية شراء</button>
+        <button type="button" class="btn ghost small" data-act="stocktake">الجرد</button>
+        <button type="button" class="btn ghost small" data-act="open-samples">العينات والبوكسات</button>
+      </div>
       <div class="seg" id="lgSeg" role="group" aria-label="تصنيف العطور" hidden>
         <button type="button" data-act="lgroup" data-v="" aria-pressed="true">دون تصنيف</button>
         <button type="button" data-act="lgroup" data-v="note" aria-pressed="false">حسب النوتة</button>
@@ -584,6 +620,10 @@ fieldset.field legend{padding:0;margin-bottom:5px}
       <div class="sum" id="mSum"></div>
       <div id="mBody"><div class="empty"><p>جارٍ تحميل بيانات السوق…</p></div></div>
     </section>
+    <section class="view" id="v-samples" hidden></section>
+    <section class="view" id="v-partners" hidden></section>
+    <section class="view" id="v-audit" hidden></section>
+    <section class="view" id="v-report" hidden></section>
     <section class="view" id="v-group" hidden></section>
     <section class="view" id="v-shop" hidden></section>
 
@@ -811,11 +851,11 @@ const placesTxt = n => n === 1 ? "متجر واحد" : n === 2 ? "متجرين" 
 const piecesTxt = n => { n = Math.round(n * 100) / 100; return n === 1 ? "قطعة واحدة" : n === 2 ? "قطعتان" : `${fmt(n)} ${n > 2 && n <= 10 ? "قطع" : "قطعة"}`; };
 
 /* ---------- state ---------- */
-const DEFAULT_SETTINGS = { pack: 0, ship: 0, fee: 0, target: 30, low: 2, catEnabled: false, catToken: null, catTitle: "كتالوج العطور", catNote: "", catPhone: "", catRetail: true };
+const DEFAULT_SETTINGS = { pack: 0, ship: 0, fee: 0, target: 30, low: 2, catEnabled: false, catToken: null, catTitle: "كتالوج العطور", catNote: "", catPhone: "", catRetail: true, staleDays: 60, goalSales: null, goalProfit: null, retailEnabled: false, retailToken: null, lastExport: null };
 const S = {
   user: null, member: null, members: [], channel: null, live: false,
   perfumes: [], suppliers: [], shops: [], items: [], groups: new Map(),
-  resellers: [], sales: [], payments: [], supNotes: [], watch: [], history: [], customNotes: [], mScents: new Map(),
+  resellers: [], sales: [], payments: [], supNotes: [], watch: [], history: [], customNotes: [], mScents: new Map(), moves: [], avgCost: new Map(), bottles: [], supplies: [], boxes: [], partners: [], pMoves: [],
   settings: { ...DEFAULT_SETTINGS }, loaded: false,
   view: "home", id: null, stack: [], scroll: {},
   q: "", sq: "", mq: "", sort: ls.get("sort") || "new", lgroup: ls.get("lgroup") || "", mgroup: ls.get("mgroup") || "", msort: ls.get("msort") || "seen", msub: "items", ssub: "sales", month: thisMonth(),
@@ -898,7 +938,11 @@ function calc(p){
   const mk = marketFor(p.name, p.size, p.packaging);
   const mPrices = mk.comp.map(i => toNum(i.price));
   const sups = (p.suppliers || []).filter(l => toNum(l.price) != null);
-  const cost = sups.length ? Math.min(...sups.map(l => toNum(l.price))) : null;
+  const supCost = sups.length ? Math.min(...sups.map(l => toNum(l.price))) : null;
+  // التكلفة الفعلية: متوسط تكلفة طلبيات الشراء المسجلة، وإلا أقل سعر مورد
+  const act = S.avgCost && S.avgCost.get(p.id);
+  const cost = act ? act.avg : supCost;
+  const costSrc = act ? "purchases" : supCost != null ? "supplier" : null;
   const sell = toNum(p.sellPrice), resell = toNum(p.resellerPrice), size = toNum(p.size);
   const extra = toNumZ(p.extraCost) || 0;
   const fixD = st.pack + st.ship + extra, fixR = st.pack + extra;
@@ -924,7 +968,7 @@ function calc(p){
   const stock = p.stock == null ? null : Number(p.stock);
   const low = p.lowStock != null ? Number(p.lowStock) : st.low;
   const stockState = stock == null ? null : stock <= 0 ? "out" : stock <= low ? "low" : "ok";
-  return { mk, mPrices, cost, sell, resell, size, extra, fixD, fixR, feeAmt, fullD, fullR, profit, margin, rProfit, rMargin, retailS, resGain, resGainPct, mMin, mMax, mAvg, perMl, vsAvg, nPlaces, sugD, sugR, stock, low, stockState };
+  return { mk, mPrices, cost, supCost, costSrc, bought: act ? act.qty : 0, sell, resell, size, extra, fixD, fixR, feeAmt, fullD, fullR, profit, margin, rProfit, rMargin, retailS, resGain, resGainPct, mMin, mMax, mAvg, perMl, vsAvg, nPlaces, sugD, sugR, stock, low, stockState };
 }
 const mClass = m => m == null ? "" : m >= 25 ? "good" : m >= 10 ? "warn" : "bad";
 const stockChip = c => c.stockState == null ? "" : c.stockState === "out" ? '<span class="chip bad">نفدت الكمية</span>'
@@ -935,17 +979,99 @@ const sgn = s => s.kind === "return" ? -1 : 1;
 const saleTotal = s => sgn(s) * s.qty * (Number(s.unitPrice) || 0);
 const isSpecial = s => s.listPrice != null && Number(s.unitPrice) < Number(s.listPrice);
 const saleDiscount = s => isSpecial(s) ? sgn(s) * s.qty * (Number(s.listPrice) - Number(s.unitPrice)) : 0;
-const saleProfit = s => s.unitCost == null ? null : sgn(s) * s.qty * ((Number(s.unitPrice) || 0) - Number(s.unitCost) - (Number(s.unitPrice) || 0) * (Number(s.feePct) || 0) / 100);
+const saleProfit = s => s.unitCost == null ? null : sgn(s) * s.qty * ((Number(s.unitPrice) || 0) - Number(s.unitCost) - (Number(s.unitPrice) || 0) * (Number(s.feePct) || 0) / 100) - (Number(s.shipCost) || 0);
+// مصدر العميل
+const SOURCES = { instagram: "انستقرام", snapchat: "سناب شات", tiktok: "تيك توك", whatsapp: "واتساب", personal: "معرفة شخصية", returning: "عميل سابق", other: "أخرى" };
+/* ---------- حركات المخزون ---------- */
+const MOVE_KIND = { purchase: "طلبية شراء", damage: "تالف", tester: "مفتوح للتجربة أو العرض", count: "تصحيح جرد", adjust: "تعديل يدوي", decant: "فتح زجاجة للتقسيم" };
+const isLoss = m => m.kind === "damage" || m.kind === "tester";
+// خسائر المخزون (التالف والمفتوح) بتكلفة الشراء وقت التسجيل
+function lossesOf(list){
+  let units = 0, value = 0;
+  for (const m of list) if (isLoss(m)) {
+    units += -m.qty;
+    const p = perfById(m.perfumeId), c = m.unitCost ?? (p ? calc(p).cost : null);
+    if (c != null) value += -m.qty * c;
+  }
+  return { units, value };
+}
+const daysTxt = n => n === 1 ? "يوم واحد" : n === 2 ? "يومين" : n <= 10 ? `${n} أيام` : `${n} يومًا`;
+const isoDay = ms => localDate(ms).toISOString().slice(0, 10);
+function lastSaleOf(pid){ let d = ""; for (const s of S.sales) if (s.perfumeId === pid && s.kind !== "return" && s.soldOn > d) d = s.soldOn; return d; }
+// عطر راكد: لديه مخزون ولم يُبع منذ المدة المحددة في الإعدادات
+function staleInfo(p){
+  const c = calc(p); if (!(c.stock > 0)) return null;
+  const last = lastSaleOf(p.id), since = last || (p.createdAt ? isoDay(p.createdAt) : "");
+  if (!since) return null;
+  const days = Math.floor((dayNum(todayStr()) - dayNum(since)) / 864e5);
+  return days >= (S.settings.staleDays || 60) ? { days, sold: !!last, value: c.cost != null ? c.stock * c.cost : null } : null;
+}
+
+/* ---------- العينات والبوكسات ---------- */
+const SAMPLE_SIZES = [1, 2, 3, 5, 10];
+const ITEM_LABEL = { bottle: "قطعة", sample: "عينة", box: "بوكس", free: "عينة مجانية" };
+const isBottleSale = s => (s.itemType || "bottle") === "bottle";
+const openBottles = pid => S.bottles.filter(b => b.perfumeId === pid && b.mlLeft > 0).sort((a, b) => String(a.openedOn).localeCompare(String(b.openedOn)));
+const supplyById = id => S.supplies.find(s => s.id === id);
+const boxById = id => S.boxes.find(b => b.id === id);
+const vialsList = () => S.supplies.filter(s => s.kind === "vial").sort((a, b) => (a.sizeMl || 0) - (b.sizeMl || 0));
+const vialFor = ml => vialsList().find(v => Number(v.sizeMl) === Number(ml)) || vialsList().find(v => Number(v.sizeMl) >= Number(ml)) || null;
+// تكلفة المل: من أقدم زجاجة مفتوحة، وإلا من تكلفة شراء العطر وحجمه
+function costPerMl(pid){
+  const b = openBottles(pid)[0] || S.bottles.filter(x => x.perfumeId === pid).sort((a, c) => String(c.openedOn).localeCompare(String(a.openedOn)))[0];
+  if (b && b.cost != null && b.sizeMl) return b.cost / b.sizeMl;
+  const p = perfById(pid); if (!p) return null;
+  const c = calc(p); return c.cost != null && c.size ? c.cost / c.size : null;
+}
+const mlLeftOf = pid => sum(openBottles(pid).map(b => b.mlLeft));
+function sampleCost(pid, ml, vialId){
+  const cpm = costPerMl(pid); if (cpm == null) return null;
+  const v = vialId ? supplyById(vialId) : vialFor(ml);
+  return cpm * ml + (v && v.unitCost != null ? Number(v.unitCost) : 0);
+}
+function sampleSuggest(pid, ml){
+  const c = sampleCost(pid, ml); if (c == null) return null;
+  return suggestPrice(c, S.settings.target, S.settings.fee);
+}
+const samplePriceOf = (p, ml) => { const v = p && p.samplePrices ? toNum(p.samplePrices[String(ml)]) : null; return v != null ? v : sampleSuggest(p.id, ml); };
+function boxCost(b){
+  if (!b) return null;
+  let total = 0;
+  for (const it of b.items || []) { const c = sampleCost(it.p, Number(it.ml) || 0, it.v); if (c == null) return null; total += c; }
+  const pk = b.packId ? supplyById(b.packId) : null;
+  if (pk && pk.unitCost != null) total += Number(pk.unitCost);
+  return Math.round(total * 100) / 100;
+}
+const boxMl = b => sum((b.items || []).map(it => Number(it.ml) || 0));
+
+// صافي الربح لفترة: ربح المبيعات − العينات المجانية − خسائر المخزون
+function netProfitOf(sales, moves){
+  const st = salesStats(sales), lo = lossesOf(moves);
+  return { sales: st.profit, free: st.freeCost, losses: lo.value, net: st.profit - st.freeCost - lo.value, unknown: st.unknown };
+}
+function partnerBalances(){
+  const np = netProfitOf(S.sales, S.moves);
+  return S.partners.map(p => {
+    const mv = S.pMoves.filter(m => m.partnerId === p.id);
+    const capital = sum(mv.filter(m => m.kind === "capital").map(m => m.amount));
+    const withdrawn = sum(mv.filter(m => m.kind === "withdraw").map(m => m.amount));
+    const share = np.net * p.share / 100;
+    return { p, capital, withdrawn, share, balance: capital + share - withdrawn };
+  });
+}
 function salesStats(list){
   let revenue = 0, profit = 0, units = 0, unknown = 0, direct = 0, viaRes = 0, discount = 0, nDisc = 0; const byPay = { card: 0, transfer: 0, cash: 0, none: 0 };
+  let sampleRev = 0, boxRev = 0, freeCost = 0, freeCount = 0;
   for (const s of list) {
-    const t = saleTotal(s); revenue += t; units += sgn(s) * s.qty;
+    if (s.itemType === "free") { freeCount += s.qty; freeCost += (Number(s.unitCost) || 0) * s.qty; continue; }
+    const t = saleTotal(s); revenue += t; if (isBottleSale(s)) units += sgn(s) * s.qty;
+    if (s.itemType === "sample") sampleRev += t; else if (s.itemType === "box") boxRev += t;
     if (s.channel === "reseller") viaRes += t; else direct += t;
     if (s.channel !== "reseller") byPay[PAY[s.payMethod] ? s.payMethod : "none"] += t;
     const p = saleProfit(s); if (p == null) unknown++; else profit += p;
     if (isSpecial(s)) { discount += saleDiscount(s); if (s.kind !== "return") nDisc += s.qty; }
   }
-  return { revenue, profit, units, unknown, count: list.length, direct, viaRes, byPay, discount, nDisc, margin: revenue > 0 ? profit / revenue * 100 : null };
+  return { revenue, profit, units, unknown, sampleRev, boxRev, freeCost, freeCount, count: list.filter(s => s.itemType !== "free").length, direct, viaRes, byPay, discount, nDisc, margin: revenue > 0 ? profit / revenue * 100 : null };
 }
 function resellerBalance(rid){
   const ss = S.sales.filter(s => s.resellerId === rid);
@@ -994,7 +1120,7 @@ async function reload(){
   reloading = true;
   try {
     const memQ = isOwner() ? sb.from("members").select("*").order("created_at") : sb.from("members").select("*").eq("user_id", S.user.id);
-    const [p, s, ln, sh, mi, mem, rs, sl, pay, sn, wl, ph, st, cn, msc] = await Promise.all([
+    const [p, s, ln, sh, mi, mem, rs, sl, pay, sn, wl, ph, st, cn, msc, mv, bt, sp, bx, pt, pm] = await Promise.all([
       q(sb.from("perfumes").select("*")),
       q(sb.from("suppliers").select("*")),
       q(sb.from("perfume_suppliers").select("*")),
@@ -1009,7 +1135,13 @@ async function reload(){
       q(sb.from("price_history").select("perfume_id,kind,supplier_id,price,at").order("at")),
       q(sb.from("app_settings").select("*").eq("id", 1).maybeSingle()),
       q(sb.from("custom_notes").select("*")).catch(() => []),
-      q(sb.from("market_scents").select("*")).catch(() => [])
+      q(sb.from("market_scents").select("*")).catch(() => []),
+      q(sb.from("stock_moves").select("*")).catch(() => []),
+      q(sb.from("bottles").select("*")).catch(() => []),
+      q(sb.from("supplies").select("*")).catch(() => []),
+      q(sb.from("boxes").select("*")).catch(() => []),
+      q(sb.from("partners").select("*")).catch(() => []),
+      q(sb.from("partner_moves").select("*")).catch(() => [])
     ]);
     const me = mem.find(r => r.user_id === S.user.id);
     if (!me || me.status !== "active") { S.member = me || null; reloading = false; reloadAgain = false; checkMember(); return; }
@@ -1022,7 +1154,7 @@ async function reload(){
     const ts = r => ({ createdAt: Date.parse(r.created_at), updatedAt: Date.parse(r.updated_at), updatedBy: r.updated_by_email });
     S.perfumes = p.map(r => ({
       id: r.id, name: r.name, brand: r.brand, conc: r.conc, size: r.size, packaging: r.packaging || PACK[0],
-      sellPrice: r.sell_price, resellerPrice: r.reseller_price, suggestedPrice: r.suggested_price ?? null, scent: Array.isArray(r.scent_notes) ? r.scent_notes : [], notes: r.notes, image: r.image_path,
+      sellPrice: r.sell_price, resellerPrice: r.reseller_price, suggestedPrice: r.suggested_price ?? null, scent: Array.isArray(r.scent_notes) ? r.scent_notes : [], samplePrices: r.sample_prices && typeof r.sample_prices === "object" ? r.sample_prices : {}, notes: r.notes, image: r.image_path,
       stock: r.stock, lowStock: r.low_stock, extraCost: r.extra_cost, inCatalog: r.in_catalog !== false, ...ts(r),
       suppliers: (linksBy[r.id] || []).map(x => ({ id: x.supplier_id, price: x.price }))
     }));
@@ -1035,23 +1167,39 @@ async function reload(){
       id: r.id, shopId: r.shop_id, name: r.perfume_name, brand: r.brand, size: r.size, price: r.price,
       packaging: r.packaging || PACK[0], demand: r.demand || "", url: r.url, seenOn: r.seen_on, notes: r.notes, image: r.image_path, ...ts(r)
     }));
-    S.resellers = rs.map(r => ({ id: r.id, name: r.name, city: r.city, phone: r.phone, whatsapp: r.whatsapp, notes: r.notes, ...ts(r) }));
+    S.resellers = rs.map(r => ({ id: r.id, name: r.name, city: r.city, phone: r.phone, whatsapp: r.whatsapp, notes: r.notes, stmtToken: r.statement_token || null, ...ts(r) }));
     S.sales = sl.map(r => ({
       id: r.id, perfumeId: r.perfume_id, name: r.perfume_name, size: r.size, qty: Number(r.qty) || 0, kind: r.kind || "sale",
       unitPrice: r.unit_price, unitCost: r.unit_cost, feePct: r.fee_pct, channel: r.channel || "direct", resellerId: r.reseller_id,
-      customer: r.customer, soldOn: r.sold_on, notes: r.notes, payMethod: r.payment_method || "", listPrice: r.list_price ?? null, ...ts(r)
+      customer: r.customer, soldOn: r.sold_on, notes: r.notes, payMethod: r.payment_method || "", listPrice: r.list_price ?? null, itemType: r.item_type || "bottle", ml: r.ml == null ? null : Number(r.ml), boxId: r.box_id, vialId: r.vial_id, consumed: Array.isArray(r.consumed) ? r.consumed : [], source: r.source || "", shipCost: r.ship_cost == null ? null : Number(r.ship_cost), bundleId: r.bundle_id || null, ...ts(r)
     }));
     S.payments = pay.map(r => ({ id: r.id, resellerId: r.reseller_id, amount: r.amount, paidOn: r.paid_on, notes: r.notes, method: r.method || "", ...ts(r) }));
     S.supNotes = sn.map(r => ({ id: r.id, supplierId: r.supplier_id, notedOn: r.noted_on, note: r.note, ...ts(r) }));
     S.customNotes = (cn || []).map(r => ({ id: r.id, name: r.name, ar: r.name_ar || "", fam: FAMS.includes(r.family) ? r.family : FAM_OTHER, ...ts(r) })).sort((a, b) => a.name.localeCompare(b.name));
     applyCustomNotes(S.customNotes);
+    S.moves = (mv || []).map(r => ({ id: r.id, perfumeId: r.perfume_id, kind: r.kind, qty: Number(r.qty) || 0, unitCost: r.unit_cost == null ? null : Number(r.unit_cost), extra: Number(r.extra_cost) || 0, supplierId: r.supplier_id, on: r.moved_on, notes: r.notes || "", ...ts(r) }))
+      .sort((a, b) => String(b.on).localeCompare(String(a.on)) || b.createdAt - a.createdAt);
+    S.avgCost = new Map();
+    for (const m of S.moves) if (m.kind === "purchase" && m.qty > 0 && m.unitCost != null) {
+      const e = S.avgCost.get(m.perfumeId) || { qty: 0, total: 0 };
+      e.qty += m.qty; e.total += m.qty * m.unitCost + m.extra;
+      S.avgCost.set(m.perfumeId, e);
+    }
+    for (const e of S.avgCost.values()) e.avg = Math.round(e.total / e.qty * 100) / 100;
+    S.bottles = (bt || []).map(r => ({ id: r.id, perfumeId: r.perfume_id, sizeMl: Number(r.size_ml) || 0, mlLeft: Number(r.ml_left) || 0, cost: r.cost == null ? null : Number(r.cost), openedOn: r.opened_on, notes: r.notes || "", ...ts(r) }));
+    S.supplies = (sp || []).map(r => ({ id: r.id, name: r.name, kind: r.kind || "vial", sizeMl: r.size_ml == null ? null : Number(r.size_ml), qty: Number(r.qty) || 0, unitCost: r.unit_cost == null ? null : Number(r.unit_cost), low: r.low == null ? null : Number(r.low), notes: r.notes || "", ...ts(r) })).sort((a, b) => (a.kind > b.kind ? 1 : a.kind < b.kind ? -1 : 0) || (a.sizeMl || 0) - (b.sizeMl || 0) || a.name.localeCompare(b.name));
+    S.boxes = (bx || []).map(r => ({ id: r.id, name: r.name, items: Array.isArray(r.items) ? r.items : [], packId: r.pack_id, sell: r.sell_price == null ? null : Number(r.sell_price), resell: r.reseller_price == null ? null : Number(r.reseller_price), inCatalog: r.in_catalog !== false, notes: r.notes || "", ...ts(r) })).sort(byName);
+    S.partners = (pt || []).map(r => ({ id: r.id, name: r.name, share: Number(r.share_pct) || 0, ...ts(r) })).sort((a, b) => a.createdAt - b.createdAt);
+    S.pMoves = (pm || []).map(r => ({ id: r.id, partnerId: r.partner_id, kind: r.kind, amount: Number(r.amount) || 0, on: r.moved_on, notes: r.notes || "", ...ts(r) })).sort((a, b) => String(b.on).localeCompare(String(a.on)) || b.createdAt - a.createdAt);
     S.mScents = new Map((msc || []).map(r => [r.perfume_key, Array.isArray(r.scent_notes) ? r.scent_notes : []]));
     S.watch = wl.map(r => ({ id: r.id, key: r.perfume_key, name: r.perfume_name, brand: r.brand, note: r.note, ...ts(r) }));
     S.history = ph.map(r => ({ perfumeId: r.perfume_id, kind: r.kind, supplierId: r.supplier_id, price: r.price == null ? null : Number(r.price), at: Date.parse(r.at) }));
     S.settings = st ? {
       pack: Number(st.pack_cost) || 0, ship: Number(st.ship_cost) || 0, fee: Number(st.fee_pct) || 0, target: st.target_margin == null ? 30 : Number(st.target_margin),
       low: st.low_stock == null ? 2 : Number(st.low_stock), catEnabled: !!st.catalog_enabled, catToken: st.catalog_token, catTitle: st.catalog_title || "",
-      catNote: st.catalog_note || "", catPhone: st.catalog_phone || "", catRetail: st.catalog_show_suggested !== false
+      catNote: st.catalog_note || "", catPhone: st.catalog_phone || "", catRetail: st.catalog_show_suggested !== false, staleDays: Number(st.stale_days) || 60,
+      goalSales: st.goal_sales == null ? null : Number(st.goal_sales), goalProfit: st.goal_profit == null ? null : Number(st.goal_profit),
+      retailEnabled: !!st.retail_enabled, retailToken: st.retail_token || null, lastExport: st.last_export_at ? Date.parse(st.last_export_at) : null
     } : { ...DEFAULT_SETTINGS };
     buildGroups();
     S.loaded = true;
@@ -1117,7 +1265,7 @@ async function checkMember(){
     return;
   }
   S.loaded = false; S.perfumes = []; S.suppliers = []; S.shops = []; S.items = []; S.groups = new Map(); S.members = [];
-  S.resellers = []; S.sales = []; S.payments = []; S.supNotes = []; S.watch = []; S.history = []; S.customNotes = []; S.mScents = new Map();
+  S.resellers = []; S.sales = []; S.payments = []; S.supNotes = []; S.watch = []; S.history = []; S.customNotes = []; S.mScents = new Map(); S.moves = []; S.avgCost = new Map(); S.bottles = []; S.supplies = []; S.boxes = []; S.partners = []; S.pMoves = [];
   closeSheet();
   showPending(broken ? "setup" : !m ? "none" : m.status === "removed" ? "removed" : "pending");
   startRealtime();
@@ -1144,9 +1292,9 @@ function toast(msg){
 
 /* ---------- navigation ---------- */
 const TABS = ["home", "list", "sales", "suppliers", "market"];
-const VIEWS = ["home", "list", "perfume", "sales", "reseller", "suppliers", "supplier", "market", "group", "shop", "team", "settings", "calc"];
-const PARENT = { perfume: "list", reseller: "sales", supplier: "suppliers", group: "market", shop: "market", calc: "home" };
-const TITLES = { team: "الفريق", settings: "الإعدادات", calc: "حاسبة التسعير" };
+const VIEWS = ["home", "list", "perfume", "sales", "reseller", "suppliers", "supplier", "market", "group", "shop", "team", "settings", "calc", "samples", "partners", "audit", "report"];
+const PARENT = { perfume: "list", reseller: "sales", supplier: "suppliers", group: "market", shop: "market", calc: "home", samples: "list", partners: "home", audit: "home", report: "home" };
+const TITLES = { team: "الفريق", settings: "الإعدادات", calc: "حاسبة التسعير", samples: "العينات والبوكسات", partners: "الشركاء", audit: "سجل التعديلات", report: "التقارير" };
 const isTab = v => TABS.includes(v);
 function resetBuilt(){ for (const v of ["settings", "calc"]) $("#v-" + v).dataset.built = ""; }
 function go(view, id = null, push = true){
@@ -1186,7 +1334,7 @@ function render(){
   }
   $("#fab").hidden = !fab; $("#fabLabel").textContent = fab;
   const fn = { home: renderHome, list: renderList, perfume: renderPerfume, sales: renderSales, reseller: renderReseller, suppliers: renderSuppliers,
-    supplier: renderSupplier, market: renderMarket, group: renderGroup, shop: renderShop, team: renderTeam, settings: renderSettings, calc: renderCalc }[S.view];
+    supplier: renderSupplier, market: renderMarket, group: renderGroup, shop: renderShop, team: renderTeam, settings: renderSettings, calc: renderCalc, samples: renderSamples, partners: renderPartners, audit: renderAudit, report: renderReport }[S.view];
   fn && fn();
 }
 const loadingHTML = t => `<div class="empty"><p>${t}</p></div>`;
@@ -1279,17 +1427,23 @@ function renderHome(){
     if (c.margin != null && c.margin < 10) alerts.push({ cls: "bad", ic: "%", t: c.margin < 0 ? `${esc(p.name)}: سعر البيع أقل من التكلفة (خسارة)` : `${esc(p.name)}: هامش الربح منخفض (${pctH(c.margin)})`, act: "open-perfume", id: p.id });
     if (c.sell != null && c.mMax != null && c.sell > c.mMax) alerts.push({ cls: "warn", ic: "↑", t: `${esc(p.name)}: سعر البيع أعلى من جميع أسعار السوق المسجلة`, act: "open-perfume", id: p.id });
     if (c.cost == null) noCost.push(p);
+    const si = staleInfo(p);
+    if (si) alerts.push({ cls: "warn", ic: "⌛", t: `${esc(p.name)}: ${si.sold ? "لم يُبع منذ" : "لم يُبع أبدًا منذ إضافته قبل"} ${daysTxt(si.days)}، والمتوفر ${piecesTxt(c.stock)}${si.value != null ? ` بقيمة ${numH(si.value)} ر.س` : ""}`, act: "open-perfume", id: p.id });
   }
+  for (const sp of S.supplies) if (sp.low != null && sp.qty <= sp.low) alerts.push({ cls: "warn", ic: "!", t: `${esc(sp.name)}: المتبقي ${fmt(sp.qty)} فقط`, act: "open-samples" });
+  for (const b of S.bottles) if (b.mlLeft > 0 && b.sizeMl && b.mlLeft / b.sizeMl <= 0.15) { const bp = perfById(b.perfumeId); alerts.push({ cls: "warn", ic: "!", t: `زجاجة ${esc(bp ? bp.name : "")} المفتوحة قاربت على النفاد: متبقٍ ${fmt(b.mlLeft)} مل`, act: "open-samples" }); }
   if (noCost.length === 1) alerts.push({ cls: "cost", ic: "?", t: `${esc(noCost[0].name)}: لم يُحدَّد سعر الشراء، لذا لا يمكن احتساب الربح`, act: "open-perfume", id: noCost[0].id });
   else if (noCost.length > 1) alerts.push({ cls: "cost", ic: "?", t: `${nPerf(noCost.length)} دون سعر شراء، لذا لا يمكن احتساب ربحها`, act: "tab", v: "list" });
   for (const x of owed.slice(0, 4)) alerts.push({ cls: "warn", ic: "ر.س", t: `مستحق على الموزع ${esc(x.r.name)}: ${numH(x.b.owed)} ر.س`, act: "open-reseller", id: x.r.id });
+  const days = S.settings.lastExport ? Math.floor((Date.now() - S.settings.lastExport) / 864e5) : null;
+  if (days == null || days >= 7) alerts.unshift({ cls: "cost", ic: "⤓", t: days == null ? "لم تُنزَّل نسخة احتياطية من البيانات بعد. اضغط لتنزيل ملف Excel." : `آخر نسخة احتياطية قبل ${daysTxt(days)}. اضغط لتنزيل نسخة جديدة.`, act: "export" });
   const icBg = { bad: "var(--bad-soft);color:var(--bad)", warn: "var(--warn-soft);color:var(--warn)", cost: "var(--c-cost-soft);color:var(--c-cost)" };
   const alertHTML = alerts.length ? alerts.slice(0, 8).map(a => `<button type="button" class="alert-row" data-act="${a.act}" ${a.id ? `data-id="${esc(a.id)}"` : ""} ${a.v ? `data-v="${a.v}"` : ""}><span class="r-ic" style="background:${icBg[a.cls]};font-size:${a.ic.length > 1 ? 11 : 15}px">${a.ic}</span><span class="at">${a.t}</span>${I.chev}</button>`).join("")
     + (alerts.length > 8 ? `<p class="hint">وتوجد ${alerts.length - 8} تنبيهات أخرى.</p>` : "")
     : `<div class="ok-line">${I.check}لا توجد تنبيهات حاليًا.</div>`;
   const months = Array.from({ length: 6 }, (_, i) => shiftMonth(m, i - 5));
   const top = {};
-  for (const s of S.sales.filter(s => monthOf(s.soldOn) === m)) {
+  for (const s of S.sales.filter(s => monthOf(s.soldOn) === m && isBottleSale(s))) {
     const k = s.perfumeId || s.name; const t = top[k] || (top[k] = { name: s.name, id: s.perfumeId, units: 0, profit: 0, known: true });
     t.units += sgn(s) * s.qty; const pf = saleProfit(s); if (pf == null) t.known = false; else t.profit += pf;
   }
@@ -1310,7 +1464,12 @@ function renderHome(){
       <button type="button" class="qact" data-act="add-item"><span class="qi" style="background:var(--c-market-soft);color:var(--c-market)">${I.store}</span>تسجيل سعر سوق</button>
       <button type="button" class="qact" data-act="add-perfume"><span class="qi" style="background:var(--accent-soft);color:var(--accent)">${I.bottleI}</span>إضافة عطر</button>
       <button type="button" class="qact" data-act="open-calc"><span class="qi" style="background:var(--c-cost-soft);color:var(--c-cost)">${I.calc}</span>حاسبة التسعير</button>
+      <button type="button" class="qact" data-act="go-report"><span class="qi" style="background:var(--good-soft);color:var(--good)">${I.sheet}</span>التقارير</button>
+      <button type="button" class="qact" data-act="add-bundle"><span class="qi" style="background:var(--c-resell-soft);color:var(--c-resell)">${I.cart}</span>بيع باقة</button>
+      <button type="button" class="qact" data-act="sell-sample" data-t="sample"><span class="qi" style="background:var(--warn-soft);color:var(--warn)">${I.bottleI}</span>بيع عينة</button>
+      <button type="button" class="qact" data-act="go-partners"><span class="qi" style="background:var(--sunk);color:var(--ink)">${I.users}</span>الشركاء</button>
     </div>
+    ${goalBars(m) ? `<section class="panel"><h2 class="sec">أهداف الشهر</h2>${goalBars(m)}</section>` : ""}
     <section class="panel"><h2 class="sec">التنبيهات</h2><div>${alertHTML}</div></section>
     <section class="panel"><div class="sec-row"><h2 class="sec">المبيعات والأرباح خلال آخر 6 أشهر</h2></div>${salesChart(months) || '<p class="r-empty">سيظهر هنا رسم بياني للمبيعات والأرباح الشهرية بعد تسجيل أول عملية بيع.</p>'}</section>
     <section class="panel"><div class="sec-row"><h2 class="sec">الأكثر مبيعًا هذا الشهر</h2></div><div class="rows">${tops.length ? tops.map((t, i) => `<div class="row"><span class="r-ic" style="background:var(--sunk)">${i + 1}</span>${t.id && perfById(t.id) ? `<button type="button" class="r-main" data-act="open-perfume" data-id="${esc(t.id)}">` : '<div class="r-main">'}<span class="r-name">${esc(t.name)}</span><span class="r-sub">${piecesTxt(t.units)}</span>${t.id && perfById(t.id) ? "</button>" : "</div>"}<span class="r-price t-good">${t.known ? money(t.profit) : "—"}<small class="muted">صافي الربح</small></span></div>`).join("") : '<p class="r-empty">لا توجد مبيعات مسجلة هذا الشهر.</p>'}</div></section>
@@ -1320,11 +1479,12 @@ function renderHome(){
 /* ---------- perfumes ---------- */
 function cardHTML(p){
   const c = calc(p);
-  const meta = [p.brand, c.size ? `${fmt(c.size)} مل` : "", p.conc].filter(Boolean).map(esc).join(" · ");
+  const meta = [p.brand, c.size ? `${fmt(c.size)} مل` : "", p.conc].filter(Boolean).map(x => `<bdi>${esc(x)}</bdi>`).join(" · ");
   const chips = [];
   if (c.margin != null) chips.push(`<span class="chip ${mClass(c.margin)}">${c.margin < 0 ? "خسارة" : "هامش الربح"} ${pctH(c.margin)}</span>`);
   else if (!(p.suppliers || []).length) chips.push('<span class="chip cost">دون سعر شراء</span>');
   const sc = stockChip(c); if (sc) chips.push(sc);
+  if (staleInfo(p)) chips.push('<span class="chip warn">راكد</span>');
   return `<button type="button" class="pcard" data-act="open-perfume" data-id="${esc(p.id)}">
     <div class="pimg">${imgTag(p)}</div>
     <div class="pbody">
@@ -1342,6 +1502,7 @@ function renderList(){
   if (!S.loaded) return;
   $("#listTools").hidden = !S.perfumes.length;
   $("#lgSeg").hidden = !S.perfumes.length;
+  $("#listActs").hidden = !S.perfumes.length;
   for (const b of $("#lgSeg").querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.v === S.lgroup));
   if (!S.perfumes.length) {
     sumEl.innerHTML = "";
@@ -1481,15 +1642,25 @@ function itemRow(it, o = {}){
   </div>`;
 }
 
+function moveRow(m, o = {}){
+  const p = perfById(m.perfumeId), sup = m.supplierId ? supById(m.supplierId) : null;
+  const eff = m.kind === "purchase" && m.unitCost != null ? m.unitCost + (m.qty ? m.extra / m.qty : 0) : null;
+  const sub = [o.showPerfume && p ? esc(p.name) : "", eff != null ? `${numH(Math.round(eff * 100) / 100)} ر.س للقطعة` : "", sup ? esc(sup.name) : "", esc(relDay(m.on)), m.notes ? esc(m.notes) : ""].filter(Boolean).join(" · ");
+  return `<div class="row"><div class="r-main"><span class="r-name">${MOVE_KIND[m.kind] || m.kind}</span><span class="r-sub">${sub}</span></div>
+    <span class="r-price ${m.qty > 0 ? "t-good" : "t-bad"}"><bdi>${m.qty > 0 ? "+" : "−"}${numH(Math.abs(m.qty))}</bdi><small class="muted">قطعة</small></span>
+    <button type="button" class="icon-btn" data-act="edit-move" data-id="${esc(m.id)}" aria-label="تعديل الحركة">${I.edit}</button></div>`;
+}
 function saleRow(s, o = {}){
   const r = s.resellerId ? resById(s.resellerId) : null;
   const pf = saleProfit(s), tot = saleTotal(s);
   const ch = s.channel === "reseller" ? `<span class="chip resell">موزع${r ? ": " + esc(r.name) : ""}</span>` : `<span class="chip">عميل</span>`;
   const pay = PAY_SHORT[s.payMethod] ? `<span class="chip cost">${PAY_SHORT[s.payMethod]}</span>` : "";
+  const bnd = s.bundleId ? '<span class="chip acc">باقة</span>' : "";
+  const typ = isBottleSale(s) ? bnd : `<span class="chip ${s.itemType === "free" ? "bad" : "acc"}">${ITEM_LABEL[s.itemType]}${s.itemType !== "box" && s.ml ? ` ${fmt(s.ml)} مل` : ""}</span>`;
   const sp = isSpecial(s) ? '<span class="chip warn">سعر خاص</span>' : "";
   const sub = [`${piecesTxt(s.qty)} × ${fmt(Number(s.unitPrice) || 0)} ر.س${sp ? ` <span class="muted">(بدل ${fmt(Number(s.listPrice))})</span>` : ""}`, s.customer ? esc(s.customer) : "", o.showDate ? relDay(s.soldOn) : ""].filter(Boolean).join(" · ");
-  return `<div class="row"><div class="r-main"><span class="r-name">${esc(s.name)}${s.kind === "return" ? '<span class="chip bad">مرتجع</span>' : ""}${o.hideWho ? "" : ch}${pay}${sp}</span><span class="r-sub">${sub}</span></div>
-    <span class="r-price t-sell">${money(tot)}<small class="${pf == null ? "muted" : pf < 0 ? "t-bad" : "t-good"}">${pf == null ? "الربح غير محدد" : (s.kind === "return" ? "خُصم من الربح " : pf < 0 ? "خسارة " : "ربح ") + numH(Math.abs(pf))}</small></span>
+  return `<div class="row"><div class="r-main"><span class="r-name">${esc(s.name)}${s.kind === "return" ? '<span class="chip bad">مرتجع</span>' : ""}${typ}${o.hideWho || s.itemType === "free" ? "" : ch}${pay}${sp}</span><span class="r-sub">${sub}</span></div>
+    <span class="r-price t-sell">${money(tot)}<small class="${pf == null ? "muted" : pf < 0 ? "t-bad" : "t-good"}">${pf == null ? "الربح غير محدد" : (s.itemType === "free" ? "تكلفة تسويق " : s.kind === "return" ? "خُصم من الربح " : pf < 0 ? "خسارة " : "ربح ") + numH(Math.abs(pf))}</small></span>
     <button type="button" class="icon-btn" data-act="edit-sale" data-id="${esc(s.id)}" aria-label="تعديل العملية">${I.edit}</button></div>`;
 }
 
@@ -1527,8 +1698,12 @@ function renderPerfume(){
   const stockPanel = c.stock != null
     ? `<div class="stock-row"><button type="button" class="round-btn" data-act="stock-adj" data-d="1" aria-label="زيادة قطعة">+</button><div class="stock-num"><b class="${c.stockState === "out" ? "t-bad" : c.stockState === "low" ? "t-warn" : ""}">${numH(c.stock)}</b><span>قطعة متوفرة</span></div><button type="button" class="round-btn" data-act="stock-adj" data-d="-1" aria-label="إنقاص قطعة">−</button></div>
        <p class="hint" style="text-align:center">يظهر تنبيه عند انخفاض الكمية عن ${fmt(c.low)}. تُخصم الكمية تلقائيًا عند تسجيل البيع، وتُضاف عند تسجيل المرتجع.</p>
-       <div class="btnrow" style="justify-content:center"><button type="button" class="btn soft small" data-act="stock-add">${I.plus}استلام كمية جديدة</button><button type="button" class="btn ghost small" data-act="stock-set">تعديل الكمية</button></div>`
-    : `<p class="r-empty">لم تُسجَّل كمية المخزون لهذا العطر.</p><div class="btnrow"><button type="button" class="btn soft small" data-act="stock-set">تسجيل الكمية المتوفرة</button></div>`;
+       <div class="btnrow" style="justify-content:center"><button type="button" class="btn soft small" data-act="add-purchase-perfume">${I.plus}تسجيل طلبية شراء</button><button type="button" class="btn ghost small" data-act="add-loss">تسجيل تالف أو مفتوح</button><button type="button" class="btn ghost small" data-act="stock-set">تصحيح الكمية</button></div>`
+    : `<p class="r-empty">لم تُسجَّل كمية المخزون لهذا العطر.</p><div class="btnrow"><button type="button" class="btn soft small" data-act="add-purchase-perfume">${I.plus}تسجيل طلبية شراء</button><button type="button" class="btn ghost small" data-act="stock-set">تسجيل الكمية المتوفرة</button></div>`;
+  const si = staleInfo(p);
+  const pmoves = S.moves.filter(m => m.perfumeId === p.id);
+  const movesHTML = pmoves.length ? `<div class="sublabel">حركات المخزون</div><div class="rows">${pmoves.slice(0, 6).map(moveRow).join("")}</div>${pmoves.length > 6 ? `<p class="hint">وتوجد ${pmoves.length - 6} حركات أقدم.</p>` : ""}` : "";
+  const staleHTML = si ? `<div class="notice" style="margin-top:8px"><span>${si.sold ? `لم يُبع هذا العطر منذ ${daysTxt(si.days)}.` : `لم يُبع هذا العطر منذ إضافته قبل ${daysTxt(si.days)}.`}${si.value != null ? ` قيمة المخزون الراكد ${numH(si.value)} ر.س بسعر الشراء.` : ""}</span></div>` : "";
   box.innerHTML = `
     <div class="phero">
       <div class="phero-img">${imgTag(p)}</div>
@@ -1548,7 +1723,7 @@ function renderPerfume(){
       <div class="stats">
         ${stat("سعر البيع للعميل", c.sell, "sell", { hl: true, sub: c.perMl != null ? `<span class="t-sell">سعر المل: ${numH(c.perMl)} ر.س</span>` : "" })}
         ${stat("سعر البيع للموزع", c.resell, "resell", { sub: c.resGain != null ? `<span class="muted">ربح الموزع ${numH(c.resGain)} ر.س (${pctH(c.resGainPct)})${toNum(p.suggestedPrice) != null ? `<br>بسعر البيع المقترح ${numH(c.retailS)} ر.س` : ""}</span>` : "" })}
-        ${stat("سعر الشراء", c.cost, "cost", { sub: links.length > 1 ? '<span class="muted">من أقل مورد سعرًا</span>' : "" })}
+        ${stat(c.costSrc === "purchases" ? "تكلفة الشراء الفعلية" : "سعر الشراء", c.cost, "cost", { sub: c.costSrc === "purchases" ? `<span class="muted">متوسط تكلفة طلبياتك (${piecesTxt(c.bought)})${c.supCost != null && c.supCost !== c.cost ? `، وسعر المورد حاليًا ${numH(c.supCost)}` : ""}</span>` : links.length > 1 ? '<span class="muted">من أقل مورد سعرًا</span>' : "" })}
         ${hasExtras ? stat("إجمالي تكلفة القطعة", c.fullD, "cost", { wide: true, sub: `<span class="muted">${parts}</span>` }) : ""}
         ${stat("صافي الربح من القطعة (عميل)", c.profit, mClass(c.margin) || "good", { sub: c.margin != null ? `هامش الربح ${pctH(c.margin)}` : "", cls: mClass(c.margin) })}
         ${stat("صافي الربح من القطعة (موزع)", c.rProfit, mClass(c.rMargin) || "good", { sub: c.rMargin != null ? `هامش الربح ${pctH(c.rMargin)}` : "", cls: mClass(c.rMargin) })}
@@ -1556,7 +1731,12 @@ function renderPerfume(){
       ${c.cost != null ? `<div class="suggest"><span>لتحقيق هامش ربح ${fmt(st.target)}%: سعر البيع المقترح للعميل <b>${c.sugD != null ? numH(c.sugD) : "—"}</b> ر.س، وللموزع <b class="t-resell">${c.sugR != null ? numH(c.sugR) : "—"}</b> ر.س</span><button type="button" class="btn ghost small" data-act="open-calc-perfume">${I.calc}حاسبة التسعير</button></div>` : ""}
       ${marketHTML(c, p)}
     </section>
-    <section class="panel"><div class="sec-row"><h2 class="sec">المخزون</h2>${stockChip(c)}</div>${stockPanel}</section>
+    <section class="panel"><div class="sec-row"><h2 class="sec">المخزون</h2>${stockChip(c)}</div>${stockPanel}${staleHTML}${movesHTML}</section>
+    <section class="panel"><div class="sec-row"><h2 class="sec">العينات</h2><button type="button" class="btn ghost small" data-act="sample-prices" data-id="${esc(p.id)}">${I.edit}الأسعار</button></div>
+      <p class="hint" style="margin:0">${mlLeftOf(p.id) ? `في الزجاجات المفتوحة: <b>${fmt(mlLeftOf(p.id))}</b> مل` : "لا توجد زجاجة مفتوحة للتقسيم من هذا العطر."}${costPerMl(p.id) != null ? ` · تكلفة المل ${numH(Math.round(costPerMl(p.id) * 100) / 100)} ر.س` : ""}</p>
+      ${costPerMl(p.id) != null ? `<p class="hint" style="margin:4px 0 0">${SAMPLE_SIZES.map(n => { const v = samplePriceOf(p, n); return `${n} مل: <b>${v != null ? numH(v) : "—"}</b>`; }).join(" · ")}</p>` : ""}
+      <div class="btnrow"><button type="button" class="btn soft small" data-act="sell-sample-perfume">${I.cart}بيع عينة</button><button type="button" class="btn ghost small" data-act="open-bottle-perfume">فتح زجاجة للتقسيم</button></div>
+    </section>
     ${historyChart(p, c)}
     <section class="panel">
       <div class="sec-row"><h2 class="sec">سجل المبيعات <span class="count num">${ps.length}</span></h2><button type="button" class="btn soft small" data-act="add-sale-perfume">${I.plus}تسجيل بيع</button></div>
@@ -1572,6 +1752,193 @@ function renderPerfume(){
     </section>
     ${p.notes ? `<section class="panel"><h2 class="sec">ملاحظات</h2><p class="notes">${esc(p.notes)}</p></section>` : ""}
   `;
+}
+
+
+/* ---------- العينات والبوكسات ---------- */
+function renderSamples(){
+  const box = $("#v-samples");
+  if (!S.loaded) { box.innerHTML = loadingHTML("جارٍ التحميل…"); return; }
+  const m = thisMonth();
+  const ms = salesStats(S.sales.filter(s => monthOf(s.soldOn) === m));
+  const opened = S.bottles.slice().sort((a, b) => (a.mlLeft > 0 ? 0 : 1) - (b.mlLeft > 0 ? 0 : 1) || byOpen(a, b));
+  const pricePerfs = S.perfumes.filter(p => costPerMl(p.id) != null).sort((a, b) => (mlLeftOf(b.id) > 0) - (mlLeftOf(a.id) > 0) || byName(a, b));
+  const recent = S.sales.filter(s => !isBottleSale(s)).sort((a, b) => String(b.soldOn).localeCompare(String(a.soldOn)) || b.createdAt - a.createdAt).slice(0, 8);
+  const bar = b => { const pct = b.sizeMl ? Math.max(0, Math.min(100, b.mlLeft / b.sizeMl * 100)) : 0; return `<span class="mlbar"><i style="width:${pct.toFixed(1)}%" class="${pct <= 15 ? "low" : ""}"></i></span>`; };
+  box.innerHTML = `
+    <div class="stats" style="margin:0">
+      ${stat("مبيعات العينات هذا الشهر", ms.sampleRev, "sell")}
+      ${stat("مبيعات البوكسات هذا الشهر", ms.boxRev, "sell")}
+      ${stat("تكلفة العينات المجانية", ms.freeCost, "bad", { wide: true, sub: `<span class="muted">${ms.freeCount ? `${fmt(ms.freeCount)} عينة هذا الشهر، وتُحتسب تكلفة تسويق منفصلة عن الربح` : "لا توجد عينات مجانية هذا الشهر"}</span>` })}
+    </div>
+    <div class="btnrow" style="margin:0"><button type="button" class="btn primary" data-act="sell-sample" data-t="sample">${I.cart}بيع عينة</button><button type="button" class="btn soft" data-act="sell-sample" data-t="box">بيع بوكس</button><button type="button" class="btn ghost" data-act="sell-sample" data-t="free">عينة مجانية</button></div>
+    <section class="panel">
+      <div class="sec-row"><h2 class="sec">الزجاجات المفتوحة للتقسيم <span class="count num">${S.bottles.filter(b => b.mlLeft > 0).length}</span></h2><button type="button" class="btn soft small" data-act="open-bottle">${I.plus}فتح زجاجة</button></div>
+      <div class="rows">${opened.length ? opened.map(b => { const p = perfById(b.perfumeId); return `<div class="row${b.mlLeft > 0 ? "" : " dim"}"><div class="r-main"><span class="r-name">${esc(p ? p.name : "عطر محذوف")}${b.mlLeft > 0 ? "" : '<span class="chip">فارغة</span>'}</span><span class="r-sub">${bar(b)} متبقٍ <b>${fmt(b.mlLeft)}</b> من ${fmt(b.sizeMl)} مل${b.cost != null ? ` · تكلفة المل ${numH(Math.round(b.cost / b.sizeMl * 100) / 100)} ر.س` : ""} · فُتحت ${esc(relDay(b.openedOn))}</span></div><button type="button" class="icon-btn" data-act="edit-bottle" data-id="${esc(b.id)}" aria-label="تعديل الزجاجة">${I.edit}</button></div>`; }).join("") : '<p class="r-empty">لا توجد زجاجات مفتوحة. افتح زجاجة لتبدأ بيع العينات، وتُخصم منها المليلترات تلقائيًا مع كل عينة.</p>'}</div>
+    </section>
+    <section class="panel">
+      <div class="sec-row"><h2 class="sec">أسعار العينات</h2></div>
+      ${pricePerfs.length ? `<div class="rows">${pricePerfs.map(p => `<div class="row"><div class="r-main"><span class="r-name">${esc(p.name)}</span><span class="r-sub">${SAMPLE_SIZES.map(n => { const v = samplePriceOf(p, n), own = toNum((p.samplePrices || {})[String(n)]) != null; return `${n} مل: <b class="${own ? "t-sell" : ""}">${v != null ? numH(v) : "—"}</b>`; }).join(" · ")}</span><span class="r-sub muted">تكلفة المل ${numH(Math.round(costPerMl(p.id) * 100) / 100)} ر.س${mlLeftOf(p.id) ? ` · متبقٍ ${fmt(mlLeftOf(p.id))} مل` : ""}</span></div><button type="button" class="icon-btn" data-act="sample-prices" data-id="${esc(p.id)}" aria-label="تعديل أسعار العينات">${I.edit}</button></div>`).join("")}</div><p class="hint">الأسعار الملونة حددتها بنفسك، والباقي أسعار مقترحة تحقق هامش الربح المستهدف بعد تكلفة المل والعبوة.</p>` : '<p class="r-empty">تظهر الأسعار بعد تحديد سعر شراء العطر أو فتح زجاجة منه.</p>'}
+    </section>
+    <section class="panel">
+      <div class="sec-row"><h2 class="sec">البوكسات <span class="count num">${S.boxes.length}</span></h2><button type="button" class="btn soft small" data-act="add-box">${I.plus}إنشاء بوكس</button></div>
+      <div class="rows">${S.boxes.length ? S.boxes.map(b => { const c = boxCost(b), mg = c != null && b.sell ? (b.sell - c) / b.sell * 100 : null; return `<div class="row"><div class="r-main"><span class="r-name">${esc(b.name)}${b.inCatalog ? '<span class="chip acc">في الكتالوج</span>' : ""}</span><span class="r-sub">${b.items.length} عينات · ${fmt(boxMl(b))} مل · التكلفة ${c != null ? numH(c) + " ر.س" : "غير محددة"}</span><span class="r-sub">${b.items.map(it => esc((perfById(it.p) || {}).name || "—") + ` (${fmt(it.ml)} مل)`).join("، ")}</span></div><span class="r-price t-sell">${b.sell != null ? money(b.sell) : "—"}${mg != null ? `<small class="${mClass(mg)}">هامش ${pctH(mg)}</small>` : ""}${b.resell != null ? `<small class="t-resell">للموزع ${numH(b.resell)}</small>` : ""}</span><button type="button" class="icon-btn" data-act="edit-box" data-id="${esc(b.id)}" aria-label="تعديل البوكس">${I.edit}</button></div>`; }).join("") : '<p class="r-empty">أنشئ بوكسًا مثل «10 عينات × 5 مل»، ويحسب الموقع تكلفته ويقترح سعره.</p>'}</div>
+    </section>
+    <section class="panel">
+      <div class="sec-row"><h2 class="sec">العبوات والعلب</h2><button type="button" class="btn soft small" data-act="add-supply">${I.plus}إضافة</button></div>
+      <div class="rows">${S.supplies.length ? S.supplies.map(sp => { const low = sp.low != null && sp.qty <= sp.low; return `<div class="row"><div class="r-main"><span class="r-name">${esc(sp.name)}${low ? '<span class="chip warn">قاربت على النفاد</span>' : ""}</span><span class="r-sub">${SUP_KIND[sp.kind]}${sp.unitCost != null ? ` · ${numH(sp.unitCost)} ر.س للوحدة` : ""}</span></div><span class="r-price ${low ? "t-warn" : ""}">${fmt(sp.qty)}<small class="muted">متوفر</small></span><button type="button" class="btn soft small" data-act="receive-supply" data-id="${esc(sp.id)}">استلام</button><button type="button" class="icon-btn" data-act="edit-supply" data-id="${esc(sp.id)}" aria-label="تعديل">${I.edit}</button></div>`; }).join("") : '<p class="r-empty">أضف العبوات الفارغة (1، 2، 5، 10 مل) والعلب، لتُخصم تلقائيًا مع كل عينة أو بوكس وتُضاف تكلفتها.</p>'}</div>
+    </section>
+    <section class="panel"><div class="sec-row"><h2 class="sec">آخر عمليات العينات والبوكسات</h2></div><div class="rows">${recent.length ? recent.map(s => saleRow(s, { showDate: true })).join("") : '<p class="r-empty">لا توجد عمليات بعد.</p>'}</div></section>`;
+}
+
+
+/* ---------- الشركاء ---------- */
+function renderPartners(){
+  const box = $("#v-partners");
+  if (!S.loaded) { box.innerHTML = loadingHTML("جارٍ التحميل…"); return; }
+  if (!S.partners.length) {
+    box.innerHTML = `<div class="empty">${bottle()}<h2>حساب الشركاء</h2><p>سجّل الشركاء ونسبة كل شريك من الربح، ورأس المال الذي دفعه كل واحد والمبالغ التي سحبها. يحسب الموقع نصيب كل شريك من صافي الربح والرصيد المستحق له.</p><button type="button" class="btn primary" data-act="setup-partners">${I.plus}إضافة الشركاء</button></div>`;
+    return;
+  }
+  const all = netProfitOf(S.sales, S.moves);
+  const m = thisMonth();
+  const mon = netProfitOf(S.sales.filter(s => monthOf(s.soldOn) === m), S.moves.filter(x => monthOf(x.on) === m));
+  const rows = partnerBalances();
+  const totalShare = sum(S.partners.map(p => p.share));
+  box.innerHTML = `
+    <div class="stats" style="margin:0">
+      ${stat("صافي الربح منذ البداية", all.net, all.net < 0 ? "bad" : "good", { hl: true, wide: true, sub: `<span class="muted">ربح المبيعات ${numH(all.sales)}${all.free ? ` − العينات المجانية ${numH(all.free)}` : ""}${all.losses ? ` − خسائر المخزون ${numH(all.losses)}` : ""}</span>` })}
+      ${stat("صافي ربح الشهر الحالي", mon.net, mon.net < 0 ? "bad" : "good", { wide: true })}
+    </div>
+    ${Math.abs(totalShare - 100) > 0.01 ? `<div class="notice"><span>مجموع نسب الشركاء ${fmt(totalShare)}%، ويجب أن يكون 100%. عدّل النسب من زر التعديل.</span></div>` : ""}
+    ${all.unknown ? `<p class="hint" style="margin:0">${all.unknown === 1 ? "توجد عملية واحدة" : `توجد ${all.unknown} عمليات`} دون سعر شراء، ولم يُحتسب ربحها.</p>` : ""}
+    ${rows.map(({ p, capital, withdrawn, share, balance }) => `<section class="panel">
+      <div class="sec-row" style="margin:0"><h2 class="sec">${esc(p.name)} <span class="muted" style="font-size:14px;font-weight:600">${fmt(p.share)}%</span></h2><button type="button" class="icon-btn" data-act="edit-partner" data-id="${esc(p.id)}" aria-label="تعديل الشريك">${I.edit}</button></div>
+      <div class="stats">
+        ${stat("رأس المال المدفوع", capital, "cost")}
+        ${stat("نصيبه من صافي الربح", share, share < 0 ? "bad" : "good")}
+        ${stat("المسحوب", withdrawn, "warn")}
+        ${stat("الرصيد المستحق له", balance, balance < 0 ? "bad" : "sell", { hl: true, sub: '<span class="muted">رأس المال + نصيبه من الربح − المسحوب</span>' })}
+      </div>
+      <div class="btnrow"><button type="button" class="btn soft small" data-act="partner-move" data-id="${esc(p.id)}" data-k="capital">${I.plus}رأس مال</button><button type="button" class="btn ghost small" data-act="partner-move" data-id="${esc(p.id)}" data-k="withdraw">تسجيل سحب</button></div>
+    </section>`).join("")}
+    <section class="panel"><div class="sec-row"><h2 class="sec">سجل رأس المال والسحوبات <span class="count num">${S.pMoves.length}</span></h2></div>
+      <div class="rows">${S.pMoves.length ? S.pMoves.map(x => { const p = S.partners.find(y => y.id === x.partnerId); return `<div class="row"><div class="r-main"><span class="r-name">${x.kind === "capital" ? "رأس مال" : "سحب"}: ${esc(p ? p.name : "")}</span><span class="r-sub">${[esc(relDay(x.on)), x.notes ? esc(x.notes) : ""].filter(Boolean).join(" · ")}</span></div><span class="r-price ${x.kind === "capital" ? "t-cost" : "t-warn"}">${money(x.amount)}</span><button type="button" class="icon-btn" data-act="edit-pmove" data-id="${esc(x.id)}" aria-label="تعديل">${I.edit}</button></div>`; }).join("") : '<p class="r-empty">لا توجد مبالغ مسجلة.</p>'}</div>
+    </section>
+    <p class="hint">صافي الربح = ربح المبيعات بعد تكلفة الشراء والتغليف والتوصيل وعمولة البطاقة، مطروحًا منه تكلفة العينات المجانية وخسائر المخزون. لا يشمل مصاريف أخرى غير مسجلة في الموقع.</p>`;
+}
+
+/* ---------- سجل التعديلات ---------- */
+const AUDIT_TABLE = { perfumes: "عطر", suppliers: "مورد", perfume_suppliers: "سعر مورد", shops: "متجر", market_items: "سعر سوق", resellers: "موزع", sales: "عملية بيع", reseller_payments: "دفعة موزع", supplier_notes: "ملاحظة مورد", watchlist: "قائمة المتابعة", app_settings: "الإعدادات", stock_moves: "حركة مخزون", boxes: "بوكس", partners: "شريك", partner_moves: "رأس مال أو سحب", custom_notes: "نوتة" };
+const AUDIT_ACT = { insert: ["إضافة", "good"], update: ["تعديل", "warn"], delete: ["حذف", "bad"] };
+const AUDIT_FIELD = { name: "الاسم", sell_price: "سعر البيع للعميل", reseller_price: "سعر البيع للموزع", suggested_price: "السعر المقترح للموزع", price: "السعر", qty: "الكمية", unit_price: "سعر الوحدة", unit_cost: "التكلفة", stock: "الكمية", amount: "المبلغ", sold_on: "التاريخ", paid_on: "التاريخ", moved_on: "التاريخ", kind: "النوع", channel: "المشتري", payment_method: "طريقة الدفع", customer: "العميل", notes: "ملاحظات", brand: "العلامة التجارية", size: "الحجم", packaging: "التعبئة", scent_notes: "النوتات", city: "المدينة", phone: "الجوال", share_pct: "النسبة", fee_pct: "عمولة البطاقة", pack_cost: "تكلفة التغليف", ship_cost: "تكلفة التوصيل", target_margin: "الهامش المستهدف", in_catalog: "في الكتالوج", extra_cost: "تكلفة إضافية", low_stock: "حد التنبيه", perfume_name: "العطر", sell: "سعر البيع", items: "المحتوى" };
+const auditVal = v => v == null || v === "" ? "—" : typeof v === "boolean" ? (v ? "نعم" : "لا") : Array.isArray(v) ? v.map(x => typeof x === "object" ? "…" : x).join("، ") : typeof v === "object" ? "…" : String(v);
+async function renderAudit(){
+  const box = $("#v-audit");
+  box.innerHTML = loadingHTML("جارٍ تحميل السجل…");
+  let rows;
+  try { rows = await q(sb.from("audit_log").select("*").order("id", { ascending: false }).limit(300)); }
+  catch (e) { box.innerHTML = `<div class="empty"><p>${esc(errMsg(e))}</p></div>`; return; }
+  if (S.view !== "audit") return;
+  const skip = new Set(["id", "perfume_id", "supplier_id", "shop_id", "reseller_id", "partner_id", "box_id", "vial_id", "consumed", "image_path", "catalog_token", "statement_token", "list_price", "perfume_key", "pack_id"]);
+  let lastDay = "";
+  box.innerHTML = rows.length ? `<section class="panel"><p class="hint" style="margin:0 0 6px">آخر ${rows.length} تعديل على البيانات، ومن قام به.</p><div class="rows">${rows.map(r => {
+    const d = isoDay(Date.parse(r.at)); const head = d !== lastDay ? `<div class="dayhead">${esc(relDay(d))}</div>` : ""; lastDay = d;
+    const [act, cls] = AUDIT_ACT[r.action] || [r.action, ""];
+    const ch = r.changes || {};
+    const det = r.action === "update"
+      ? Object.entries(ch).filter(([k]) => !skip.has(k)).map(([k, v]) => `${esc(AUDIT_FIELD[k] || k)}: <bdi>${esc(auditVal(v[0]))}</bdi> ← <bdi><b>${esc(auditVal(v[1]))}</b></bdi>`).join("<br>")
+      : Object.entries(ch).filter(([k, v]) => !skip.has(k) && AUDIT_FIELD[k] && v != null && v !== "" && !(Array.isArray(v) && !v.length)).slice(0, 5).map(([k, v]) => `${esc(AUDIT_FIELD[k])}: <bdi>${esc(auditVal(v))}</bdi>`).join(" · ");
+    return `${head}<div class="row" style="align-items:flex-start"><span class="chip ${cls}" style="flex:none">${act}</span><div class="r-main"><span class="r-name">${esc(AUDIT_TABLE[r.table_name] || r.table_name)}${r.label ? `: ${esc(r.label)}` : ""}</span>${det ? `<span class="r-sub">${det}</span>` : ""}<span class="r-sub">${esc(who(r.user_email) || "النظام")} · ${new Date(r.at).toLocaleTimeString("ar-u-nu-latn", { hour: "numeric", minute: "2-digit" })}</span></div></div>`;
+  }).join("")}</div></section>` : `<div class="empty"><p>لا توجد تعديلات مسجلة بعد. يبدأ التسجيل بعد تشغيل ملف setup.sql الجديد.</p></div>`;
+}
+
+
+/* ---------- التقرير ---------- */
+const opsTxt = n => n === 1 ? "عملية واحدة" : n === 2 ? "عمليتان" : n >= 3 && n <= 10 ? `${n} عمليات` : `${n} عملية`;
+function reportRange(){
+  const p = S.rperiod || "m";
+  if (p === "3m") { const from = shiftMonth(thisMonth(), -2); return { label: `آخر 3 أشهر (${monthName(from)} – ${monthName(thisMonth())})`, test: d => monthOf(d) >= from, short: "آخر 3 أشهر" }; }
+  if (p === "all") return { label: "منذ البداية", test: () => true, short: "منذ البداية" };
+  const m = S.rmonth || thisMonth();
+  return { label: monthName(m), test: d => monthOf(d) === m, month: m, short: monthName(m) };
+}
+function reportData(){
+  const R = reportRange();
+  const sales = S.sales.filter(s => R.test(s.soldOn));
+  const moves = S.moves.filter(m => R.test(m.on));
+  const st = salesStats(sales), np = netProfitOf(sales, moves);
+  const paid = sales.filter(s => s.itemType !== "free");
+  const group = (arr, keyFn) => { const m = new Map(); for (const s of arr) { const k = keyFn(s); if (k == null) continue; const e = m.get(k) || { k, rev: 0, units: 0, profit: 0, n: 0 }; e.rev += saleTotal(s); e.units += sgn(s) * s.qty; e.n++; const pf = saleProfit(s); if (pf != null) e.profit += pf; m.set(k, e); } return [...m.values()]; };
+  const bottles = paid.filter(isBottleSale);
+  const topP = group(bottles, s => s.name).filter(x => x.units > 0).sort((a, b) => b.units - a.units || b.profit - a.profit).slice(0, 5);
+  const topR = group(paid.filter(s => s.resellerId), s => s.resellerId).sort((a, b) => b.rev - a.rev).slice(0, 5).map(x => ({ ...x, name: (resById(x.k) || {}).name || "موزع محذوف" }));
+  const bySrc = group(paid.filter(s => s.channel === "direct"), s => s.source || "none").sort((a, b) => b.rev - a.rev);
+  // العائلات والنوتات: كل قطعة تُحسب لكل عائلة ونوتة في العطر
+  const famM = new Map(), noteM = new Map();
+  for (const s of bottles) {
+    const p = s.perfumeId ? perfById(s.perfumeId) : null; if (!p) continue;
+    const pf = saleProfit(s), u = sgn(s) * s.qty;
+    for (const f of famsOf(p)) { const e = famM.get(f) || { k: f, units: 0, profit: 0, rev: 0 }; e.units += u; e.rev += saleTotal(s); if (pf != null) e.profit += pf; famM.set(f, e); }
+    for (const n of knownNotes(p)) { const e = noteM.get(n) || { k: n, units: 0 }; e.units += u; noteM.set(n, e); }
+  }
+  const fams = [...famM.values()].filter(x => x.units > 0).sort((a, b) => b.units - a.units);
+  const notes = [...noteM.values()].filter(x => x.units > 0).sort((a, b) => b.units - a.units).slice(0, 8);
+  const sizes = group(paid.filter(s => s.itemType === "sample"), s => s.ml).sort((a, b) => b.units - a.units);
+  const tiers = group(bottles, s => priceTier(Number(s.listPrice ?? s.unitPrice)).label).sort((a, b) => b.units - a.units);
+  const buys = moves.filter(m => m.kind === "purchase");
+  const spent = sum(buys.map(m => m.qty * (m.unitCost || 0) + m.extra));
+  const owed = sum(S.resellers.map(r => Math.max(resellerBalance(r.id).owed, 0)));
+  return { R, st, np, topP, topR, bySrc, fams, notes, sizes, tiers, spent, buyUnits: sum(buys.map(m => m.qty)), losses: lossesOf(moves), owed };
+}
+function goalBars(month){
+  const st = S.settings; if (!st.goalSales && !st.goalProfit) return "";
+  const sales = S.sales.filter(s => monthOf(s.soldOn) === month), np = netProfitOf(sales, S.moves.filter(m => monthOf(m.on) === month));
+  const rev = salesStats(sales).revenue;
+  const bar = (k, v, goal, role) => { const pct = goal ? Math.max(0, v / goal * 100) : 0; return `<div class="goal"><div class="goal-h"><span>${k}</span><span><b>${numH(v)}</b> من ${numH(goal)} ر.س · <b>${pctH(pct)}</b></span></div><span class="goal-bar"><i class="${role}" style="width:${Math.min(pct, 100).toFixed(1)}%"></i></span></div>`; };
+  return (st.goalSales ? bar("هدف المبيعات", rev, st.goalSales, "sell") : "") + (st.goalProfit ? bar("هدف صافي الربح", np.net, st.goalProfit, "good") : "");
+}
+function reportText(d){
+  const L = [`تقرير ${d.R.short} — ${S.settings.catTitle || "دفتر العطور"}`, `المبيعات: ${numH(d.st.revenue)} ر.س (${opsTxt(d.st.count)})`, `صافي الربح: ${numH(d.np.net)} ر.س${d.st.margin != null ? ` · الهامش ${pctH(d.np.net / (d.st.revenue || 1) * 100)}` : ""}`,
+    `مبيعات العملاء: ${numH(d.st.direct)} ر.س · مبيعات الموزعين: ${numH(d.st.viaRes)} ر.س`];
+  if (d.topP.length) L.push("الأكثر مبيعًا: " + d.topP.slice(0, 3).map(x => `${x.k} (${x.units})`).join("، "));
+  if (d.spent) L.push(`المشتريات: ${numH(d.spent)} ر.س`);
+  L.push(`المستحق على الموزعين حاليًا: ${numH(d.owed)} ر.س`);
+  return L.join("\n");
+}
+function renderReport(){
+  const box = $("#v-report");
+  if (!S.loaded) { box.innerHTML = loadingHTML("جارٍ التحميل…"); return; }
+  const d = reportData(), p = S.rperiod || "m";
+  const list = (arr, fmtRow, empty) => arr.length ? `<div class="rows">${arr.map(fmtRow).join("")}</div>` : `<p class="r-empty">${empty}</p>`;
+  const row = (name, sub, val, cls = "") => `<div class="row"><div class="r-main"><span class="r-name">${name}</span>${sub ? `<span class="r-sub">${sub}</span>` : ""}</div><span class="r-price ${cls}">${val}</span></div>`;
+  const maxU = Math.max(1, ...d.fams.map(x => x.units));
+  box.innerHTML = `
+    <div class="seg" role="group" aria-label="الفترة"><button type="button" data-act="rperiod" data-v="m" aria-pressed="${p === "m"}">شهر</button><button type="button" data-act="rperiod" data-v="3m" aria-pressed="${p === "3m"}">آخر 3 أشهر</button><button type="button" data-act="rperiod" data-v="all" aria-pressed="${p === "all"}">منذ البداية</button></div>
+    ${p === "m" ? `<div class="sec-row" style="margin:0"><button type="button" class="btn ghost small" data-act="rmonth" data-d="-1">الشهر السابق</button><b style="font-size:18px">${esc(d.R.label)}</b><button type="button" class="btn ghost small" data-act="rmonth" data-d="1" ${(S.rmonth || thisMonth()) < thisMonth() ? "" : "disabled"}>الشهر التالي</button></div>` : `<b style="font-size:17px">${esc(d.R.label)}</b>`}
+    <div class="stats" style="margin:0">
+      ${stat("إجمالي المبيعات", d.st.revenue, "sell", { sub: `<span class="muted">${opsTxt(d.st.count)} · ${piecesTxt(d.st.units)}</span>` })}
+      ${stat("صافي الربح", d.np.net, d.np.net < 0 ? "bad" : "good", { hl: true, sub: `<span class="muted">${d.st.revenue ? `الهامش ${pctH(d.np.net / d.st.revenue * 100)}` : ""}${d.np.free || d.np.losses ? ` · بعد خصم العينات المجانية والخسائر ${numH(d.np.free + d.np.losses)}` : ""}</span>` })}
+      ${stat("المشتريات", d.spent, "cost", { sub: `<span class="muted">${d.buyUnits ? piecesTxt(d.buyUnits) : "لا توجد طلبيات"}</span>` })}
+      ${stat("المستحق على الموزعين", d.owed, d.owed > 0 ? "warn" : "good", { sub: '<span class="muted">الرصيد الحالي</span>' })}
+    </div>
+    ${d.R.month && d.R.month === thisMonth() ? goalBars(d.R.month) : ""}
+    <section class="panel"><h2 class="sec">توزيع المبيعات</h2>
+      <p class="hint" style="margin:4px 0 0">العملاء: <b class="t-sell">${numH(d.st.direct)}</b> ر.س · الموزعون: <b class="t-resell">${numH(d.st.viaRes)}</b> ر.س</p>
+      <p class="hint" style="margin:4px 0 0">قطع كاملة: <b>${numH(d.st.revenue - d.st.sampleRev - d.st.boxRev)}</b> ر.س · عينات: <b>${numH(d.st.sampleRev)}</b> ر.س · بوكسات: <b>${numH(d.st.boxRev)}</b> ر.س</p>
+      <p class="hint" style="margin:4px 0 0">حسب طريقة الدفع: ${["card", "transfer", "cash"].map(k => `${PAY_SHORT[k]} <b>${numH(d.st.byPay[k])}</b>`).join(" · ")}${d.st.byPay.none ? ` · غير محدد <b>${numH(d.st.byPay.none)}</b>` : ""}</p>
+    </section>
+    <section class="panel"><h2 class="sec">من أين جاء العملاء</h2>${list(d.bySrc, x => row(x.k === "none" ? "غير محدد" : esc(SOURCES[x.k] || x.k), opsTxt(x.n), money(x.rev), "t-sell"), "لا توجد مبيعات للعملاء في هذه الفترة.")}</section>
+    <section class="panel"><h2 class="sec">الأكثر مبيعًا</h2>${list(d.topP, (x, i) => row(`${i + 1}. ${esc(x.k)}`, piecesTxt(x.units), `${money(x.profit)}<small class="muted">صافي الربح</small>`, "t-good"), "لا توجد مبيعات في هذه الفترة.")}</section>
+    ${d.topR.length ? `<section class="panel"><h2 class="sec">أفضل الموزعين</h2>${list(d.topR, x => row(esc(x.name), piecesTxt(x.units), money(x.rev), "t-resell"), "")}</section>` : ""}
+    <section class="panel"><h2 class="sec">الأكثر رواجًا حسب التصنيف</h2>
+      <div class="sublabel" style="border:0;margin:0;padding-top:4px">العائلات العطرية (عدد القطع)</div>
+      ${d.fams.length ? d.fams.map(x => `<div class="ins-row"><span>${esc(x.k)}</span><span class="ins-bar"><i style="width:${(x.units / maxU * 100).toFixed(1)}%"></i></span><b>${x.units}</b><small class="muted">ربح ${numH(x.profit)}</small></div>`).join("") : '<p class="r-empty">حدّد نوتات العطور لتظهر هذه المقارنة.</p>'}
+      ${d.notes.length ? `<div class="sublabel">أكثر النوتات مبيعًا</div><p class="hint" style="margin:0"><bdi dir="ltr">${d.notes.map(x => `${esc(x.k)} (${x.units})`).join(" · ")}</bdi></p>` : ""}
+      ${d.sizes.length ? `<div class="sublabel">أحجام العينات</div><p class="hint" style="margin:0">${d.sizes.map(x => `${fmt(x.k)} مل: <b>${x.units}</b> عينة (ربح ${numH(x.profit)})`).join(" · ")}</p>` : ""}
+      ${d.tiers.length ? `<div class="sublabel">فئات السعر</div><p class="hint" style="margin:0">${d.tiers.map(x => `${esc(x.k)}: <b>${x.units}</b>`).join(" · ")}</p>` : ""}
+    </section>
+    <div class="btnrow"><button type="button" class="btn soft" data-act="report-copy">${I.copy}نسخ الملخص</button><a class="btn ghost" href="https://wa.me/?text=${encodeURIComponent(reportText(d))}" target="_blank" rel="noopener noreferrer">${I.chat}مشاركة عبر واتساب</a></div>`;
 }
 
 /* ---------- sales & resellers ---------- */
@@ -1605,12 +1972,15 @@ function renderSales(){
     const canNext = S.month < thisMonth();
     const payLine = ["card", "transfer", "cash"].filter(k => ms.byPay[k]).map(k => `${PAY_SHORT[k]}: <b>${numH(ms.byPay[k])}</b> ر.س`).concat(ms.byPay.none ? [`غير محدد: <b>${numH(ms.byPay.none)}</b> ر.س`] : []).join(" · ");
     box.innerHTML = `${seg}
+      <div class="btnrow" style="margin:0"><button type="button" class="btn soft small" data-act="add-bundle">${I.plus}بيع باقة</button><button type="button" class="btn ghost small" data-act="sell-sample" data-t="sample">بيع عينة أو بوكس</button><button type="button" class="btn ghost small" data-act="go-report">${I.sheet}التقرير</button></div>
       <div class="sec-row" style="margin:0"><button type="button" class="btn ghost small" data-act="month" data-d="-1">الشهر السابق</button><b style="font-size:18px">${esc(monthName(S.month))}</b><button type="button" class="btn ghost small" data-act="month" data-d="1" ${canNext ? "" : "disabled"}>الشهر التالي</button></div>
       <div class="stats" style="margin:0">
         ${stat("إجمالي المبيعات", ms.revenue, "sell", { sub: `<span class="muted">${ms.count ? `عدد القطع: ${numH(ms.units)} · عدد العمليات: ${ms.count}` : "لا توجد مبيعات"}</span>` })}
         ${stat("صافي الربح", ms.profit, ms.profit < 0 ? "bad" : "good", { sub: ms.margin != null ? `<span class="${mClass(ms.margin)}">هامش الربح ${pctH(ms.margin)}</span>` : "" })}
       </div>
       ${ms.count ? `<p class="hint" style="margin:0">مبيعات العملاء: <b class="t-sell">${numH(ms.direct)}</b> ر.س · مبيعات الموزعين: <b class="t-resell">${numH(ms.viaRes)}</b> ر.س</p>${payLine ? `<p class="hint" style="margin:0">مبيعات العملاء حسب طريقة الدفع: ${payLine}</p>` : ""}` : ""}
+      ${ms.sampleRev || ms.boxRev || ms.freeCount ? `<p class="hint" style="margin:0">${[ms.sampleRev ? `العينات: <b>${numH(ms.sampleRev)}</b> ر.س` : "", ms.boxRev ? `البوكسات: <b>${numH(ms.boxRev)}</b> ر.س` : "", ms.freeCount ? `العينات المجانية: ${fmt(ms.freeCount)} بتكلفة <b class="t-bad">${numH(ms.freeCost)}</b> ر.س (تكلفة تسويق لا تدخل في الربح)` : ""].filter(Boolean).join(" · ")}</p>` : ""}
+      ${(() => { const lo = lossesOf(S.moves.filter(m => monthOf(m.on) === S.month)); return lo.units ? `<p class="hint" style="margin:0">خسائر المخزون هذا الشهر (تالف ومفتوح): <b>${piecesTxt(lo.units)}</b> بتكلفة <b class="t-bad">${numH(lo.value)}</b> ر.س، ولا تدخل في صافي ربح المبيعات أعلاه.</p>` : ""; })()}
       ${ms.nDisc ? `<p class="hint" style="margin:0">المبيعات بسعر خاص: <b>${piecesTxt(ms.nDisc)}</b>، بإجمالي خصم <b class="t-warn">${numH(ms.discount)}</b> ر.س عن السعر المعتمد.</p>` : ""}
       ${ms.unknown ? `<p class="hint" style="margin:0">${ms.unknown === 1 ? "توجد عملية واحدة" : `توجد ${ms.unknown} عمليات`} دون سعر شراء، لذا لم يُحتسب ربحها. أضف المورد وسعر الشراء من صفحة العطر.</p>` : ""}
       ${list.length ? `<section class="panel"><div class="rows">${Object.entries(days).map(([d, arr]) => `<div class="dayhead">${esc(relDay(d))}</div>${arr.map(s => saleRow(s)).join("")}`).join("")}</div></section>`
@@ -1656,7 +2026,7 @@ function renderReseller(){
       <div class="eyebrow">${esc(r.city || "موزع")}</div>
       <h1 class="ptitle">${esc(r.name)}</h1>
       ${editedLine(r)}
-      <div class="btnrow"><button type="button" class="btn primary" data-act="res-take">${I.cart}تسليم بضاعة</button><button type="button" class="btn soft" data-act="res-pay">${I.money}تسجيل دفعة</button><button type="button" class="btn ghost" data-act="res-return">${I.back}تسجيل مرتجع</button><button type="button" class="btn ghost" data-act="edit-reseller">${I.edit}تعديل</button></div>
+      <div class="btnrow"><button type="button" class="btn primary" data-act="res-take">${I.cart}تسليم بضاعة</button><button type="button" class="btn soft" data-act="res-pay">${I.money}تسجيل دفعة</button><button type="button" class="btn ghost" data-act="res-return">${I.back}تسجيل مرتجع</button><button type="button" class="btn ghost" data-act="res-statement">${I.link}كشف الحساب</button><button type="button" class="btn ghost" data-act="edit-reseller">${I.edit}تعديل</button></div>
     </section>
     <div class="stats" style="margin:0">
       ${stat("المبلغ المستحق", b.owed, b.owed > 0.004 ? "warn" : "good", { hl: true, sub: b.owed > 0.004 ? '<span class="muted">قيمة البضاعة المسلّمة مطروحًا منها المدفوع</span>' : '<span class="t-good">لا توجد مستحقات</span>' })}
@@ -1732,6 +2102,8 @@ function renderSupplier(){
   const mp = safeHref(s.maps); if (mp) items.push({ ic: I.pin, k: "الموقع", v: host(mp) || "خرائط Google", href: mp, lab: "فتح الخريطة", copy: mp });
   const lk = safeHref(s.link); if (lk) items.push({ ic: I.link, k: "رابط", v: lk.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, ""), href: lk, lab: "فتح", copy: lk });
   const list = perfumesOf(s.id);
+  const buys = S.moves.filter(m => m.kind === "purchase" && m.supplierId === s.id);
+  const spent = sum(buys.map(m => m.qty * (m.unitCost || 0) + m.extra));
   const notes = S.supNotes.filter(n => n.supplierId === s.id).sort((a, b) => String(b.notedOn).localeCompare(String(a.notedOn)) || b.createdAt - a.createdAt);
   const ar = avgRating(s);
   box.innerHTML = `
@@ -1746,6 +2118,10 @@ function renderSupplier(){
       <div class="rate-row"><span>جودة المنتجات</span>${starsInput("rating_quality", s.rq)}</div>
       <div class="rate-row"><span>سرعة التوريد</span>${starsInput("rating_speed", s.rs)}</div>
       <div class="rate-row"><span>الالتزام بالمواعيد والاتفاقات</span>${starsInput("rating_commit", s.rc)}</div>
+    </section>
+    <section class="panel">
+      <div class="sec-row"><h2 class="sec">طلبيات الشراء <span class="count num">${buys.length}</span></h2><button type="button" class="btn soft small" data-act="add-purchase-supplier">${I.plus}تسجيل طلبية</button></div>
+      ${buys.length ? `<p class="hint" style="margin:0 0 4px">إجمالي المشتريات: <b class="t-cost">${numH(spent)}</b> ر.س · عدد القطع: <b>${numH(sum(buys.map(m => m.qty)))}</b></p><div class="rows">${buys.slice(0, 8).map(m => moveRow(m, { showPerfume: true })).join("")}</div>` : '<p class="r-empty">لا توجد طلبيات مسجلة من هذا المورد.</p>'}
     </section>
     <section class="panel">
       <div class="sec-row"><h2 class="sec">ملاحظات الطلبيات <span class="count num">${notes.length}</span></h2><button type="button" class="btn soft small" data-act="add-supnote">${I.plus}إضافة ملاحظة</button></div>
@@ -1982,7 +2358,10 @@ function renderSettings(){
           ${field("s_fee", "عمولة الدفع بالبطاقة (%)", numInp("s_fee", st.fee || "", "0"), "تُخصم فقط من المبيعات المدفوعة بالبطاقة (مدى، Apple Pay، وغيرها)")}
           ${field("s_target", "هامش الربح المستهدف (%)", numInp("s_target", st.target, "30"), "يُستخدم لاقتراح سعر البيع")}
         </div>
-        ${field("s_low", "حد التنبيه لانخفاض المخزون (قطعة)", numInp("s_low", st.low, "2"), "القيمة الافتراضية لجميع العطور، ويمكن تعديلها لكل عطر من صفحته")}
+        <div class="grid2">
+          ${field("s_low", "حد التنبيه لانخفاض المخزون (قطعة)", numInp("s_low", st.low, "2"), "القيمة الافتراضية لجميع العطور، ويمكن تعديلها لكل عطر من صفحته")}
+          ${field("s_stale", "تنبيه العطر الراكد بعد (يوم)", numInp("s_stale", st.staleDays, "60"), "يظهر تنبيه للعطر المتوفر الذي لم يُبع خلال هذه المدة")}
+        </div>
         <p class="f-err" id="cost_err" hidden></p>
         <button type="submit" class="btn primary">حفظ</button>
       </form>
@@ -2011,13 +2390,49 @@ function renderSettings(){
       <div id="set_notes"></div>
     </section>
     ${isOwner() ? `<section class="panel"><div class="sec-row" style="margin:0"><h2 class="sec">الفريق <span class="muted" id="set_team_n" style="font-size:14px;font-weight:500">${nPend ? `(${nPend} طلب)` : ""}</span></h2><button type="button" class="btn ghost small" data-act="team">${I.users}إدارة الفريق</button></div></section>` : ""}
+    <section class="panel"><h2 class="sec">الأهداف الشهرية</h2>
+      <p class="hint" style="margin-top:4px">يظهر في الرئيسية مدى التقدم نحو الهدف خلال الشهر الحالي. اتركه فارغًا لإخفائه.</p>
+      <form class="set-form" id="goalForm" novalidate>
+        <div class="grid2">
+          ${field("g_sales", "هدف المبيعات الشهرية (ر.س)", numInp("g_sales", st.goalSales ?? "", "10000"))}
+          ${field("g_profit", "هدف صافي الربح الشهري (ر.س)", numInp("g_profit", st.goalProfit ?? "", "3000"))}
+        </div>
+        <button type="submit" class="btn primary">حفظ</button>
+      </form>
+    </section>
+    <section class="panel"><h2 class="sec">كتالوج العملاء</h2>
+      <p class="hint" style="margin-top:4px">رابط عام لعملائك يعرض العطور والبوكسات بسعر البيع للعميل فقط، ويرسل العميل طلبه عبر واتساب. يستخدم عنوان الكتالوج ورقم واتساب المحددين في كتالوج الموزعين.</p>
+      <form class="set-form" id="retForm" novalidate>
+        <label class="check"><input type="checkbox" id="r_on" ${st.retailEnabled ? "checked" : ""}>تفعيل رابط كتالوج العملاء</label>
+        ${st.retailToken ? `<div class="linkbox"><code>${esc(retailUrl(st.retailToken))}</code><button type="button" class="icon-btn" data-act="copy" data-text="${esc(retailUrl(st.retailToken))}" aria-label="نسخ الرابط">${I.copy}</button></div>
+        <div class="btnrow"><a class="btn ghost small" href="${esc(retailUrl(st.retailToken))}" target="_blank" rel="noopener noreferrer">${I.eye}معاينة</a><button type="button" class="btn danger small" data-act="ret-newtoken">إنشاء رابط جديد</button></div>` : `<span class="f-hint">اضغط «حفظ» لإنشاء الرابط.</span>`}
+        <button type="submit" class="btn primary">حفظ</button>
+      </form>
+    </section>
+    <section class="panel"><h2 class="sec">الإدارة</h2><div class="btnrow"><button type="button" class="btn ghost small" data-act="go-partners">${I.users}الشركاء</button><button type="button" class="btn ghost small" data-act="go-audit">${I.note}سجل التعديلات</button></div></section>
     <section class="panel"><div class="sec-row" style="margin:0"><h2 class="sec">البيانات</h2><button type="button" class="btn ghost small" data-act="export"><span class="t-good">${I.sheet}</span>تصدير إلى Excel</button></div><p class="hint">تنزيل ملف Excel يتضمن جميع البيانات: العطور، والمبيعات، والموزعين، والموردين، وأسعار السوق.</p></section>
     <section class="panel"><div class="sec-row" style="margin:0"><div><h2 class="sec">الحساب</h2><span class="muted" style="font-size:14px"><bdi dir="ltr">${esc(S.user ? S.user.email : "")}</bdi></span></div><button type="button" class="btn danger small" data-act="logout">تسجيل الخروج</button></div></section>`;
   renderNotesBox();
+  $("#goalForm", box).addEventListener("submit", async e => {
+    e.preventDefault();
+    const f = e.currentTarget, btn = f.querySelector("button[type=submit]"); btn.disabled = true;
+    try { await q(sb.from("app_settings").update({ goal_sales: toNum(f.g_sales.value), goal_profit: toNum(f.g_profit.value) }).eq("id", 1)); toast("تم حفظ الأهداف"); await reload(); }
+    catch (x) { toast(errMsg(x)); }
+    btn.disabled = false;
+  });
+  $("#retForm", box).addEventListener("submit", async e => {
+    e.preventDefault();
+    const btn = e.currentTarget.querySelector("button[type=submit]"); btn.disabled = true;
+    const row = { retail_enabled: $("#r_on").checked };
+    if (!S.settings.retailToken) row.retail_token = newToken();
+    try { await q(sb.from("app_settings").update(row).eq("id", 1)); toast(row.retail_enabled ? "تم الحفظ، والرابط مفعّل" : "تم الحفظ، والرابط غير مفعّل"); await reload(); box.dataset.built = ""; renderSettings(); }
+    catch (x) { toast(errMsg(x)); }
+    btn.disabled = false;
+  });
   $("#costForm", box).addEventListener("submit", async e => {
     e.preventDefault();
     const f = e.currentTarget, btn = f.querySelector("button[type=submit]"), err = $("#cost_err");
-    const row = { pack_cost: toNumZ(f.s_pack.value) || 0, ship_cost: toNumZ(f.s_ship.value) || 0, fee_pct: toNumZ(f.s_fee.value) || 0, target_margin: toNumZ(f.s_target.value) ?? 30, low_stock: toNumZ(f.s_low.value) ?? 2 };
+    const row = { pack_cost: toNumZ(f.s_pack.value) || 0, ship_cost: toNumZ(f.s_ship.value) || 0, fee_pct: toNumZ(f.s_fee.value) || 0, target_margin: toNumZ(f.s_target.value) ?? 30, low_stock: toNumZ(f.s_low.value) ?? 2, stale_days: Math.round(toNum(f.s_stale.value) || 60) };
     err.hidden = true;
     if (row.fee_pct >= 50 || row.target_margin >= 95) { err.textContent = "النسبة المدخلة مرتفعة جدًا. يُرجى مراجعة القيم."; err.hidden = false; return; }
     btn.disabled = true;
@@ -2036,6 +2451,7 @@ function renderSettings(){
     btn.disabled = false;
   });
 }
+const retailUrl = tok => location.href.split("#")[0].split("?")[0] + "?r=" + encodeURIComponent(tok);
 function newToken(){
   const b = new Uint8Array(18); crypto.getRandomValues(b);
   return btoa(String.fromCharCode(...b)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
@@ -2531,8 +2947,12 @@ function stockForm(p, mode){
       toast(n > 0 ? `تمت إضافة ${piecesTxt(n)}` : "تم خصم الكمية");
     } else {
       if (raw !== "" && n == null) throw fail("يُرجى إدخال رقم صحيح.");
-      await q(sb.from("perfumes").update({ stock: raw === "" ? null : n }).eq("id", p.id));
-      toast(raw === "" ? "تم إيقاف تتبع المخزون لهذا العطر" : "تم حفظ الكمية");
+      if (raw === "") { await q(sb.from("perfumes").update({ stock: null }).eq("id", p.id)); toast("تم إيقاف تتبع المخزون لهذا العطر"); }
+      else {
+        const d = n - (p.stock == null ? 0 : Number(p.stock));
+        if (d !== 0 || p.stock == null) await q(sb.from("stock_moves").insert({ perfume_id: p.id, kind: "count", qty: d, moved_on: todayStr(), notes: `تصحيح: ${fmt(n)} قطعة` }));
+        toast("تم حفظ الكمية");
+      }
     }
     closeSheet(); await reload();
   }, f => setTimeout(() => $("#f_qty", f).focus(), 300));
@@ -2576,6 +2996,598 @@ function linkForm(p, sid, preselect, preName){
     try { await q(sb.from("perfume_suppliers").delete().eq("perfume_id", p.id).eq("supplier_id", sid)); toast("تمت إزالة المورد من العطر"); await reload(); }
     catch (e) { toast(errMsg(e)); }
   };
+}
+
+
+/* ---------- طلبيات الشراء ---------- */
+function purchaseForm(m, pre = {}){
+  const isNew = !m; m = m || {};
+  const perfs = S.perfumes.slice().sort(byName);
+  const sups = S.suppliers.slice().sort(byName);
+  const pid0 = m.perfumeId || pre.perfumeId || "";
+  const p0 = perfById(pid0);
+  const best = p0 ? (p0.suppliers || []).filter(l => toNum(l.price) != null).sort((a, b) => toNum(a.price) - toNum(b.price))[0] : null;
+  const v = {
+    pid: pid0, sid: m.supplierId || pre.supplierId || (best ? best.id : ""), qty: m.qty || pre.qty || "",
+    price: m.unitCost ?? pre.price ?? (best ? best.price : ""), extra: m.extra || "", on: m.on || todayStr(), notes: m.notes ?? ""
+  };
+  if (pre.supplierName && pre.supplierId && !sups.some(s => s.id === pre.supplierId)) sups.push({ id: pre.supplierId, name: pre.supplierName });
+  const html = `
+    ${field("f_perf", 'العطر <i>*</i>', `<select class="inp" id="f_perf" name="f_perf">${!v.pid ? '<option value="">اختر العطر</option>' : ""}${perfs.map(p => `<option value="${esc(p.id)}"${p.id === v.pid ? " selected" : ""}>${esc(p.name)}${p.size ? " · " + fmt(Number(p.size)) + " مل" : ""}</option>`).join("")}</select>`)}
+    ${field("f_sup", "المورد", `<select class="inp" id="f_sup" name="f_sup"><option value="">دون تحديد</option>${sups.map(s => `<option value="${esc(s.id)}"${s.id === v.sid ? " selected" : ""}>${esc(s.name)}${s.city ? " — " + esc(s.city) : ""}</option>`).join("")}<option value="__new">+ إضافة مورد جديد…</option></select>`)}
+    <div class="grid2">
+      ${field("f_qty", "الكمية المستلمة (قطعة) <i>*</i>", numInp("f_qty", v.qty, "10"))}
+      ${field("f_price", '<span class="t-cost">سعر شراء القطعة (ر.س)</span>', numInp("f_price", v.price, "420"))}
+    </div>
+    ${field("f_extra", "تكاليف إضافية للطلبية كاملة (ر.س)", numInp("f_extra", v.extra, "0"), "مثل شحن الطلبية من المورد. تُوزَّع على القطع لاحتساب التكلفة الفعلية.")}
+    ${field("f_date", "تاريخ الاستلام", inp("f_date", v.on, 'type="date"'))}
+    ${field("f_notes", "ملاحظات", inp("f_notes", v.notes, 'autocomplete="off" placeholder="اختياري، مثل رقم الفاتورة"'))}
+    <div id="f_prevbox"></div>
+    ${foot(isNew ? null : "del-move")}`;
+  openSheet(isNew ? "تسجيل طلبية شراء" : "تعديل طلبية الشراء", html, async fd => {
+    const pid = str(fd, "f_perf"); if (!pid || !perfById(pid)) throw fail("يُرجى اختيار العطر.");
+    const qty = toNum(fd.get("f_qty")); if (!qty) throw fail("يُرجى إدخال الكمية المستلمة.");
+    const sid = str(fd, "f_sup"); if (sid === "__new") throw fail("يُرجى اختيار المورد.");
+    const price = toNumZ(fd.get("f_price"));
+    const row = { perfume_id: pid, kind: "purchase", qty, unit_cost: price, extra_cost: toNumZ(fd.get("f_extra")) || 0, supplier_id: sid || null, moved_on: str(fd, "f_date") || todayStr(), notes: str(fd, "f_notes") };
+    if (isNew) await q(sb.from("stock_moves").insert(row)); else await q(sb.from("stock_moves").update(row).eq("id", m.id));
+    // تحديث سعر المورد لهذا العطر بآخر سعر شراء
+    if (sid && price != null && isNew) await q(sb.from("perfume_suppliers").upsert({ perfume_id: pid, supplier_id: sid, price }, { onConflict: "perfume_id,supplier_id" })).catch(() => {});
+    closeSheet(); toast(isNew ? `تم تسجيل الطلبية وإضافة ${piecesTxt(qty)} إلى المخزون` : "تم حفظ التعديل"); await reload();
+  }, f => {
+    const preview = () => {
+      const fv = formVals(), p = perfById(fv.f_perf);
+      const qty = toNum(fv.f_qty), price = toNumZ(fv.f_price), extra = toNumZ(fv.f_extra) || 0;
+      if (!p || !qty) { $("#f_prevbox", f).innerHTML = ""; return; }
+      const c = calc(p);
+      const lines = [];
+      if (price != null) {
+        const eff = price + extra / qty, tot = qty * price + extra;
+        const prev = S.avgCost.get(p.id), oldQ = prev ? prev.qty - (isNew ? 0 : m.qty) : 0, oldT = prev ? prev.total - (isNew ? 0 : m.qty * (m.unitCost || 0) + m.extra) : 0;
+        const newAvg = (oldT + tot) / (oldQ + qty);
+        lines.push(`<span>إجمالي الطلبية: <b class="t-cost">${numH(tot)}</b> ر.س · التكلفة الفعلية للقطعة: <b>${numH(Math.round(eff * 100) / 100)}</b> ر.س</span>`);
+        lines.push(`<span>متوسط تكلفة الشراء بعد هذه الطلبية: <b>${numH(Math.round(newAvg * 100) / 100)}</b> ر.س للقطعة</span>`);
+      }
+      const after = (c.stock ?? 0) + qty - (isNew ? 0 : m.qty);
+      lines.push(`<span>الكمية في المخزون بعد الاستلام: <b>${piecesTxt(after)}</b></span>`);
+      $("#f_prevbox", f).innerHTML = `<div class="calcbox" style="display:grid;gap:4px">${lines.join("")}</div>`;
+    };
+    const fillPrice = () => {
+      const p = perfById($("#f_perf", f).value), sid = $("#f_sup", f).value;
+      const l = p && (p.suppliers || []).find(x => x.id === sid);
+      if (l && toNum(l.price) != null && !$("#f_price", f).dataset.touched) $("#f_price", f).value = l.price;
+    };
+    $("#f_price", f).addEventListener("input", e => { e.target.dataset.touched = "1"; });
+    $("#f_perf", f).addEventListener("change", () => { fillPrice(); preview(); });
+    $("#f_sup", f).addEventListener("change", e => {
+      if (e.target.value === "__new") { const fv = formVals(); supplierForm(null, (newId, newName) => purchaseForm(m.id ? m : null, { perfumeId: fv.f_perf, supplierId: newId, supplierName: newName, qty: fv.f_qty, price: fv.f_price })); return; }
+      fillPrice(); preview();
+    });
+    for (const id of ["#f_qty", "#f_price", "#f_extra"]) $(id, f).addEventListener("input", preview);
+    preview();
+  });
+  delHandler = async () => { closeSheet(); try { await q(sb.from("stock_moves").delete().eq("id", m.id)); toast("تم حذف الطلبية وخصم كميتها من المخزون"); await reload(); } catch (e) { toast(errMsg(e)); } };
+}
+
+/* ---------- التالف والمفتوح ---------- */
+function lossForm(m, pre = {}){
+  const isNew = !m; m = m || {};
+  const perfs = S.perfumes.slice().sort(byName);
+  const pid0 = m.perfumeId || pre.perfumeId || "";
+  const html = `
+    ${field("f_perf", 'العطر <i>*</i>', `<select class="inp" id="f_perf" name="f_perf">${!pid0 ? '<option value="">اختر العطر</option>' : ""}${perfs.map(p => `<option value="${esc(p.id)}"${p.id === pid0 ? " selected" : ""}>${esc(p.name)}</option>`).join("")}</select>`)}
+    ${radios("f_kind", "السبب", [["damage", "تالف (كسر أو عيب)"], ["tester", "مفتوح للتجربة أو العرض"]], m.kind || "damage")}
+    ${field("f_qty", "الكمية (قطعة) <i>*</i>", numInp("f_qty", m.qty ? Math.abs(m.qty) : 1, "1"))}
+    ${field("f_date", "التاريخ", inp("f_date", m.on || todayStr(), 'type="date"'))}
+    ${field("f_notes", "ملاحظات", inp("f_notes", m.notes, 'autocomplete="off" placeholder="اختياري"'))}
+    <div id="f_prevbox"></div>
+    ${foot(isNew ? null : "del-move")}`;
+  openSheet(isNew ? "تسجيل تالف أو مفتوح" : "تعديل الحركة", html, async fd => {
+    const pid = str(fd, "f_perf"), p = perfById(pid); if (!p) throw fail("يُرجى اختيار العطر.");
+    const qty = toNum(fd.get("f_qty")); if (!qty) throw fail("يُرجى إدخال الكمية.");
+    const row = { perfume_id: pid, kind: str(fd, "f_kind") || "damage", qty: -qty, unit_cost: isNew ? calc(p).cost : (m.unitCost ?? calc(p).cost), moved_on: str(fd, "f_date") || todayStr(), notes: str(fd, "f_notes") };
+    if (isNew) await q(sb.from("stock_moves").insert(row)); else await q(sb.from("stock_moves").update(row).eq("id", m.id));
+    closeSheet(); toast(`تم خصم ${piecesTxt(qty)} من المخزون`); await reload();
+  }, f => {
+    const preview = () => {
+      const fv = formVals(), p = perfById(fv.f_perf), qty = toNum(fv.f_qty);
+      const c = p ? calc(p) : null;
+      $("#f_prevbox", f).innerHTML = c && qty ? `<div class="calcbox">قيمة الخسارة بتكلفة الشراء: <b class="t-bad">${c.cost != null ? numH(qty * c.cost) + " ر.س" : "غير محددة"}</b>، وتُسجَّل منفصلة عن المبيعات.</div>` : "";
+    };
+    $("#f_perf", f).addEventListener("change", preview); $("#f_qty", f).addEventListener("input", preview); preview();
+  });
+  delHandler = async () => { closeSheet(); try { await q(sb.from("stock_moves").delete().eq("id", m.id)); toast("تم حذف الحركة وإعادة الكمية"); await reload(); } catch (e) { toast(errMsg(e)); } };
+}
+
+/* ---------- الجرد ---------- */
+function stocktakeForm(){
+  const perfs = S.perfumes.slice().sort(byName);
+  const html = `
+    <p class="hint" style="margin:0">أدخل الكمية الموجودة فعلًا لكل عطر. اترك الخانة فارغة للعطر الذي لم تعدّه. تُسجَّل الفروقات كتصحيح جرد في حركات المخزون.</p>
+    <div class="rows">${perfs.map(p => `<div class="row st-row"><div class="r-main"><span class="r-name">${esc(p.name)}</span><span class="r-sub">المسجل: ${p.stock == null ? "غير متتبَّع" : piecesTxt(Number(p.stock))} <span class="st-diff" id="d_${esc(p.id)}"></span></span></div>${numInp("c_" + p.id, "", p.stock == null ? "—" : String(Number(p.stock)))}</div>`).join("")}</div>
+    <div id="f_prevbox"></div>
+    ${foot(null)}`;
+  openSheet("الجرد", html, async fd => {
+    const rows = [];
+    for (const p of perfs) {
+      const raw = str(fd, "c_" + p.id); if (raw === "") continue;
+      const n = parseNum(raw); if (n == null || n < 0) throw fail(`الكمية المدخلة لعطر ${p.name} غير صحيحة.`);
+      const d = n - (p.stock == null ? 0 : Number(p.stock));
+      if (d !== 0 || p.stock == null) rows.push({ perfume_id: p.id, kind: "count", qty: d, moved_on: todayStr(), notes: `جرد: ${fmt(n)} قطعة` });
+    }
+    if (!rows.length) throw fail("لا توجد فروقات لتسجيلها.");
+    await q(sb.from("stock_moves").insert(rows));
+    closeSheet(); toast(`تم تحديث المخزون لـ ${nPerf(rows.length)}`); await reload();
+  }, f => {
+    const upd = () => {
+      let n = 0, plus = 0, minus = 0;
+      for (const p of perfs) {
+        const el = $("#c_" + p.id, f), dEl = $("#d_" + p.id, f), raw = el.value.trim();
+        if (raw === "") { dEl.textContent = ""; continue; }
+        const v = parseNum(raw); if (v == null) { dEl.textContent = ""; continue; }
+        const d = v - (p.stock == null ? 0 : Number(p.stock));
+        dEl.className = "st-diff " + (d > 0 ? "t-good" : d < 0 ? "t-bad" : "muted");
+        dEl.textContent = d === 0 ? "· مطابق" : `· الفرق ${d > 0 ? "+" : "−"}${fmt(Math.abs(d))}`;
+        if (d !== 0) { n++; if (d > 0) plus += d; else minus -= d; }
+      }
+      $("#f_prevbox", f).innerHTML = n ? `<div class="calcbox">فروقات في ${nPerf(n)}: ${[plus ? `زيادة ${piecesTxt(plus)}` : "", minus ? `نقص ${piecesTxt(minus)}` : ""].filter(Boolean).join("، ")}.</div>` : "";
+    };
+    f.addEventListener("input", upd);
+  });
+}
+
+
+/* ---------- خصم الزجاجات والعبوات للعينات والبوكسات ---------- */
+const byOpen = (a, b) => String(a.openedOn).localeCompare(String(b.openedOn)) || a.createdAt - b.createdAt;
+function consumptionBase(oldCons){
+  const base = { b: new Map(S.bottles.map(b => [b.id, b.mlLeft])), s: new Map(S.supplies.map(s => [s.id, s.qty])) };
+  for (const c of oldCons || []) {
+    if (c.b) base.b.set(c.b, (base.b.get(c.b) ?? 0) + Number(c.ml || 0));
+    if (c.s) base.s.set(c.s, (base.s.get(c.s) ?? 0) + Number(c.n || 0));
+  }
+  return base;
+}
+function planConsumption(o, base){
+  const cons = [], short = [], lowSup = [];
+  const take = (pid, need) => {
+    for (const b of S.bottles.filter(x => x.perfumeId === pid).sort(byOpen)) {
+      if (need <= 1e-9) break;
+      const have = base.b.get(b.id) || 0; if (have <= 0) continue;
+      const t = Math.min(have, need); base.b.set(b.id, Math.round((have - t) * 100) / 100); cons.push({ b: b.id, ml: t }); need -= t;
+    }
+    if (need > 1e-9) short.push({ pid, ml: Math.round(need * 100) / 100 });
+  };
+  const use = (sid, n) => {
+    if (!sid || !n || !supplyById(sid)) return;
+    const left = (base.s.get(sid) ?? 0) - n; base.s.set(sid, left); cons.push({ s: sid, n });
+    if (left < 0) lowSup.push(sid);
+  };
+  if (o.type === "box") {
+    const bx = boxById(o.boxId); if (!bx) return { cons, short, lowSup };
+    for (const it of bx.items) { take(it.p, (Number(it.ml) || 0) * o.qty); use(it.v, o.qty); }
+    use(bx.packId, o.qty);
+  } else { take(o.pid, o.ml * o.qty); use(o.vialId, o.qty); }
+  return { cons, short, lowSup };
+}
+async function writeBase(base){
+  for (const b of S.bottles) { const v = base.b.get(b.id); if (v != null && Math.abs(v - b.mlLeft) > 1e-9) await q(sb.from("bottles").update({ ml_left: Math.round(v * 100) / 100 }).eq("id", b.id)); }
+  for (const s of S.supplies) { const v = base.s.get(s.id); if (v != null && v !== s.qty) await q(sb.from("supplies").update({ qty: v }).eq("id", s.id)); }
+}
+
+/* ---------- بيع عينة أو بوكس أو عينة مجانية ---------- */
+function sampleSaleForm(s, pre = {}){
+  const isNew = !s; s = s || {};
+  const st = S.settings, lastPay = ls.get("pay");
+  const type0 = s.itemType || pre.type || "sample";
+  const perfs = S.perfumes.slice().sort((a, b) => (mlLeftOf(b.id) > 0) - (mlLeftOf(a.id) > 0) || byName(a, b));
+  const res = S.resellers.slice().sort(byName);
+  const ml0 = s.ml || pre.ml || 5;
+  const v = {
+    type: type0, pid: s.perfumeId || pre.perfumeId || "", ml: ml0, boxId: s.boxId || pre.boxId || "", qty: s.qty || 1,
+    vial: s.vialId ?? (vialFor(ml0) || {}).id ?? "", price: s.unitPrice ?? "", channel: s.channel || pre.channel || "direct", resellerId: s.resellerId || pre.resellerId || "",
+    pay: isNew ? (PAY[lastPay] ? lastPay : "") : (s.payMethod || ""), customer: s.customer ?? "", soldOn: s.soldOn || todayStr(), notes: s.notes ?? ""
+  };
+  const sizeOpts = SAMPLE_SIZES.map(n => [String(n), `${n} مل`]);
+  const custom = SAMPLE_SIZES.includes(Number(v.ml)) ? "" : v.ml;
+  const html = `
+    ${radios("f_type", "نوع البيع", [["sample", "عينة"], ["box", "بوكس"], ["free", "عينة مجانية (تسويق)"]], v.type)}
+    <div id="w_samp">
+      ${field("f_perf", 'العطر <i>*</i>', `<select class="inp" id="f_perf" name="f_perf">${!v.pid ? '<option value="">اختر العطر</option>' : ""}${perfs.map(p => `<option value="${esc(p.id)}"${p.id === v.pid ? " selected" : ""}>${esc(p.name)}${mlLeftOf(p.id) > 0 ? ` · متبقٍ ${fmt(mlLeftOf(p.id))} مل` : " · لا توجد زجاجة مفتوحة"}</option>`).join("")}</select>`)}
+      ${radios("f_ml", "حجم العينة", sizeOpts, custom ? "" : String(v.ml))}
+      ${field("f_mlc", "حجم آخر (مل)", numInp("f_mlc", custom, "اختياري"))}
+      ${field("f_vial", "العبوة", `<select class="inp" id="f_vial" name="f_vial"><option value="">دون خصم عبوة</option>${vialsList().map(x => `<option value="${esc(x.id)}"${x.id === v.vial ? " selected" : ""}>${esc(x.name)} · المتوفر ${fmt(x.qty)}</option>`).join("")}</select>`, S.supplies.length ? "" : "أضف العبوات من صفحة «العينات والبوكسات» لتُخصم تلقائيًا.")}
+    </div>
+    <div id="w_box">
+      ${field("f_box", 'البوكس <i>*</i>', `<select class="inp" id="f_box" name="f_box">${!v.boxId ? '<option value="">اختر البوكس</option>' : ""}${S.boxes.map(b => `<option value="${esc(b.id)}"${b.id === v.boxId ? " selected" : ""}>${esc(b.name)}</option>`).join("")}</select>`, S.boxes.length ? "" : "لا توجد بوكسات. أنشئ بوكسًا من صفحة «العينات والبوكسات».")}
+    </div>
+    <div id="w_chan">${radios("f_chan", "المشتري", [["direct", "عميل"], ["reseller", "موزع"]], v.channel)}</div>
+    <div id="w_res"${v.channel === "reseller" ? "" : " hidden"}>${field("f_res", "الموزع", `<select class="inp" id="f_res" name="f_res">${!v.resellerId ? '<option value="">اختر الموزع</option>' : ""}${res.map(r => `<option value="${esc(r.id)}"${r.id === v.resellerId ? " selected" : ""}>${esc(r.name)}</option>`).join("")}</select>`)}</div>
+    <div class="grid2">
+      ${field("f_qty", "الكمية", numInp("f_qty", v.qty, "1"))}
+      <div id="w_price">${field("f_price", '<span class="t-sell">سعر الوحدة (ر.س)</span>', numInp("f_price", v.price, ""))}</div>
+    </div>
+    <div id="w_pay">${radios("f_pay", 'طريقة الدفع <i>*</i>', payOpts(), v.pay)}</div>
+    <div id="w_cust">${field("f_cust", "اسم العميل أو المستلم (اختياري)", inp("f_cust", v.customer, 'autocomplete="off"'))}</div>
+    <div id="w_src">${radios("f_src", "من أين جاء العميل؟", Object.entries(SOURCES), isNew ? (SOURCES[ls.get("src")] ? ls.get("src") : "") : (s.source || ""))}</div>
+    ${field("f_date", "التاريخ", inp("f_date", v.soldOn, 'type="date"'))}
+    ${field("f_notes", "ملاحظات", inp("f_notes", v.notes, 'autocomplete="off" placeholder="اختياري"'))}
+    <div id="f_prevbox"></div>
+    ${foot(isNew ? null : "del-sale")}`;
+  const getVals = () => {
+    const fv = formVals(), type = fv.f_type || "sample", qty = toNum(fv.f_qty) || 0;
+    const ml = toNum(fv.f_mlc) || toNum(fv.f_ml) || 0;
+    const chan = type === "free" ? "direct" : (fv.f_chan || "direct");
+    return { fv, type, qty, ml, chan, pid: fv.f_perf, boxId: fv.f_box, vialId: fv.f_vial || null };
+  };
+  const defaultPrice = o => {
+    if (o.type === "box") { const b = boxById(o.boxId); return b ? (o.chan === "reseller" ? (b.resell ?? b.sell) : b.sell) : null; }
+    if (o.type === "sample") { const p = perfById(o.pid); return p && o.ml ? samplePriceOf(p, o.ml) : null; }
+    return 0;
+  };
+  const unitCostOf = o => o.type === "box" ? boxCost(boxById(o.boxId)) : (o.pid && o.ml ? sampleCost(o.pid, o.ml, o.vialId) : null);
+  openSheet(isNew ? "بيع عينة أو بوكس" : "تعديل العملية", html, async fd => {
+    const o = getVals();
+    if (o.type === "box") { if (!boxById(o.boxId)) throw fail("يُرجى اختيار البوكس."); }
+    else { if (!perfById(o.pid)) throw fail("يُرجى اختيار العطر."); if (!o.ml) throw fail("يُرجى تحديد حجم العينة."); }
+    if (!o.qty) throw fail("يُرجى إدخال الكمية.");
+    const price = o.type === "free" ? 0 : toNumZ(fd.get("f_price")); if (price == null) throw fail("يُرجى إدخال سعر الوحدة.");
+    const rid = o.chan === "reseller" ? str(fd, "f_res") : "";
+    if (o.chan === "reseller" && !rid) throw fail("يُرجى اختيار الموزع.");
+    const pay = o.type !== "free" && o.chan === "direct" ? str(fd, "f_pay") : "";
+    if (o.type !== "free" && o.chan === "direct" && !PAY[pay]) throw fail("يُرجى تحديد طريقة الدفع.");
+    const base = consumptionBase(s.consumed);
+    const plan = planConsumption(o, base);
+    const b = o.type === "box" ? boxById(o.boxId) : null, p = b ? null : perfById(o.pid);
+    const listP = defaultPrice(o);
+    const row = {
+      perfume_id: p ? p.id : null, perfume_name: b ? b.name : p.name, size: o.type === "box" ? null : o.ml,
+      qty: o.qty, kind: "sale", unit_price: price, list_price: listP ?? price, unit_cost: unitCostOf(o),
+      fee_pct: pay === "card" ? st.fee : 0, payment_method: pay, channel: o.chan, reseller_id: rid || null,
+      customer: o.chan === "direct" ? str(fd, "f_cust") : "", source: o.chan === "direct" ? str(fd, "f_src") : "", sold_on: str(fd, "f_date") || todayStr(), notes: str(fd, "f_notes"),
+      item_type: o.type, ml: o.type === "box" ? boxMl(b) : o.ml, box_id: b ? b.id : null, vial_id: o.type === "box" ? null : o.vialId, consumed: plan.cons
+    };
+    if (isNew) await q(sb.from("sales").insert(row)); else await q(sb.from("sales").update(row).eq("id", s.id));
+    await writeBase(base);
+    if (pay) ls.set("pay", pay);
+    closeSheet(); toast(o.type === "free" ? "تم تسجيل العينة المجانية" : "تم تسجيل العملية"); await reload();
+  }, f => {
+    let touched = !isNew;
+    const priceEl = $("#f_price", f);
+    priceEl.addEventListener("input", () => { touched = true; });
+    const sync = () => {
+      const o = getVals();
+      $("#w_samp", f).hidden = o.type === "box"; $("#w_box", f).hidden = o.type !== "box";
+      $("#w_chan", f).hidden = o.type === "free"; $("#w_price", f).hidden = o.type === "free";
+      $("#w_res", f).hidden = o.chan !== "reseller"; $("#w_pay", f).hidden = o.type === "free" || o.chan !== "direct";
+      $("#w_cust", f).hidden = o.chan !== "direct"; $("#w_src", f).hidden = o.chan !== "direct";
+      if (!touched) { const d = defaultPrice(o); priceEl.value = d ?? ""; }
+      // معاينة
+      const price = o.type === "free" ? 0 : toNumZ(priceEl.value), uc = unitCostOf(o);
+      const fee = o.type !== "free" && o.chan === "direct" && o.fv.f_pay === "card" ? st.fee : 0;
+      const lines = [];
+      if (o.qty && (o.type === "box" ? boxById(o.boxId) : (o.pid && o.ml))) {
+        const plan = planConsumption(o, consumptionBase(s.consumed));
+        if (o.type === "free") lines.push(`<span>تكلفة العينة المجانية: <b class="t-bad">${uc != null ? numH(uc * o.qty) + " ر.س" : "غير محددة"}</b>، وتُسجَّل كتكلفة تسويق منفصلة عن المبيعات.</span>`);
+        else if (price != null) {
+          const tot = price * o.qty, pr = uc == null ? null : o.qty * (price - uc - price * fee / 100);
+          lines.push(`<span>الإجمالي: <b class="t-sell">${numH(tot)}</b> ر.س · ${pr == null ? '<span class="muted">يتعذّر احتساب الربح لعدم تحديد التكلفة</span>' : `صافي الربح: <b class="${pr < 0 ? "t-bad" : "t-good"}">${numH(pr)}</b> ر.س (التكلفة ${numH(Math.round(uc * 100) / 100)} ر.س للوحدة)`}</span>`);
+        }
+        const mlTotal = o.type === "box" ? boxMl(boxById(o.boxId)) * o.qty : o.ml * o.qty;
+        lines.push(`<span>يُخصم ${fmt(mlTotal)} مل من الزجاجات المفتوحة${plan.cons.some(c => c.s) ? "، والعبوات المستخدمة من مخزون العبوات" : ""}.</span>`);
+        for (const sh of plan.short) lines.push(`<span class="t-warn">تنبيه: لا تكفي الزجاجات المفتوحة من ${esc((perfById(sh.pid) || {}).name || "")}؛ ينقص ${fmt(sh.ml)} مل. افتح زجاجة جديدة من صفحة العينات.</span>`);
+        for (const sid of [...new Set(plan.lowSup)]) lines.push(`<span class="t-warn">تنبيه: لا يكفي مخزون ${esc(supplyById(sid).name)}.</span>`);
+      }
+      $("#f_prevbox", f).innerHTML = lines.length ? `<div class="calcbox${lines.some(l => l.includes("تنبيه")) ? " warnb" : ""}" style="display:grid;gap:4px">${lines.join("")}</div>` : "";
+    };
+    const resetPrice = () => { if (isNew) touched = false; sync(); };
+    f.querySelectorAll('input[name="f_type"],input[name="f_chan"],input[name="f_ml"]').forEach(r => r.addEventListener("change", () => {
+      if (r.name === "f_ml") { $("#f_mlc", f).value = ""; const vf = vialFor(r.value); if (vf) $("#f_vial", f).value = vf.id; }
+      resetPrice();
+    }));
+    for (const id of ["#f_perf", "#f_box"]) $(id, f).addEventListener("change", resetPrice);
+    $("#f_mlc", f).addEventListener("input", () => { const n = toNum($("#f_mlc", f).value); if (n) { f.querySelectorAll('input[name="f_ml"]').forEach(r => { r.checked = false; }); const vf = vialFor(n); if (vf) $("#f_vial", f).value = vf.id; } resetPrice(); });
+    f.querySelectorAll('input[name="f_pay"]').forEach(r => r.addEventListener("change", sync));
+    for (const id of ["#f_qty", "#f_price"]) $(id, f).addEventListener("input", sync);
+    $("#f_vial", f).addEventListener("change", sync);
+    sync();
+  });
+  delHandler = async () => {
+    closeSheet();
+    try { const base = consumptionBase(s.consumed); await q(sb.from("sales").delete().eq("id", s.id)); await writeBase(base); toast("تم حذف العملية وإرجاع الكميات"); await reload(); }
+    catch (e) { toast(errMsg(e)); }
+  };
+}
+
+
+/* ---------- بيع باقة (أكثر من عطر بسعر واحد) ---------- */
+function bundleForm(pre = {}){
+  const st = S.settings, lastPay = ls.get("pay");
+  const perfs = S.perfumes.filter(p => toNum(p.sellPrice) != null).sort(byName);
+  let picks = [{ p: pre.perfumeId || "" }, { p: "" }];
+  const rowsHTML = () => picks.map((x, i) => `<div class="bx-row" style="grid-template-columns:minmax(0,1fr) 36px" data-i="${i}"><select class="inp" data-k="p" aria-label="العطر"><option value="">اختر العطر</option>${perfs.map(p => `<option value="${esc(p.id)}"${p.id === x.p ? " selected" : ""}>${esc(p.name)} · ${numH(toNum(p.sellPrice))} ر.س</option>`).join("")}</select><button type="button" class="icon-btn" data-rm="${i}" aria-label="إزالة">×</button></div>`).join("");
+  const html = `
+    <p class="hint" style="margin:0">مثل «عطرين بسعر واحد». تُسجَّل كل قطعة في المبيعات بسعر معتمد وسعر خاص، ويُوزَّع سعر الباقة على القطع حسب أسعارها، فيظهر الخصم والربح بدقة.</p>
+    <fieldset class="field"><legend class="f-label">عطور الباقة</legend><div id="bd_rows">${rowsHTML()}</div><div class="btnrow" style="margin:6px 0 0"><button type="button" class="btn soft small" id="bd_add">+ إضافة عطر</button></div></fieldset>
+    ${field("f_bprice", '<span class="t-sell">سعر الباقة كاملة (ر.س) <i>*</i></span>', numInp("f_bprice", "", ""))}
+    ${radios("f_pay", 'طريقة الدفع <i>*</i>', payOpts(), PAY[lastPay] ? lastPay : "")}
+    ${radios("f_src", "من أين جاء العميل؟", Object.entries(SOURCES), SOURCES[ls.get("src")] ? ls.get("src") : "")}
+    ${field("f_ship", "تكلفة التوصيل الفعلية (ر.س، اختياري)", numInp("f_ship", "", st.ship ? `الافتراضي ${fmt(st.ship)} للقطعة` : "0"))}
+    ${field("f_cust", "اسم العميل (اختياري)", inp("f_cust", "", 'autocomplete="off"'))}
+    ${field("f_date", "التاريخ", inp("f_date", todayStr(), 'type="date"'))}
+    <div id="f_prevbox"></div>
+    ${foot(null)}`;
+  const chosen = () => picks.map(x => perfById(x.p)).filter(Boolean);
+  const costOf = (p, noShip) => { const c = calc(p); return c.cost == null ? null : c.cost + st.pack + (toNumZ(p.extraCost) || 0) + (noShip ? 0 : st.ship); };
+  const alloc = (ps, total) => {
+    const lists = ps.map(p => toNum(p.sellPrice)), sumL = sum(lists);
+    let acc = 0;
+    return ps.map((p, i) => { if (i === ps.length - 1) return Math.round((total - acc) * 100) / 100; const v = Math.round(total * lists[i] / sumL * 100) / 100; acc += v; return v; });
+  };
+  openSheet("بيع باقة", html, async fd => {
+    const ps = chosen(); if (ps.length < 2) throw fail("يُرجى اختيار عطرين على الأقل.");
+    const total = toNum(fd.get("f_bprice")); if (!total) throw fail("يُرجى إدخال سعر الباقة.");
+    const pay = str(fd, "f_pay"); if (!PAY[pay]) throw fail("يُرجى تحديد طريقة الدفع.");
+    const shipC = toNumZ(fd.get("f_ship")), bid = uid(), prices = alloc(ps, total), src = str(fd, "f_src");
+    const names = ps.map(p => p.name).join(" + ");
+    const rows = ps.map((p, i) => ({
+      perfume_id: p.id, perfume_name: p.name, size: toNum(p.size), qty: 1, kind: "sale", unit_price: prices[i], list_price: toNum(p.sellPrice),
+      unit_cost: costOf(p, shipC != null), fee_pct: pay === "card" ? st.fee : 0, payment_method: pay, channel: "direct", reseller_id: null,
+      customer: str(fd, "f_cust"), sold_on: str(fd, "f_date") || todayStr(), notes: `باقة: ${names}`, source: src, ship_cost: i === 0 ? shipC : null, bundle_id: bid
+    }));
+    await q(sb.from("sales").insert(rows));
+    ls.set("pay", pay); if (src) ls.set("src", src);
+    closeSheet(); toast(`تم تسجيل الباقة (${nPerf(ps.length)})`); await reload();
+  }, f => {
+    const box = $("#bd_rows", f);
+    const preview = () => {
+      const ps = chosen(), total = toNum($("#f_bprice", f).value);
+      if (ps.length < 2) { $("#f_prevbox", f).innerHTML = ""; return; }
+      const listSum = sum(ps.map(p => toNum(p.sellPrice)));
+      const lines = [`<span>مجموع الأسعار المعتمدة: <b>${numH(listSum)}</b> ر.س</span>`];
+      if (total) {
+        const shipC = toNumZ($("#f_ship", f).value), fee = formVals().f_pay === "card" ? st.fee : 0;
+        const costs = ps.map(p => costOf(p, shipC != null));
+        const pr = costs.some(c => c == null) ? null : total - sum(costs) - total * fee / 100 - (shipC || 0);
+        lines.push(`<span>الخصم: <b class="t-warn">${numH(listSum - total)}</b> ر.س (${pctH((listSum - total) / listSum * 100)}) · ${pr == null ? '<span class="muted">يتعذّر احتساب الربح لعدم تحديد سعر الشراء</span>' : `صافي الربح: <b class="${pr < 0 ? "t-bad" : "t-good"}">${numH(pr)}</b> ر.س (${pctH(pr / total * 100)})`}</span>`);
+      }
+      $("#f_prevbox", f).innerHTML = `<div class="calcbox" style="display:grid;gap:4px">${lines.join("")}</div>`;
+    };
+    box.addEventListener("change", e => { const r = e.target.closest(".bx-row"); if (r) { picks[+r.dataset.i].p = e.target.value; preview(); } });
+    box.addEventListener("click", e => { const b = e.target.closest("[data-rm]"); if (b && picks.length > 1) { picks.splice(+b.dataset.rm, 1); box.innerHTML = rowsHTML(); preview(); } });
+    $("#bd_add", f).addEventListener("click", () => { picks.push({ p: "" }); box.innerHTML = rowsHTML(); });
+    for (const id of ["#f_bprice", "#f_ship"]) $(id, f).addEventListener("input", preview);
+    f.querySelectorAll('input[name="f_pay"]').forEach(r => r.addEventListener("change", preview));
+  });
+}
+
+/* ---------- فتح زجاجة للتقسيم ---------- */
+function bottleForm(b, pre = {}){
+  const isNew = !b; b = b || {};
+  const perfs = S.perfumes.slice().sort(byName);
+  const p0 = perfById(b.perfumeId || pre.perfumeId || "");
+  const c0 = p0 ? calc(p0) : null;
+  const html = `
+    ${field("f_perf", 'العطر <i>*</i>', `<select class="inp" id="f_perf" name="f_perf"${isNew ? "" : " disabled"}>${!p0 ? '<option value="">اختر العطر</option>' : ""}${perfs.map(p => `<option value="${esc(p.id)}"${p0 && p.id === p0.id ? " selected" : ""}>${esc(p.name)}${p.stock != null ? ` · المتوفر ${fmt(Number(p.stock))}` : ""}</option>`).join("")}</select>`)}
+    <div class="grid2">
+      ${field("f_size", "حجم الزجاجة (مل) <i>*</i>", numInp("f_size", b.sizeMl ?? (c0 && c0.size) ?? "", "100"))}
+      ${field("f_cost", '<span class="t-cost">تكلفة الزجاجة (ر.س)</span>', numInp("f_cost", b.cost ?? (c0 && c0.cost) ?? "", "420"))}
+    </div>
+    ${isNew ? `<label class="check"><input type="checkbox" id="f_dec" name="f_dec" value="1"${!p0 || Number(p0.stock) > 0 ? " checked" : ""}>خصم قطعة واحدة من مخزون العطر</label>` : field("f_left", "المتبقي في الزجاجة (مل)", numInp("f_left", b.mlLeft, ""), "عدّله إذا اختلف المتبقي الفعلي عن المسجل.")}
+    ${field("f_date", "تاريخ الفتح", inp("f_date", b.openedOn || todayStr(), 'type="date"'))}
+    ${field("f_notes", "ملاحظات", inp("f_notes", b.notes, 'autocomplete="off" placeholder="اختياري"'))}
+    <div id="f_prevbox"></div>
+    ${foot(isNew ? null : "del-bottle")}`;
+  openSheet(isNew ? "فتح زجاجة للتقسيم" : "تعديل الزجاجة", html, async fd => {
+    const pid = isNew ? str(fd, "f_perf") : b.perfumeId, p = perfById(pid); if (!p) throw fail("يُرجى اختيار العطر.");
+    const size = toNum(fd.get("f_size")); if (!size) throw fail("يُرجى إدخال حجم الزجاجة.");
+    const cost = toNumZ(fd.get("f_cost"));
+    if (isNew) {
+      await q(sb.from("bottles").insert({ perfume_id: pid, size_ml: size, ml_left: size, cost, opened_on: str(fd, "f_date") || todayStr(), notes: str(fd, "f_notes") }));
+      if (fd.get("f_dec")) await q(sb.from("stock_moves").insert({ perfume_id: pid, kind: "decant", qty: -1, unit_cost: cost, moved_on: str(fd, "f_date") || todayStr(), notes: `فتح زجاجة ${fmt(size)} مل للتقسيم` }));
+    } else {
+      const left = toNumZ(fd.get("f_left"));
+      await q(sb.from("bottles").update({ size_ml: size, ml_left: left ?? b.mlLeft, cost, opened_on: str(fd, "f_date") || b.openedOn, notes: str(fd, "f_notes") }).eq("id", b.id));
+    }
+    closeSheet(); toast(isNew ? "تم فتح الزجاجة للتقسيم" : "تم حفظ الزجاجة"); await reload();
+  }, f => {
+    const upd = () => { const sz = toNum($("#f_size", f).value), c = toNumZ($("#f_cost", f).value); $("#f_prevbox", f).innerHTML = sz && c != null ? `<div class="calcbox">تكلفة المل: <b class="t-cost">${numH(Math.round(c / sz * 100) / 100)}</b> ر.س</div>` : ""; };
+    if (isNew) $("#f_perf", f).addEventListener("change", e => { const p = perfById(e.target.value); if (!p) return; const c = calc(p); $("#f_size", f).value = c.size ?? ""; $("#f_cost", f).value = c.cost ?? ""; $("#f_dec", f).checked = Number(p.stock) > 0; upd(); });
+    for (const id of ["#f_size", "#f_cost"]) $(id, f).addEventListener("input", upd);
+    upd();
+  });
+  delHandler = async () => { closeSheet(); try { await q(sb.from("bottles").delete().eq("id", b.id)); toast("تم حذف الزجاجة"); await reload(); } catch (e) { toast(errMsg(e)); } };
+}
+
+/* ---------- العبوات والعلب ---------- */
+const SUP_KIND = { vial: "عبوة عينات", box: "علبة بوكس", other: "تغليف آخر" };
+function supplyForm(sp){
+  const isNew = !sp; sp = sp || {};
+  const html = `
+    ${radios("f_kind", "النوع", Object.entries(SUP_KIND), sp.kind || "vial")}
+    ${field("f_n", 'الاسم <i>*</i>', inp("f_n", sp.name, 'autocomplete="off" placeholder="مثال: عبوة رش 5 مل"'))}
+    <div id="w_size">${field("f_size", "السعة (مل)", numInp("f_size", sp.sizeMl, "5"))}</div>
+    <div class="grid2">
+      ${field("f_qty", "الكمية المتوفرة", numInp("f_qty", sp.qty ?? "", "100"))}
+      ${field("f_cost", '<span class="t-cost">تكلفة الوحدة (ر.س)</span>', numInp("f_cost", sp.unitCost, "1.5"))}
+    </div>
+    ${field("f_low", "حد التنبيه", numInp("f_low", sp.low, "20"), "يظهر تنبيه عندما تقل الكمية عن هذا الحد.")}
+    ${foot(isNew ? null : "del-supply")}`;
+  openSheet(isNew ? "إضافة عبوة أو علبة" : "تعديل العبوة", html, async fd => {
+    const name = str(fd, "f_n"); if (!name) throw fail("يُرجى إدخال الاسم.");
+    const kind = str(fd, "f_kind") || "vial";
+    const row = { name, kind, size_ml: kind === "vial" ? toNum(fd.get("f_size")) : null, qty: toNumZ(fd.get("f_qty")) || 0, unit_cost: toNumZ(fd.get("f_cost")), low: toNumZ(fd.get("f_low")) };
+    if (isNew) await q(sb.from("supplies").insert(row)); else await q(sb.from("supplies").update(row).eq("id", sp.id));
+    closeSheet(); toast("تم الحفظ"); await reload();
+  }, f => {
+    const k = () => { $("#w_size", f).hidden = (formVals().f_kind || "vial") !== "vial"; };
+    f.querySelectorAll('input[name="f_kind"]').forEach(r => r.addEventListener("change", k)); k();
+  });
+  delHandler = async () => { closeSheet(); try { await q(sb.from("supplies").delete().eq("id", sp.id)); toast("تم الحذف"); await reload(); } catch (e) { toast(errMsg(e)); } };
+}
+function supplyReceiveForm(sp){
+  const html = `
+    <p style="margin:0;font-weight:800">${esc(sp.name)} <span class="muted" style="font-weight:500">· المتوفر ${fmt(sp.qty)}</span></p>
+    <div class="grid2">
+      ${field("f_qty", "الكمية المستلمة <i>*</i>", numInp("f_qty", "", "100"))}
+      ${field("f_cost", '<span class="t-cost">تكلفة الوحدة (ر.س)</span>', numInp("f_cost", sp.unitCost, ""))}
+    </div>
+    <p class="hint" style="margin:0">تُحتسب تكلفة الوحدة الجديدة كمتوسط بين الكمية الحالية والمستلمة.</p>
+    ${foot(null)}`;
+  openSheet("استلام عبوات أو علب", html, async fd => {
+    const n = toNum(fd.get("f_qty")); if (!n) throw fail("يُرجى إدخال الكمية.");
+    const c = toNumZ(fd.get("f_cost"));
+    const cur = Math.max(sp.qty, 0);
+    const avgC = c == null ? sp.unitCost : sp.unitCost == null || !cur ? c : Math.round((cur * sp.unitCost + n * c) / (cur + n) * 1000) / 1000;
+    await q(sb.from("supplies").update({ qty: sp.qty + n, unit_cost: avgC }).eq("id", sp.id));
+    closeSheet(); toast(`تمت إضافة ${fmt(n)} إلى المخزون`); await reload();
+  });
+}
+
+/* ---------- البوكسات ---------- */
+function boxForm(bx){
+  const isNew = !bx; bx = bx || {};
+  const perfs = S.perfumes.slice().sort(byName);
+  const packs = S.supplies.filter(s => s.kind !== "vial");
+  let items = (bx.items || []).map(it => ({ ...it }));
+  const itemsHTML = () => items.map((it, i) => `<div class="bx-row" data-i="${i}">
+      <select class="inp" data-k="p" aria-label="العطر"><option value="">اختر العطر</option>${perfs.map(p => `<option value="${esc(p.id)}"${p.id === it.p ? " selected" : ""}>${esc(p.name)}</option>`).join("")}</select>
+      <input class="inp" data-k="ml" inputmode="decimal" value="${esc(it.ml ?? "")}" placeholder="مل" aria-label="الحجم بالمل">
+      <select class="inp" data-k="v" aria-label="العبوة"><option value="">دون عبوة</option>${vialsList().map(x => `<option value="${esc(x.id)}"${x.id === it.v ? " selected" : ""}>${esc(x.name)}</option>`).join("")}</select>
+      <button type="button" class="icon-btn" data-rm="${i}" aria-label="إزالة">×</button></div>`).join("") || '<p class="r-empty">أضف العطور التي يحتويها البوكس.</p>';
+  const html = `
+    ${field("f_n", 'اسم البوكس <i>*</i>', inp("f_n", bx.name, 'autocomplete="off" placeholder="مثال: بوكس التجربة 10 × 5 مل"'))}
+    <fieldset class="field"><legend class="f-label">محتوى البوكس</legend>
+      <div id="bx_items">${itemsHTML()}</div>
+      <div class="btnrow" style="margin:6px 0 0"><button type="button" class="btn soft small" id="bx_add">+ إضافة عطر</button></div>
+      <div class="bx-fill"><span>تعبئة سريعة: حجم كل عينة</span><input class="inp" id="bx_ml" inputmode="decimal" placeholder="5"><select class="inp" id="bx_v"><option value="">العبوة</option>${vialsList().map(x => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button type="button" class="btn ghost small" id="bx_apply">تطبيق على الكل</button></div>
+    </fieldset>
+    ${field("f_pack", "العلبة", `<select class="inp" id="f_pack" name="f_pack"><option value="">دون علبة</option>${packs.map(x => `<option value="${esc(x.id)}"${x.id === bx.packId ? " selected" : ""}>${esc(x.name)}</option>`).join("")}</select>`)}
+    <div class="grid2">
+      ${field("f_sell", '<span class="t-sell">سعر البيع للعميل (ر.س)</span>', numInp("f_sell", bx.sell, ""))}
+      ${field("f_resell", '<span class="t-resell">سعر البيع للموزع (ر.س)</span>', numInp("f_resell", bx.resell, ""))}
+    </div>
+    <label class="check"><input type="checkbox" id="f_incat" name="f_incat" value="1"${bx.inCatalog === false ? "" : " checked"}>إظهار البوكس في كتالوج الموزعين</label>
+    ${field("f_notes", "ملاحظات", inp("f_notes", bx.notes, 'autocomplete="off" placeholder="اختياري"'))}
+    <div id="f_prevbox"></div>
+    ${foot(isNew ? null : "del-box")}`;
+  openSheet(isNew ? "إنشاء بوكس" : "تعديل البوكس", html, async fd => {
+    const name = str(fd, "f_n"); if (!name) throw fail("يُرجى إدخال اسم البوكس.");
+    const clean = items.filter(it => it.p && toNum(it.ml)).map(it => ({ p: it.p, ml: toNum(it.ml), v: it.v || null }));
+    if (!clean.length) throw fail("يُرجى إضافة عطر واحد على الأقل مع حجمه.");
+    const row = { name, items: clean, pack_id: str(fd, "f_pack") || null, sell_price: toNum(fd.get("f_sell")), reseller_price: toNum(fd.get("f_resell")), in_catalog: !!fd.get("f_incat"), notes: str(fd, "f_notes") };
+    if (isNew) await q(sb.from("boxes").insert(row)); else await q(sb.from("boxes").update(row).eq("id", bx.id));
+    closeSheet(); toast(isNew ? "تم إنشاء البوكس" : "تم حفظ البوكس"); await reload();
+  }, f => {
+    const box = $("#bx_items", f);
+    const preview = () => {
+      const tmp = { items: items.filter(it => it.p && toNum(it.ml)).map(it => ({ p: it.p, ml: toNum(it.ml), v: it.v })), packId: $("#f_pack", f).value };
+      const cost = tmp.items.length ? boxCost(tmp) : null;
+      const sell = toNum($("#f_sell", f).value), resell = toNum($("#f_resell", f).value);
+      const lines = [];
+      if (tmp.items.length) lines.push(`<span>عدد العينات: <b>${tmp.items.length}</b> · إجمالي الحجم: <b>${fmt(boxMl(tmp))}</b> مل · التكلفة: <b class="t-cost">${cost != null ? numH(cost) + " ر.س" : "غير محددة"}</b></span>`);
+      if (cost != null) {
+        const sug = suggestPrice(cost, S.settings.target, S.settings.fee);
+        lines.push(`<span>لتحقيق هامش ربح ${fmt(S.settings.target)}%: سعر البيع المقترح <b class="t-sell">${sug != null ? numH(sug) : "—"}</b> ر.س</span>`);
+        if (sell) lines.push(`<span>صافي الربح عند البيع للعميل: <b class="${sell - cost < 0 ? "t-bad" : "t-good"}">${numH(sell - cost)}</b> ر.س (${pctH((sell - cost) / sell * 100)})</span>`);
+        if (resell) lines.push(`<span>صافي ربحنا من الموزع: <b class="${resell - cost < 0 ? "t-bad" : "t-good"}">${numH(resell - cost)}</b> ر.س${sell ? ` · ربح الموزع: <b class="t-resell">${numH(sell - resell)}</b> ر.س` : ""}</span>`);
+      }
+      $("#f_prevbox", f).innerHTML = lines.length ? `<div class="calcbox" style="display:grid;gap:4px">${lines.join("")}</div>` : "";
+    };
+    const redraw = () => { box.innerHTML = itemsHTML(); preview(); };
+    box.addEventListener("input", e => { const r = e.target.closest(".bx-row"); if (!r) return; items[+r.dataset.i][e.target.dataset.k] = e.target.value; preview(); });
+    box.addEventListener("change", e => { const r = e.target.closest(".bx-row"); if (!r) return; items[+r.dataset.i][e.target.dataset.k] = e.target.value; preview(); });
+    box.addEventListener("click", e => { const b = e.target.closest("[data-rm]"); if (b) { items.splice(+b.dataset.rm, 1); redraw(); } });
+    $("#bx_add", f).addEventListener("click", () => { const last = items[items.length - 1] || {}; items.push({ p: "", ml: last.ml || "", v: last.v || (vialFor(last.ml || 5) || {}).id || "" }); redraw(); });
+    $("#bx_apply", f).addEventListener("click", () => { const ml = $("#bx_ml", f).value, vv = $("#bx_v", f).value || (vialFor(ml) || {}).id || ""; items = items.map(it => ({ ...it, ml: ml || it.ml, v: vv || it.v })); redraw(); });
+    for (const id of ["#f_sell", "#f_resell"]) $(id, f).addEventListener("input", preview);
+    $("#f_pack", f).addEventListener("change", preview);
+    if (!items.length) { items.push({ p: "", ml: 5, v: (vialFor(5) || {}).id || "" }); redraw(); } else preview();
+  });
+  delHandler = async () => { closeSheet(); try { await q(sb.from("boxes").delete().eq("id", bx.id)); toast("تم حذف البوكس"); await reload(); } catch (e) { toast(errMsg(e)); } };
+}
+
+/* ---------- أسعار العينات لعطر ---------- */
+function samplePricesForm(p){
+  const cur = p.samplePrices || {};
+  const html = `
+    <p style="margin:0;font-weight:800">${esc(p.name)}</p>
+    <p class="hint" style="margin:0">اترك الخانة فارغة لاستخدام السعر المقترح. السعر المقترح يحقق هامش الربح المستهدف (${fmt(S.settings.target)}%) بعد تكلفة المل والعبوة.</p>
+    <div class="rows">${SAMPLE_SIZES.map(n => { const c = sampleCost(p.id, n), sug = sampleSuggest(p.id, n); return `<div class="row st-row"><div class="r-main"><span class="r-name">${n} مل</span><span class="r-sub">التكلفة ${c != null ? numH(Math.round(c * 100) / 100) + " ر.س" : "غير محددة"}${sug != null ? ` · المقترح ${numH(sug)} ر.س` : ""}</span></div>${numInp("sp_" + n, cur[String(n)] ?? "", sug != null ? String(sug) : "")}</div>`; }).join("")}</div>
+    ${foot(null)}`;
+  openSheet("أسعار العينات", html, async fd => {
+    const out = {};
+    for (const n of SAMPLE_SIZES) { const v = toNum(fd.get("sp_" + n)); if (v != null) out[String(n)] = v; }
+    await q(sb.from("perfumes").update({ sample_prices: out }).eq("id", p.id));
+    closeSheet(); toast("تم حفظ أسعار العينات"); await reload();
+  });
+}
+
+
+/* ---------- الشركاء ---------- */
+function partnersSetupForm(){
+  const html = `
+    <p class="hint" style="margin:0">أدخل اسمي الشريكين. النسبة الافتراضية 50% لكل شريك، ويمكن تعديلها لاحقًا.</p>
+    <div class="grid2">
+      ${field("f_p1", "الشريك الأول <i>*</i>", inp("f_p1", "", 'autocomplete="off"'))}
+      ${field("f_s1", "النسبة (%)", numInp("f_s1", 50, "50"))}
+    </div>
+    <div class="grid2">
+      ${field("f_p2", "الشريك الثاني <i>*</i>", inp("f_p2", "", 'autocomplete="off"'))}
+      ${field("f_s2", "النسبة (%)", numInp("f_s2", 50, "50"))}
+    </div>
+    ${foot(null)}`;
+  openSheet("إضافة الشركاء", html, async fd => {
+    const a = str(fd, "f_p1"), b = str(fd, "f_p2"), s1 = toNumZ(fd.get("f_s1")) ?? 50, s2 = toNumZ(fd.get("f_s2")) ?? 50;
+    if (!a || !b) throw fail("يُرجى إدخال اسمي الشريكين.");
+    if (Math.abs(s1 + s2 - 100) > 0.01) throw fail("يجب أن يكون مجموع النسبتين 100%.");
+    await q(sb.from("partners").insert([{ name: a, share_pct: s1 }, { name: b, share_pct: s2 }]));
+    closeSheet(); toast("تمت إضافة الشركاء"); await reload();
+  });
+}
+function partnerForm(p){
+  const html = `${field("f_n", 'الاسم <i>*</i>', inp("f_n", p.name, 'autocomplete="off"'))}${field("f_s", "النسبة من الربح (%)", numInp("f_s", p.share, "50"))}${foot("del-partner")}`;
+  openSheet("تعديل الشريك", html, async fd => {
+    const name = str(fd, "f_n"); if (!name) throw fail("يُرجى إدخال الاسم.");
+    await q(sb.from("partners").update({ name, share_pct: toNumZ(fd.get("f_s")) ?? 0 }).eq("id", p.id));
+    closeSheet(); toast("تم الحفظ"); await reload();
+  });
+  delHandler = async () => { closeSheet(); try { await q(sb.from("partners").delete().eq("id", p.id)); toast("تم حذف الشريك وسجله"); await reload(); } catch (e) { toast(errMsg(e)); } };
+}
+function partnerMoveForm(m, pre = {}){
+  const isNew = !m; m = m || {};
+  const html = `
+    ${field("f_pt", "الشريك", `<select class="inp" id="f_pt" name="f_pt">${S.partners.map(p => `<option value="${esc(p.id)}"${p.id === (m.partnerId || pre.partnerId) ? " selected" : ""}>${esc(p.name)}</option>`).join("")}</select>`)}
+    ${radios("f_k", "النوع", [["capital", "رأس مال (مبلغ دفعه الشريك)"], ["withdraw", "سحب (مبلغ أخذه الشريك)"]], m.kind || pre.kind || "capital")}
+    ${field("f_amt", "المبلغ (ر.س) <i>*</i>", numInp("f_amt", m.amount, ""))}
+    ${field("f_date", "التاريخ", inp("f_date", m.on || todayStr(), 'type="date"'))}
+    ${field("f_notes", "ملاحظات", inp("f_notes", m.notes, 'autocomplete="off" placeholder="اختياري"'))}
+    ${foot(isNew ? null : "del-pmove")}`;
+  openSheet(isNew ? "تسجيل مبلغ" : "تعديل المبلغ", html, async fd => {
+    const amount = toNum(fd.get("f_amt")); if (!amount) throw fail("يُرجى إدخال المبلغ.");
+    const row = { partner_id: str(fd, "f_pt"), kind: str(fd, "f_k") || "capital", amount, moved_on: str(fd, "f_date") || todayStr(), notes: str(fd, "f_notes") };
+    if (isNew) await q(sb.from("partner_moves").insert(row)); else await q(sb.from("partner_moves").update(row).eq("id", m.id));
+    closeSheet(); toast("تم الحفظ"); await reload();
+  }, f => setTimeout(() => $("#f_amt", f).focus(), 300));
+  delHandler = async () => { closeSheet(); try { await q(sb.from("partner_moves").delete().eq("id", m.id)); toast("تم الحذف"); await reload(); } catch (e) { toast(errMsg(e)); } };
+}
+
+/* ---------- كشف حساب الموزع ---------- */
+const statementUrl = tok => location.href.split("#")[0].split("?")[0] + "?s=" + encodeURIComponent(tok);
+async function statementSheet(r, renew){
+  let tok = r.stmtToken;
+  if (!tok || renew) {
+    tok = newToken();
+    try { await q(sb.from("resellers").update({ statement_token: tok }).eq("id", r.id)); await reload(); }
+    catch (e) { toast(errMsg(e)); return; }
+  }
+  const url = statementUrl(tok), wa = waDigits(r.whatsapp || r.phone);
+  const msg = encodeURIComponent(`السلام عليكم ${r.name}، هذا كشف حسابك المحدَّث: ${url}`);
+  const html = `
+    <p class="hint" style="margin:0">رابط خاص بهذا الموزع يعرض البضاعة المسلّمة والمرتجعات والمدفوعات والمبلغ المستحق، ويتحدث تلقائيًا. لا يظهر فيه سعر الشراء أو الأرباح.</p>
+    <div class="linkbox"><code>${esc(url)}</code><button type="button" class="icon-btn" data-act="copy" data-text="${esc(url)}" aria-label="نسخ الرابط">${I.copy}</button></div>
+    <div class="btnrow">${wa ? `<a class="btn primary small" href="https://wa.me/${wa}?text=${msg}" target="_blank" rel="noopener noreferrer">${I.chat}إرسال عبر واتساب</a>` : ""}<a class="btn ghost small" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${I.eye}معاينة</a><button type="button" class="btn danger small" data-act="res-statement-new">إنشاء رابط جديد</button></div>
+    <p class="hint" style="margin:0">إنشاء رابط جديد يُلغي الرابط السابق.</p>`;
+  openSheet("كشف حساب الموزع", html, null);
 }
 
 function supplierForm(s, after){
@@ -2785,6 +3797,7 @@ function saleForm(s, pre = {}){
     channel: s.channel || pre.channel || (pre.resellerId ? "reseller" : "direct"),
     resellerId: s.resellerId || pre.resellerId || "", customer: s.customer ?? pre.customer, soldOn: s.soldOn || pre.soldOn || todayStr(), notes: s.notes ?? pre.notes,
     pay: isNew ? (pre.pay || (PAY[lastPay] ? lastPay : "")) : (s.payMethod || ""),
+    src: isNew ? (pre.src || (SOURCES[ls.get("src")] ? ls.get("src") : "")) : (s.source || ""), ship: isNew ? "" : s.shipCost,
     list: isNew ? pre.price : (s.listPrice ?? s.unitPrice),
     sp: isNew ? !!pre.sp : sSpecial,
     spPrice: isNew ? pre.spPrice : (sSpecial ? s.unitPrice : ""),
@@ -2814,11 +3827,13 @@ function saleForm(s, pre = {}){
     </div>
     <div id="w_pay"${v.channel === "direct" ? "" : " hidden"}>${radios("f_pay", 'طريقة الدفع <i>*</i>', payOpts(), v.pay)}</div>
     <div id="w_cust"${v.channel === "direct" ? "" : " hidden"}>${field("f_cust", "اسم العميل (اختياري)", inp("f_cust", v.customer, 'autocomplete="off"'))}</div>
+    <div id="w_src"${v.channel === "direct" ? "" : " hidden"}>${radios("f_src", "من أين جاء العميل؟", Object.entries(SOURCES), v.src)}</div>
+    <div id="w_ship"${v.channel === "direct" ? "" : " hidden"}>${field("f_ship", "تكلفة التوصيل الفعلية لهذا الطلب (ر.س، اختياري)", numInp("f_ship", v.ship ?? "", st.ship ? `الافتراضي ${fmt(st.ship)} للقطعة` : "0"), "عند إدخالها تُستخدم بدل تكلفة التوصيل الثابتة في الإعدادات.")}</div>
     ${field("f_date", "التاريخ", inp("f_date", v.soldOn, 'type="date"'))}
     ${field("f_notes", "ملاحظات", `<textarea class="inp" id="f_notes" name="f_notes" placeholder="اختياري، مثل سبب السعر الخاص">${esc(v.notes || "")}</textarea>`)}
     <div id="f_prevbox"></div>
     ${foot(isNew ? null : "del-sale", isNew ? '<button type="submit" class="btn ghost" data-mode="next">حفظ وتسجيل عملية أخرى</button>' : "")}`;
-  const unitCostFor = (p, chan) => { const c = calc(p); return c.cost == null ? null : c.cost + st.pack + (toNumZ(p.extraCost) || 0) + (chan === "direct" ? st.ship : 0); };
+  const unitCostFor = (p, chan, noShip) => { const c = calc(p); return c.cost == null ? null : c.cost + st.pack + (toNumZ(p.extraCost) || 0) + (chan === "direct" && !noShip ? st.ship : 0); };
   // تقسيم الكمية بين السعر المعتمد والسعر الخاص
   const splitOf = (qty, sp, rawSpQty) => {
     if (!sp) return { nList: qty, nSp: 0 };
@@ -2849,7 +3864,8 @@ function saleForm(s, pre = {}){
     const base = {
       perfume_id: p ? p.id : s.perfumeId || null, perfume_name: p ? p.name : s.name, size: p ? toNum(p.size) : s.size,
       kind: str(fd, "f_kind") || "sale", list_price: list,
-      unit_cost: same ? (s.unitCost ?? (p ? unitCostFor(p, chan) : null)) : (p ? unitCostFor(p, chan) : s.unitCost),
+      unit_cost: (() => { const shipNow = chan === "direct" && toNumZ(fd.get("f_ship")) != null, shipWas = s.shipCost != null; return same && shipNow === shipWas ? (s.unitCost ?? (p ? unitCostFor(p, chan, shipNow) : null)) : (p ? unitCostFor(p, chan, shipNow) : s.unitCost); })(),
+      source: chan === "direct" ? str(fd, "f_src") : "", 
       fee_pct: keepFee ? (Number(s.feePct) || 0) : (pay === "card" ? st.fee : 0),
       payment_method: pay,
       channel: chan, reseller_id: rid || null, customer: chan === "direct" ? str(fd, "f_cust") : "", sold_on: str(fd, "f_date") || todayStr(), notes: str(fd, "f_notes")
@@ -2857,6 +3873,9 @@ function saleForm(s, pre = {}){
     const rows = [];
     if (split.nList) rows.push({ ...base, qty: split.nList, unit_price: list });
     if (split.nSp) rows.push({ ...base, qty: split.nSp, unit_price: spPrice });
+    const shipC = chan === "direct" ? toNumZ(fd.get("f_ship")) : null;
+    rows.forEach((r, i) => { r.ship_cost = i === 0 ? shipC : null; });
+    if (base.source) ls.set("src", base.source);
     if (isNew) await q(sb.from("sales").insert(rows)); else await q(sb.from("sales").update(rows[0]).eq("id", s.id));
     if (pay) ls.set("pay", pay);
     await reload();
@@ -2890,12 +3909,13 @@ function saleForm(s, pre = {}){
       if (!p && fv.f_perf !== "__old") { $("#f_prevbox", f).innerHTML = ""; return; }
       const sp = !!fv.f_sp, spPrice = sp ? toNumZ(fv.f_spprice) : null;
       const { nList, nSp } = splitOf(qty, sp, fv.f_spqty);
-      const uc = p ? unitCostFor(p, chan) : s.unitCost;
+      const shipC = chan === "direct" ? toNumZ(fv.f_ship) : null;
+      const uc = p ? unitCostFor(p, chan, shipC != null) : s.unitCost;
       const card = chan === "direct" && fv.f_pay === "card";
       const fee = card ? (!isNew && s.payMethod === "card" && Number(s.feePct) ? Number(s.feePct) : st.fee) : 0;
       const unitPr = P => uc == null || P == null ? null : P - uc - P * fee / 100;
       const tot = nList * (list || 0) + nSp * (spPrice ?? 0);
-      const pr = uc == null || list == null || (nSp && spPrice == null) ? null : nList * unitPr(list) + nSp * unitPr(spPrice);
+      const pr = uc == null || list == null || (nSp && spPrice == null) ? null : nList * unitPr(list) + nSp * unitPr(spPrice) - (shipC || 0);
       const c = p ? calc(p) : null;
       const lines = [];
       lines.push(`<span>${ret ? "قيمة المرتجع" : "الإجمالي"}: <b class="t-sell">${numH(tot)}</b> ر.س · ${pr == null ? '<span class="muted">يتعذّر احتساب الربح لعدم تحديد سعر الشراء</span>' : `${ret ? "يُخصم من الربح" : "صافي الربح"}: <b class="${pr < 0 ? "t-bad" : "t-good"}">${numH(pr)}</b> ر.س`}${card && fee && tot ? ` · عمولة البطاقة: ${numH(tot * fee / 100)} ر.س` : ""}</span>`);
@@ -2914,7 +3934,7 @@ function saleForm(s, pre = {}){
     };
     $("#f_perf", f).addEventListener("change", () => { autofill(); preview(); });
     f.querySelectorAll('input[name="f_chan"]').forEach(r => r.addEventListener("change", () => {
-      const c = chanVal(); $("#w_res", f).hidden = c !== "reseller"; $("#w_cust", f).hidden = c !== "direct"; $("#w_pay", f).hidden = c !== "direct";
+      const c = chanVal(); $("#w_res", f).hidden = c !== "reseller"; $("#w_cust", f).hidden = c !== "direct"; $("#w_pay", f).hidden = c !== "direct"; $("#w_src", f).hidden = c !== "direct"; $("#w_ship", f).hidden = c !== "direct";
       autofill(); preview();
     }));
     f.querySelectorAll('input[name="f_pay"]').forEach(r => r.addEventListener("change", preview));
@@ -2927,7 +3947,7 @@ function saleForm(s, pre = {}){
       const fv = formVals();
       resellerForm(null, (newId, newName) => saleForm(s.id ? s : null, { kind: fv.f_kind, perfumeId: fv.f_perf, qty: fv.f_qty, price: fv.f_price, sp: !!fv.f_sp, spPrice: fv.f_spprice, spQty: fv.f_spqty, channel: "reseller", resellerId: newId, resellerName: newName, soldOn: fv.f_date, notes: fv.f_notes }));
     });
-    for (const id of ["#f_qty", "#f_price", "#f_spprice", "#f_spqty"]) { const el = $(id, f); if (el) el.addEventListener("input", preview); }
+    for (const id of ["#f_qty", "#f_price", "#f_spprice", "#f_spqty", "#f_ship"]) { const el = $(id, f); if (el) el.addEventListener("input", preview); }
     f.querySelectorAll('input[name="f_kind"]').forEach(r => r.addEventListener("change", preview));
     autofill(); preview();
   });
@@ -3068,7 +4088,7 @@ function buildWorkbook(ExcelJS){
     { h: "العطر", k: "name", w: 28 }, { h: "العلامة التجارية", k: "brand", w: 18 }, { h: "التركيز", k: "conc", w: 12 }, { h: "نوع التعبئة", k: "pack", w: 14 },
     { h: "الحجم (مل)", k: "size", w: 10, fmt: "0" }, { h: "الكمية المتوفرة", k: "stock", w: 11 },
     { h: "سعر البيع للعميل (ر.س)", k: "sell", w: 15, fmt: MONEY }, { h: "سعر البيع للموزع (ر.س)", k: "resell", w: 15, fmt: MONEY },
-    { h: "أقل سعر شراء (ر.س)", k: "cost", w: 15, fmt: MONEY }, { h: "المورد الأقل سعرًا", k: "costSup", w: 20 },
+    { h: "تكلفة الشراء المعتمدة (ر.س)", k: "cost", w: 16, fmt: MONEY }, { h: "المورد الأقل سعرًا", k: "costSup", w: 20 },
     { h: "إجمالي تكلفة القطعة - عميل (ر.س)", k: "fullD", w: 19, fmt: MONEY }, { h: "إجمالي تكلفة القطعة - موزع (ر.س)", k: "fullR", w: 19, fmt: MONEY },
     { h: "صافي ربح القطعة - عميل (ر.س)", k: "profit", w: 17, fmt: MONEY }, { h: "هامش الربح - عميل", k: "margin", w: 12, fmt: PCT },
     { h: "صافي ربح القطعة - موزع (ر.س)", k: "rProfit", w: 17, fmt: MONEY }, { h: "هامش الربح - موزع", k: "rMargin", w: 12, fmt: PCT },
@@ -3104,7 +4124,8 @@ function buildWorkbook(ExcelJS){
     { h: "الكمية", k: "qty", w: 9 }, { h: "سعر القطعة (ر.س)", k: "price", w: 14, fmt: MONEY }, { h: "الإجمالي (ر.س)", k: "total", w: 14, fmt: MONEY },
     { h: "تكلفة القطعة (ر.س)", k: "cost", w: 14, fmt: MONEY }, { h: "عمولة البطاقة %", k: "fee", w: 11 }, { h: "صافي الربح (ر.س)", k: "profit", w: 14, fmt: MONEY },
     { h: "المشتري", k: "chan", w: 10 }, { h: "طريقة الدفع", k: "pay", w: 14 }, { h: "الموزع", k: "res", w: 20 }, { h: "العميل", k: "cust", w: 18 },
-    { h: "السعر المعتمد (ر.س)", k: "list", w: 14, fmt: MONEY }, { h: "الخصم (ر.س)", k: "disc", w: 12, fmt: MONEY }, { h: "ملاحظات", k: "notes", w: 30 }
+    { h: "السعر المعتمد (ر.س)", k: "list", w: 14, fmt: MONEY }, { h: "الخصم (ر.س)", k: "disc", w: 12, fmt: MONEY }, { h: "ملاحظات", k: "notes", w: 30 },
+    { h: "نوع المبيع", k: "itype", w: 13 }, { h: "الحجم (مل)", k: "ml", w: 10 }, { h: "مصدر العميل", k: "src", w: 14 }, { h: "تكلفة التوصيل الفعلية (ر.س)", k: "ship", w: 14, fmt: MONEY }
   ]);
   const sales = S.sales.slice().sort((a, b) => String(b.soldOn).localeCompare(String(a.soldOn)) || b.createdAt - a.createdAt);
   sales.forEach((s, i) => {
@@ -3112,9 +4133,10 @@ function buildWorkbook(ExcelJS){
     wsS.addRow({
       date: dayDate(s.soldOn), name: s.name, kind: s.kind === "return" ? "مرتجع" : "بيع", qty: s.qty, price: Number(s.unitPrice) || 0,
       total: f(`${sg}*D${r}*E${r}`, saleTotal(s)), cost: s.unitCost == null ? null : Number(s.unitCost), fee: Number(s.feePct) || 0,
-      profit: f(`IF(ISNUMBER(G${r}),${sg}*D${r}*(E${r}-G${r}-E${r}*H${r}/100),"")`, saleProfit(s)),
+      profit: f(`IF(ISNUMBER(G${r}),${sg}*D${r}*(E${r}-G${r}-E${r}*H${r}/100)-N(T${r}),"")`, saleProfit(s)),
       chan: s.channel === "reseller" ? "موزع" : "عميل", pay: PAY_SHORT[s.payMethod] || "", res: s.resellerId ? (resById(s.resellerId) || {}).name || "" : "", cust: s.customer || "", list: s.listPrice == null ? null : Number(s.listPrice),
-      disc: f(`IF(AND(ISNUMBER(N${r}),N${r}>E${r}),${sg}*D${r}*(N${r}-E${r}),"")`, isSpecial(s) ? saleDiscount(s) : null), notes: s.notes || ""
+      disc: f(`IF(AND(ISNUMBER(N${r}),N${r}>E${r}),${sg}*D${r}*(N${r}-E${r}),"")`, isSpecial(s) ? saleDiscount(s) : null), notes: s.notes || "",
+      itype: ITEM_LABEL[s.itemType || "bottle"], ml: s.ml, src: SOURCES[s.source] || "", ship: s.shipCost == null ? null : Number(s.shipCost)
     });
   });
   finish(wsS, [], [16]);
@@ -3155,6 +4177,30 @@ function buildWorkbook(ExcelJS){
   });
   finish(wsRP);
   marginColors(wsRP, "G", rpList.length + 1);
+
+  // 4ج) حركات المخزون
+  const wsM = sheet("حركات المخزون", [
+    { h: "التاريخ", k: "date", w: 12, fmt: DATE }, { h: "العطر", k: "name", w: 28 }, { h: "نوع الحركة", k: "kind", w: 20 }, { h: "الكمية", k: "qty", w: 9 },
+    { h: "سعر شراء القطعة (ر.س)", k: "price", w: 15, fmt: MONEY }, { h: "تكاليف إضافية للطلبية (ر.س)", k: "extra", w: 17, fmt: MONEY },
+    { h: "الإجمالي (ر.س)", k: "total", w: 14, fmt: MONEY }, { h: "المورد", k: "sup", w: 20 }, { h: "ملاحظات", k: "notes", w: 30 }
+  ]);
+  S.moves.forEach((m, i) => {
+    const r = i + 2, p = perfById(m.perfumeId);
+    wsM.addRow({ date: dayDate(m.on), name: p ? p.name : "", kind: MOVE_KIND[m.kind] || m.kind, qty: m.qty, price: m.unitCost, extra: m.extra || null,
+      total: m.unitCost != null ? f(`ABS(D${r})*E${r}+N(F${r})`, Math.abs(m.qty) * m.unitCost + (m.extra || 0)) : null, sup: m.supplierId ? (supById(m.supplierId) || {}).name || "" : "", notes: m.notes });
+  });
+  finish(wsM, [], [9]);
+
+  // 4د) العينات والبوكسات
+  const wsBt = sheet("الزجاجات المفتوحة", [{ h: "العطر", k: "name", w: 28 }, { h: "الحجم (مل)", k: "size", w: 10 }, { h: "المتبقي (مل)", k: "left", w: 11 }, { h: "تكلفة الزجاجة (ر.س)", k: "cost", w: 15, fmt: MONEY }, { h: "تكلفة المل (ر.س)", k: "cpm", w: 13, fmt: MONEY }, { h: "تاريخ الفتح", k: "on", w: 12, fmt: DATE }]);
+  S.bottles.forEach((b, i) => { const r = i + 2; wsBt.addRow({ name: (perfById(b.perfumeId) || {}).name || "", size: b.sizeMl, left: b.mlLeft, cost: b.cost, cpm: f(`IF(AND(ISNUMBER(D${r}),B${r}>0),D${r}/B${r},"")`, b.cost != null && b.sizeMl ? b.cost / b.sizeMl : null), on: dayDate(b.openedOn) }); });
+  finish(wsBt);
+  const wsSp = sheet("العبوات والعلب", [{ h: "الاسم", k: "name", w: 24 }, { h: "النوع", k: "kind", w: 14 }, { h: "السعة (مل)", k: "size", w: 10 }, { h: "الكمية", k: "qty", w: 10 }, { h: "تكلفة الوحدة (ر.س)", k: "cost", w: 14, fmt: MONEY }, { h: "القيمة (ر.س)", k: "val", w: 12, fmt: MONEY }, { h: "حد التنبيه", k: "low", w: 10 }]);
+  S.supplies.forEach((x, i) => { const r = i + 2; wsSp.addRow({ name: x.name, kind: SUP_KIND[x.kind], size: x.sizeMl, qty: x.qty, cost: x.unitCost, val: f(`IF(ISNUMBER(E${r}),D${r}*E${r},"")`, x.unitCost != null ? x.qty * x.unitCost : null), low: x.low }); });
+  finish(wsSp);
+  const wsBx = sheet("البوكسات", [{ h: "البوكس", k: "name", w: 26 }, { h: "المحتوى", k: "items", w: 50 }, { h: "إجمالي الحجم (مل)", k: "ml", w: 13 }, { h: "التكلفة (ر.س)", k: "cost", w: 13, fmt: MONEY }, { h: "سعر البيع للعميل (ر.س)", k: "sell", w: 15, fmt: MONEY }, { h: "هامش الربح", k: "mg", w: 11, fmt: PCT }, { h: "سعر البيع للموزع (ر.س)", k: "resell", w: 15, fmt: MONEY }, { h: "في الكتالوج", k: "cat", w: 10 }]);
+  S.boxes.forEach((b, i) => { const r = i + 2, c = boxCost(b); wsBx.addRow({ name: b.name, items: b.items.map(it => `${(perfById(it.p) || {}).name || "—"} ${fmt(it.ml)} مل`).join("، "), ml: boxMl(b), cost: c, sell: b.sell, mg: f(`IF(AND(ISNUMBER(D${r}),ISNUMBER(E${r})),(E${r}-D${r})/E${r},"")`, c != null && b.sell ? (b.sell - c) / b.sell : null), resell: b.resell, cat: b.inCatalog ? "✓" : "" }); });
+  finish(wsBx, [], [2]);
 
   // 5) ملخص السوق
   const groups = [...S.groups.values()].sort((a, b) => b.places - a.places || b.items.length - a.items.length);
@@ -3273,6 +4319,7 @@ async function exportExcel(btn){
     const buf = await wb.xlsx.writeBuffer();
     const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
     await saveFile(blob, `دفتر-العطور-${todayStr()}.xlsx`);
+    q(sb.from("app_settings").update({ last_export_at: new Date().toISOString() }).eq("id", 1)).then(() => reload()).catch(() => {});
   } catch (e) {
     console.error(e);
     toast(/network|fetch/i.test(String(e && e.message)) ? "تعذّر تحميل أداة Excel. يُرجى التحقق من الاتصال بالإنترنت." : "تعذّر تجهيز الملف. يُرجى المحاولة مرة أخرى.");
@@ -3283,47 +4330,126 @@ async function exportExcel(btn){
 }
 
 /* ---------- catalog mode (public link for resellers) ---------- */
+// تثبيت الموقع كتطبيق (يعمل فقط عند فتحه من رابط https)
+if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
 const catToken = new URLSearchParams(location.search).get("c");
-async function runCatalog(token){
+async function runCatalog(token, retail = false){
   showScreen("catalog");
   const head = $("#catHead"), body = $("#catBody");
   let data = null;
-  try { data = await q(sb.rpc("public_catalog", { p_token: token })); }
+  try { data = await q(sb.rpc(retail ? "public_retail" : "public_catalog", { p_token: token })); }
   catch (e) { console.error(e); body.innerHTML = `<div class="empty">${bottle()}<h2>تعذّر فتح الكتالوج</h2><p>يُرجى التحقق من الاتصال بالإنترنت ثم تحديث الصفحة.</p></div>`; return; }
   if (!data) { body.innerHTML = `<div class="empty">${bottle()}<h2>الرابط غير صالح</h2><p>الكتالوج غير مفعّل أو تم تغيير الرابط. يُرجى طلب الرابط المحدّث من المتجر.</p></div>`; return; }
   document.title = data.title || "كتالوج العطور";
   const wa = waDigits(data.phone || "");
-  const showGain = !!data.show_retail;
+  const showGain = !retail && !!data.show_retail;
   head.innerHTML = `<h1>${esc(data.title || "كتالوج العطور")}</h1>${data.note ? `<p>${esc(data.note)}</p>` : ""}${showGain ? `<div class="cat-legend">
       <span><i class="dot" style="color:var(--c-resell)"></i><b>سعر الموزع:</b> سعر القطعة عند الشراء منّا.</span>
       <span><i class="dot" style="color:var(--c-sell)"></i><b>سعر البيع المقترح:</b> السعر المقترح لبيع القطعة لعملائك.</span>
-      <span><i class="dot" style="color:var(--good)"></i><b>ربحك المتوقع:</b> الفرق بين السعرين عن كل قطعة.</span></div>` : ""}${wa ? `<div class="btnrow"><a class="btn primary" href="https://wa.me/${wa}" target="_blank" rel="noopener noreferrer">${I.chat}الطلب عبر واتساب</a></div>` : ""}`;
-  const items = data.items || [];
-  if (!items.length) { body.innerHTML = `<div class="empty">${bottle()}<h2>لا توجد عطور متاحة حاليًا</h2></div>`; return; }
-  body.innerHTML = `<div class="tools" style="margin-bottom:12px"><label class="search"><span class="vh">بحث</span>${I.search}<input id="catQ" type="search" placeholder="ابحث باسم العطر أو العلامة التجارية" autocomplete="off"></label></div><div class="grid" id="catGrid"></div>`;
+      <span><i class="dot" style="color:var(--good)"></i><b>ربحك المتوقع:</b> الفرق بين السعرين عن كل قطعة.</span></div>` : ""}${wa ? `<p class="hint" style="margin:0">حدّد الكميات المطلوبة من كل عطر، ثم أرسل الطلب كاملًا عبر واتساب من الشريط أسفل الصفحة.</p>` : ""}`;
+  const items = (data.items || []).map((it, i) => ({ ...it, key: "p" + i, kind: "p" }));
+  const boxes = (Array.isArray(data.boxes) ? data.boxes : []).map((bx, i) => ({ ...bx, key: "b" + i, kind: "b" }));
+  if (!items.length && !boxes.length) { body.innerHTML = `<div class="empty">${bottle()}<h2>لا توجد عطور متاحة حاليًا</h2></div>`; return; }
+  // سلة الطلب (تُحفظ في الجهاز)
+  const cartKey = (retail ? "rcart_" : "cart_") + token.slice(0, 12);
+  let cart = {}; try { cart = JSON.parse(ls.get(cartKey) || "{}") || {}; } catch { cart = {}; }
+  const all = [...items, ...boxes], byKey = k => all.find(x => x.key === k);
+  const saveCart = () => ls.set(cartKey, JSON.stringify(cart));
+  const priceBlock = (price, sug) => {
+    const gain = price != null && sug != null ? sug - price : null;
+    return `<div class="cp">
+      <div class="cp-row cp-main"><span>${retail ? "السعر" : "سعر الموزع"}</span>${price != null ? `<b>${numH(price)} <small>ر.س</small></b>` : '<b class="muted" style="font-size:13px">عند الطلب</b>'}</div>
+      ${showGain && sug != null ? `<div class="cp-row cp-sug"><span>سعر البيع المقترح</span><b>${numH(sug)} <small>ر.س</small></b></div>` : ""}
+      ${showGain && gain != null && gain > 0 ? `<div class="cp-row cp-gain"><span>ربحك المتوقع</span><b>${numH(gain)} <small>ر.س</small></b><em>${pctH(gain / sug * 100)} من سعر البيع</em></div>` : ""}
+    </div>`;
+  };
+  const stepper = x => x.available === false ? "" : wa ? `<div class="qty-step" data-key="${x.key}"><button type="button" data-q="-1" aria-label="إنقاص">−</button><span>${cart[x.key] || 0}</span><button type="button" data-q="1" aria-label="زيادة">+</button></div>` : "";
+  const itemCard = it => {
+    const meta = [it.brand, [it.size ? fmt(Number(it.size)) + " مل" : "", it.conc, it.packaging].filter(Boolean).map(x => `<bdi>${esc(x)}</bdi>`).join(" · ")].filter(Boolean).map((x, i) => i === 0 && it.brand ? `<bdi>${esc(x)}</bdi>` : x).join("<br>");
+    const sc = (Array.isArray(it.scent) ? it.scent : []).filter(n => n !== NOTE_UNKNOWN);
+    return `<article class="pcard${cart[it.key] ? " in-cart" : ""}" style="cursor:default"><div class="pimg">${it.image ? `<img src="${esc(imgUrl(it.image))}" alt="" loading="lazy" data-fb="1">` : bottle()}</div>
+      <div class="pbody"><div class="pname">${esc(it.name)}</div><div class="pmeta">${meta || "&nbsp;"}</div>${sc.length ? `<div class="pnotes" dir="ltr" title="${esc(sc.join(", "))}">${esc(sc.join(" · "))}</div>` : ""}
+      ${priceBlock(it.price != null ? Number(it.price) : null, it.retail != null ? Number(it.retail) : null)}
+      <div class="chips">${it.available === false ? '<span class="chip bad">غير متوفر حاليًا</span>' : it.available === true ? '<span class="chip good">متوفر</span>' : ""}</div>
+      ${stepper(it)}</div></article>`;
+  };
+  const boxCard = bx => `<article class="pcard${cart[bx.key] ? " in-cart" : ""}" style="cursor:default"><div class="pbody"><div class="pname">${esc(bx.name)}</div>
+      <div class="pmeta">${(bx.items || []).map(it => `<bdi>${esc(it.name)}</bdi> ${fmt(Number(it.ml))} مل`).join("<br>")}</div>
+      ${priceBlock(bx.price != null ? Number(bx.price) : null, bx.retail != null ? Number(bx.retail) : null)}
+      ${stepper(bx)}</div></article>`;
+  body.innerHTML = `<div class="tools" style="margin-bottom:12px"><label class="search"><span class="vh">بحث</span>${I.search}<input id="catQ" type="search" placeholder="ابحث باسم العطر أو العلامة التجارية" autocomplete="off"></label></div>
+    <div class="grid" id="catGrid"></div>
+    ${boxes.length ? `<h2 class="cat-sec">البوكسات</h2><div class="grid" id="catBoxes"></div>` : ""}
+    ${wa ? `<div class="cart-bar" id="cartBar" hidden><div class="cart-sum" id="cartSum"></div><input class="inp" id="cartName" placeholder="اسمك (اختياري)" autocomplete="name"><button type="button" class="btn ghost small" id="cartClear">إفراغ</button><button type="button" class="btn primary" id="cartSend">${I.chat}إرسال الطلب عبر واتساب</button></div>` : ""}`;
   const draw = () => {
     const t = norm($("#catQ").value);
-    const list = items.filter(it => !t || norm((it.name || "") + " " + (it.brand || "")).includes(t));
-    $("#catGrid").innerHTML = list.length ? list.map(it => {
-      const meta = [it.brand, it.size ? fmt(Number(it.size)) + " مل" : "", it.conc, it.packaging].filter(Boolean).map(esc).join(" · ");
-      const sc = (Array.isArray(it.scent) ? it.scent : []).filter(n => n !== NOTE_UNKNOWN);
-      const price = it.price != null ? Number(it.price) : null, retail = it.retail != null ? Number(it.retail) : null;
-      const gain = price != null && retail != null ? retail - price : null;
-      const msg = encodeURIComponent(`السلام عليكم، أرغب في طلب: ${it.name}${it.size ? " " + fmt(Number(it.size)) + " مل" : ""}${price != null ? ` (سعر الموزع ${fmt(price)} ر.س)` : ""}`);
-      return `<article class="pcard" style="cursor:default"><div class="pimg">${it.image ? `<img src="${esc(imgUrl(it.image))}" alt="" loading="lazy" data-fb="1">` : bottle()}</div>
-        <div class="pbody"><div class="pname">${esc(it.name)}</div><div class="pmeta">${meta || "&nbsp;"}</div>${sc.length ? `<div class="pnotes" dir="ltr" title="${esc(sc.join(", "))}">${esc(sc.join(" · "))}</div>` : ""}
-        <div class="cp">
-          <div class="cp-row cp-main"><span>سعر الموزع</span>${price != null ? `<b>${numH(price)} <small>ر.س</small></b>` : '<b class="muted" style="font-size:13px">عند الطلب</b>'}</div>
-          ${retail != null ? `<div class="cp-row cp-sug"><span>سعر البيع المقترح</span><b>${numH(retail)} <small>ر.س</small></b></div>` : ""}
-          ${gain != null && gain > 0 ? `<div class="cp-row cp-gain"><span>ربحك المتوقع</span><b>${numH(gain)} <small>ر.س</small></b><em>${pctH(gain / retail * 100)} من سعر البيع</em></div>` : ""}
-        </div>
-        <div class="chips">${it.available === false ? '<span class="chip bad">غير متوفر حاليًا</span>' : it.available === true ? '<span class="chip good">متوفر</span>' : ""}</div>
-        ${wa && it.available !== false ? `<a class="btn soft small" style="margin-top:8px" href="https://wa.me/${wa}?text=${msg}" target="_blank" rel="noopener noreferrer">${I.chat}طلب</a>` : ""}</div></article>`;
-    }).join("") : `<div class="empty" style="grid-column:1/-1"><p>لا توجد نتائج.</p></div>`;
+    const list = items.filter(it => !t || norm([it.name, it.brand, (it.scent || []).join(" ")].join(" ")).includes(t));
+    $("#catGrid").innerHTML = list.length ? list.map(itemCard).join("") : `<div class="empty" style="grid-column:1/-1"><p>لا توجد نتائج.</p></div>`;
+    if (boxes.length) $("#catBoxes").innerHTML = boxes.filter(bx => !t || norm(bx.name + " " + (bx.items || []).map(x => x.name).join(" ")).includes(t)).map(boxCard).join("");
+    drawCart();
   };
+  const lines = () => Object.entries(cart).filter(([k, n]) => n > 0 && byKey(k)).map(([k, n]) => ({ x: byKey(k), n }));
+  const drawCart = () => {
+    const bar = $("#cartBar"); if (!bar) return;
+    const ls2 = lines(); bar.hidden = !ls2.length;
+    const pcs = sum(ls2.map(l => l.n)), tot = sum(ls2.map(l => l.x.price != null ? Number(l.x.price) * l.n : 0));
+    const unknown = ls2.some(l => l.x.price == null);
+    $("#cartSum").innerHTML = `<b>${pcs}</b> ${pcs === 1 ? "قطعة" : "قطع"} · الإجمالي <b>${numH(tot)}</b> ر.س${unknown ? " + أصناف سعرها عند الطلب" : ""}`;
+  };
+  body.addEventListener("click", e => {
+    const b = e.target.closest(".qty-step button"); if (!b) return;
+    const k = b.closest(".qty-step").dataset.key;
+    cart[k] = Math.max(0, (cart[k] || 0) + Number(b.dataset.q)); if (!cart[k]) delete cart[k];
+    saveCart();
+    const st = b.closest(".qty-step"); st.querySelector("span").textContent = cart[k] || 0; st.closest(".pcard").classList.toggle("in-cart", !!cart[k]);
+    drawCart();
+  });
   $("#catQ").addEventListener("input", draw);
+  if (wa) {
+    $("#cartClear").addEventListener("click", () => { cart = {}; saveCart(); draw(); });
+    $("#cartSend").addEventListener("click", () => {
+      const ls2 = lines(); if (!ls2.length) return;
+      const tot = sum(ls2.map(l => l.x.price != null ? Number(l.x.price) * l.n : 0));
+      const name = $("#cartName").value.trim();
+      const txt = ["السلام عليكم، أرغب في طلب:", ...ls2.map(l => `- ${l.x.name}${l.x.kind === "p" && l.x.size ? " " + fmt(Number(l.x.size)) + " مل" : ""} × ${l.n}${l.x.price != null ? ` = ${fmt(Number(l.x.price) * l.n)} ر.س` : " (السعر عند الطلب)"}`), `الإجمالي: ${fmt(tot)} ر.س`, name ? `الاسم: ${name}` : ""].filter(Boolean).join("\n");
+      window.open(`https://wa.me/${wa}?text=${encodeURIComponent(txt)}`, "_blank", "noopener");
+    });
+  }
   draw();
 }
+
+/* ---------- كشف حساب الموزع (رابط عام) ---------- */
+const stmtToken = new URLSearchParams(location.search).get("s");
+async function runStatement(token){
+  showScreen("catalog");
+  const head = $("#catHead"), body = $("#catBody");
+  let d = null;
+  try { d = await q(sb.rpc("public_statement", { p_token: token })); }
+  catch (e) { body.innerHTML = `<div class="empty">${bottle()}<h2>تعذّر فتح كشف الحساب</h2><p>يُرجى التحقق من الاتصال بالإنترنت ثم تحديث الصفحة.</p></div>`; return; }
+  if (!d) { body.innerHTML = `<div class="empty">${bottle()}<h2>الرابط غير صالح</h2><p>تم تغيير رابط كشف الحساب. يُرجى طلب الرابط المحدّث.</p></div>`; return; }
+  document.title = "كشف حساب: " + d.reseller;
+  const ev = [
+    ...(d.sales || []).map(s => ({ on: s.on, kind: s.kind === "return" ? "ret" : "take", name: s.name, qty: Number(s.qty), price: Number(s.price), type: s.type, ml: s.ml, amt: Number(s.qty) * Number(s.price) * (s.kind === "return" ? -1 : 1) })),
+    ...(d.payments || []).map(p => ({ on: p.on, kind: "pay", method: p.method, amt: -Number(p.amount) }))
+  ].sort((a, b) => String(a.on).localeCompare(String(b.on)));
+  let bal = 0;
+  const rows = ev.map(e => { bal += e.amt; return { ...e, bal }; });
+  const took = sum(ev.filter(e => e.kind === "take").map(e => e.amt)), ret = -sum(ev.filter(e => e.kind === "ret").map(e => e.amt)), paid = -sum(ev.filter(e => e.kind === "pay").map(e => e.amt));
+  head.innerHTML = `<h1>كشف حساب</h1><p><b>${esc(d.reseller)}</b>${d.store ? ` · ${esc(d.store)}` : ""}</p><p class="hint" style="margin:0">حتى تاريخ ${esc(new Date().toLocaleDateString("ar-u-nu-latn", { day: "numeric", month: "long", year: "numeric" }))}</p>`;
+  body.innerHTML = `
+    <div class="stats" style="margin:0 0 12px">
+      ${stat("قيمة البضاعة المستلمة", took, "resell")}
+      ${stat("المرتجعات", ret, "cost")}
+      ${stat("المبالغ المدفوعة", paid, "good")}
+      ${stat("المبلغ المستحق", took - ret - paid, took - ret - paid > 0.004 ? "warn" : "good", { hl: true })}
+    </div>
+    <section class="panel"><h2 class="sec">تفاصيل العمليات</h2><div class="rows">${rows.length ? rows.slice().reverse().map(r => `<div class="row"><div class="r-main"><span class="r-name">${r.kind === "pay" ? `دفعة${PAY_SHORT[r.method] ? ` (${PAY_SHORT[r.method]})` : ""}` : `${r.kind === "ret" ? "مرتجع: " : ""}${esc(r.name)}`}</span><span class="r-sub">${esc(r.on)}${r.kind !== "pay" ? ` · ${r.qty} × ${numH(r.price)} ر.س` : ""} · الرصيد بعدها ${numH(r.bal)} ر.س</span></div><span class="r-price ${r.amt < 0 ? "t-good" : "t-resell"}"><bdi>${r.amt < 0 ? "−" : "+"}${numH(Math.abs(r.amt))}</bdi><small class="muted">ر.س</small></span></div>`).join("") : '<p class="r-empty">لا توجد عمليات.</p>'}</div></section>
+    <div class="btnrow" style="margin-top:12px"><button type="button" class="btn ghost small" onclick="window.print()">طباعة أو حفظ PDF</button>${waDigits(d.phone || "") ? `<a class="btn soft small" href="https://wa.me/${waDigits(d.phone)}" target="_blank" rel="noopener noreferrer">${I.chat}تواصل معنا</a>` : ""}</div>`;
+}
+if (stmtToken) { runStatement(stmtToken); return; }
+const retToken = new URLSearchParams(location.search).get("r");
+if (retToken) { runCatalog(retToken, true); return; }
+
 if (catToken) { runCatalog(catToken); return; }
 
 /* ---------- auth ---------- */
@@ -3459,7 +4585,33 @@ document.addEventListener("click", async e => {
     case "res-pay": paymentForm(null, S.id); break;
     case "edit-reseller": { const r = resById(S.id); if (r) resellerForm(r); break; }
     case "edit-payment": { const p = S.payments.find(x => x.id === el.dataset.id); if (p) paymentForm(p); break; }
-    case "edit-sale": { const s = S.sales.find(x => x.id === el.dataset.id); if (s) saleForm(s); break; }
+    case "edit-sale": { const s = S.sales.find(x => x.id === el.dataset.id); if (s) (isBottleSale(s) ? saleForm(s) : sampleSaleForm(s)); break; }
+    case "open-samples": go("samples"); break;
+    case "go-partners": go("partners"); break;
+    case "go-report": S.rperiod = S.rperiod || "m"; go("report"); break;
+    case "rperiod": S.rperiod = el.dataset.v; renderReport(); break;
+    case "rmonth": { const n = shiftMonth(S.rmonth || thisMonth(), +el.dataset.d); if (n <= thisMonth()) { S.rmonth = n; renderReport(); } break; }
+    case "report-copy": copyText(reportText(reportData()), el); break;
+    case "add-bundle": bundleForm({}); break;
+    case "ret-newtoken": if (arm(el, "اضغط مرة أخرى للتأكيد: سيتوقف الرابط الحالي")) { try { await q(sb.from("app_settings").update({ retail_token: newToken() }).eq("id", 1)); toast("تم إنشاء رابط جديد"); await reload(); $("#v-settings").dataset.built = ""; renderSettings(); } catch (x) { toast(errMsg(x)); } } break;
+    case "go-audit": go("audit"); break;
+    case "setup-partners": partnersSetupForm(); break;
+    case "edit-partner": { const p = S.partners.find(x => x.id === el.dataset.id); if (p) partnerForm(p); break; }
+    case "partner-move": partnerMoveForm(null, { partnerId: el.dataset.id, kind: el.dataset.k }); break;
+    case "edit-pmove": { const m = S.pMoves.find(x => x.id === el.dataset.id); if (m) partnerMoveForm(m); break; }
+    case "res-statement": { const r = resById(S.id); if (r) statementSheet(r, false); break; }
+    case "res-statement-new": { const r = resById(S.id); if (r && arm(el, "اضغط مرة أخرى: سيتوقف الرابط السابق")) { closeSheet(); setTimeout(() => statementSheet(resById(S.id) || r, true), 260); } break; }
+    case "sell-sample": sampleSaleForm(null, { type: el.dataset.t || "sample" }); break;
+    case "sell-sample-perfume": sampleSaleForm(null, { type: "sample", perfumeId: S.id }); break;
+    case "open-bottle": bottleForm(null); break;
+    case "open-bottle-perfume": bottleForm(null, { perfumeId: S.id }); break;
+    case "edit-bottle": { const b = S.bottles.find(x => x.id === el.dataset.id); if (b) bottleForm(b); break; }
+    case "add-supply": supplyForm(null); break;
+    case "edit-supply": { const x = supplyById(el.dataset.id); if (x) supplyForm(x); break; }
+    case "receive-supply": { const x = supplyById(el.dataset.id); if (x) supplyReceiveForm(x); break; }
+    case "add-box": boxForm(null); break;
+    case "edit-box": { const x = boxById(el.dataset.id); if (x) boxForm(x); break; }
+    case "sample-prices": { const p = perfById(el.dataset.id); if (p) samplePricesForm(p); break; }
     case "edit-perfume": { const p = curP(); if (p) perfumeForm(p); break; }
     case "link-supplier": { const p = curP(); if (p) linkForm(p, null); break; }
     case "edit-link": { const p = curP(); if (p) linkForm(p, el.dataset.sid); break; }
@@ -3470,6 +4622,12 @@ document.addEventListener("click", async e => {
     case "rate": rateSupplier(el.dataset.field, +el.dataset.v); break;
     case "stock-adj": { const p = curP(); if (!p) break; el.disabled = true; try { await q(sb.rpc("adjust_stock", { p_id: p.id, p_delta: +el.dataset.d })); await reload(); } catch (x) { toast(errMsg(x)); } el.disabled = false; break; }
     case "stock-add": { const p = curP(); if (p) stockForm(p, "add"); break; }
+    case "add-purchase": purchaseForm(null); break;
+    case "add-purchase-perfume": { const p = curP(); if (p) purchaseForm(null, { perfumeId: p.id }); break; }
+    case "add-purchase-supplier": purchaseForm(null, { supplierId: S.id }); break;
+    case "add-loss": { const p = curP(); lossForm(null, { perfumeId: p ? p.id : "" }); break; }
+    case "stocktake": stocktakeForm(); break;
+    case "edit-move": { const m = S.moves.find(x => x.id === el.dataset.id); if (!m) break; if (m.kind === "purchase") purchaseForm(m); else if (isLoss(m)) lossForm(m); else toast("حركة الجرد والتصحيح لا تُعدَّل. لتصحيح الكمية استخدم «تصحيح الكمية» أو «الجرد»."); break; }
     case "stock-set": { const p = curP(); if (p) stockForm(p, "set"); break; }
     case "calc-apply": {
       const col = el.dataset.chan === "reseller" ? "reseller_price" : "sell_price";
@@ -3489,8 +4647,8 @@ document.addEventListener("click", async e => {
     case "mem-set": setMember(el.dataset.uid, { status: el.dataset.status }, el.dataset.status === "active" ? "تم قبول الحساب" : "تم رفض الطلب"); break;
     case "mem-role": setMember(el.dataset.uid, { role: el.dataset.role }, el.dataset.role === "owner" ? "تم منح صلاحية المدير" : "تم إلغاء صلاحية المدير"); break;
     case "mem-stop": if (arm(el, "اضغط مرة أخرى للتأكيد")) setMember(el.dataset.uid, { status: "removed", role: "member" }, "تم إيقاف الحساب"); break;
-    case "del-perfume": case "del-link": case "del-supplier": case "del-shop": case "del-item": case "del-sale": case "del-reseller": case "del-payment": case "del-supnote": case "del-note": {
-      const labels = { "del-perfume": "اضغط مرة أخرى لتأكيد حذف العطر", "del-supplier": "اضغط مرة أخرى لتأكيد حذف المورد", "del-shop": "اضغط مرة أخرى: سيُحذف المتجر وجميع أسعاره", "del-reseller": "اضغط مرة أخرى لتأكيد حذف الموزع", "del-note": "اضغط مرة أخرى: تُحذف من القائمة وتبقى في العطور المسجلة عليها" };
+    case "del-perfume": case "del-link": case "del-supplier": case "del-shop": case "del-item": case "del-sale": case "del-reseller": case "del-payment": case "del-supnote": case "del-note": case "del-move": case "del-bottle": case "del-supply": case "del-box": case "del-partner": case "del-pmove": {
+      const labels = { "del-perfume": "اضغط مرة أخرى لتأكيد حذف العطر", "del-supplier": "اضغط مرة أخرى لتأكيد حذف المورد", "del-shop": "اضغط مرة أخرى: سيُحذف المتجر وجميع أسعاره", "del-reseller": "اضغط مرة أخرى لتأكيد حذف الموزع", "del-note": "اضغط مرة أخرى: تُحذف من القائمة وتبقى في العطور المسجلة عليها", "del-bottle": "اضغط مرة أخرى لتأكيد حذف الزجاجة", "del-box": "اضغط مرة أخرى لتأكيد حذف البوكس", "del-partner": "اضغط مرة أخرى: يُحذف الشريك وسجله" };
       if (arm(el, labels[a] || "اضغط مرة أخرى للتأكيد") && delHandler) delHandler();
       break;
     }
